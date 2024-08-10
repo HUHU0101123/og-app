@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 
 # Load the Excel file
-file_name = "DATOSDEPRUEBA.xlsx"  # Replace with your actual file name
+file_name = "https://raw.githubusercontent.com/HUHU0101123/og-app/main/DATOSDEPRUEBA.xlsx"  # Replace with your actual file name
 data = pd.read_excel(file_name)
 
 # Strip any extra whitespace from column names
