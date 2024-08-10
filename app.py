@@ -53,6 +53,35 @@ fig_sales_trends = px.line(sales_trends, x='Month', y=['Total', 'Ganancia'],
 fig_sales_trends.update_layout(legend_title_text='Metrics')
 st.plotly_chart(fig_sales_trends)
 
+# Sales by Year, Month, and Week
+st.subheader('Sales Breakdown by Period')
+
+# Aggregating data by year, month, and week
+sales_by_year = filtered_df.resample('Y', on='Fecha').agg({'Total': 'sum', 'ID': 'count'}).reset_index()
+sales_by_month = filtered_df.resample('M', on='Fecha').agg({'Total': 'sum', 'ID': 'count'}).reset_index()
+sales_by_week = filtered_df.resample('W', on='Fecha').agg({'Total': 'sum', 'ID': 'count'}).reset_index()
+
+# Display total sales and orders for the year
+yearly_sales = sales_by_year.tail(1).iloc[0]
+st.subheader(f'Sales for the Year {yearly_sales["Fecha"].year}')
+col1, col2 = st.columns(2)
+col1.metric("Total Sales", f"{yearly_sales['Total']:,.0f} CLP")
+col2.metric("Total Orders", f"{yearly_sales['ID']:,}")
+
+# Display total sales and orders for the current month
+monthly_sales = sales_by_month.tail(1).iloc[0]
+st.subheader(f'Sales for the Month {monthly_sales["Fecha"].strftime("%B %Y")}')
+col1, col2 = st.columns(2)
+col1.metric("Total Sales", f"{monthly_sales['Total']:,.0f} CLP")
+col2.metric("Total Orders", f"{monthly_sales['ID']:,}")
+
+# Display total sales and orders for the current week
+weekly_sales = sales_by_week.tail(1).iloc[0]
+st.subheader(f'Sales for the Week of {weekly_sales["Fecha"].strftime("%d %b %Y")}')
+col1, col2 = st.columns(2)
+col1.metric("Total Sales", f"{weekly_sales['Total']:,.0f} CLP")
+col2.metric("Total Orders", f"{weekly_sales['ID']:,}")
+
 # Product Performance
 st.subheader('Product Performance Overview')
 product_performance = filtered_df.groupby(['Nombre del Producto', 'SKU del Producto']).agg({
