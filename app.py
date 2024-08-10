@@ -23,7 +23,7 @@ date_range = [pd.to_datetime(date) for date in date_range]
 filtered_df = df[(df['Fecha'] >= date_range[0]) & (df['Fecha'] <= date_range[1])]
 
 # Summary Metrics
-st.subheader('Métricas de Resumen Antes de Impuestos')
+st.subheader('Antes de Impuestos')
 
 # Calculate metrics
 total_revenue = filtered_df['Total'].sum()
@@ -48,7 +48,7 @@ tax_rate = 0.19
 total_profit_after_tax = total_profit * (1 - tax_rate)
 
 # Additional metric for profit after tax
-st.subheader('Métricas de Resumen Después de Impuestos y Descuentos')
+st.subheader('Después de Impuestos y Descuentos')
 st.metric("Beneficio Después de Impuestos (19%)", f"{total_profit_after_tax:,.0f} CLP")
 
 # Sales Trends
