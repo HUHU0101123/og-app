@@ -2,9 +2,9 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 
-# Load the Excel file
-file_name = "https://raw.githubusercontent.com/HUHU0101123/og-app/main/datasource.xlsx"  
-data = pd.read_excel(file_name)
+# Load the Excel file from GitHub
+url = "https://raw.githubusercontent.com/HUHU0101123/og-app/main/datasource.xlsx"
+data = pd.read_excel(url)
 
 # Strip any extra whitespace from column names
 data.columns = data.columns.str.strip()
