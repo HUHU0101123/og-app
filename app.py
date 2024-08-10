@@ -16,6 +16,10 @@ df['Fecha'] = pd.to_datetime(df['Fecha'])
 # Dashboard Title
 st.title('Dashboard de Análisis de Ventas')
 
+# Add space between title and the next part
+st.write("")
+st.write("")
+
 # Interactive Filters
 st.sidebar.subheader('Filtros Interactivos')
 date_range = st.sidebar.date_input('Selecciona el Rango de Fechas', [df['Fecha'].min().date(), df['Fecha'].max().date()])
@@ -23,7 +27,7 @@ date_range = [pd.to_datetime(date) for date in date_range]
 filtered_df = df[(df['Fecha'] >= date_range[0]) & (df['Fecha'] <= date_range[1])]
 
 # Summary Metrics
-st.subheader('Antes de Impuestos')
+st.subheader('Métricas de Resumen Antes de Impuestos')
 
 # Calculate metrics
 total_revenue = filtered_df['Total'].sum()
@@ -41,14 +45,14 @@ col2.metric(label="Beneficio Total", value=f"{total_profit:,.0f} CLP", delta=Non
 col3.metric(label="Total de Pedidos", value=f"{total_orders:,}", delta=None)
 col4.metric(label="Valor Promedio por Pedido", value=f"{average_order_value:,.0f} CLP", delta=None)
 col5.metric(label="Beneficio Promedio por Pedido", value=f"{average_profit_per_order:,.0f} CLP", delta=None)
-col6.metric(label="Margen de Beneficio Total", value=f"{overall_profit_margin:.2f} %", delta=None)
+col6.metric(label="Margen de Beneficio Total antes de impuestos", value=f"{overall_profit_margin:.2f} %", delta=None)
 
 # Calculate profit after tax
 tax_rate = 0.19
 total_profit_after_tax = total_profit * (1 - tax_rate)
 
 # Additional metric for profit after tax
-st.subheader('Después de Impuestos y Descuentos')
+st.subheader('Métricas de Resumen Después de Impuestos y Descuentos')
 st.metric("Beneficio Después de Impuestos (19%)", f"{total_profit_after_tax:,.0f} CLP")
 
 # Sales Trends
@@ -163,12 +167,11 @@ st.plotly_chart(fig_shipping_status)
 
 # Average Shipping Cost
 average_shipping_cost = filtered_df['Envio'].mean()
-st.subheader('Costo Promedio de Envío')
 st.metric("Costo Promedio de Envío", f"{average_shipping_cost:,.0f} CLP")
 
 # Detailed Analysis by Product
 st.subheader('Análisis Detallado por Producto')
-producto_seleccionado = st.selectbox('Selecciona un Producto:', df['Nombre del Producto'].unique())
+producto_seleccionado = st.selectbox('Selecciona un Producto:', filtered_df['Nombre del Producto'].unique())
 producto_df = filtered_df[filtered_df['Nombre del Producto'] == producto_seleccionado]
 
 col1, col2, col3 = st.columns(3)
