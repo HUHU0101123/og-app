@@ -117,14 +117,16 @@ else:
     product_performance['Rentabilidad (%)'] = (product_performance['Ganancia'] / product_performance['Total']) * 100
 
     if not product_performance.empty:
-        # Top-Selling Products Bar Chart
+        # Top-Selling Products Bar Chart with SKU
         fig_top_selling_products = px.bar(product_performance.sort_values('Cantidad de Productos', ascending=False),
                                           x='Nombre del Producto', y='Cantidad de Productos',
                                           color='Tipo de Venta',
                                           title='Productos Más Vendidos',
                                           labels={'Cantidad de Productos': 'Cantidad Vendida'},
-                                          template='plotly_dark')
+                                          template='plotly_dark',
+                                          text='SKU del Producto')  # Add SKU to bars
         fig_top_selling_products.update_layout(xaxis_title='Nombre del Producto', yaxis_title='Cantidad Vendida')
+        fig_top_selling_products.update_traces(texttemplate='%{text}', textposition='outside')
         st.plotly_chart(fig_top_selling_products)
 
         # Product Profitability
