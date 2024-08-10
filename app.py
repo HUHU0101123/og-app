@@ -33,6 +33,10 @@ average_order_value = total_revenue / total_orders if total_orders > 0 else 0
 average_profit_per_order = total_profit / total_orders if total_orders > 0 else 0
 overall_profit_margin = (total_profit / total_revenue) * 100 if total_revenue > 0 else 0
 
+# Calculate profit after tax
+tax_rate = 0.19
+total_profit_after_tax = total_profit * (1 - tax_rate)
+
 # Display metrics using Streamlit's built-in functions
 col1, col2, col3, col4, col5, col6 = st.columns(6)
 
@@ -41,7 +45,11 @@ col2.metric(label="Beneficio Total", value=f"{total_profit:,.0f} CLP", delta=Non
 col3.metric(label="Total de Pedidos", value=f"{total_orders:,}", delta=None)
 col4.metric(label="Valor Promedio por Pedido", value=f"{average_order_value:,.0f} CLP", delta=None)
 col5.metric(label="Beneficio Promedio por Pedido", value=f"{average_profit_per_order:,.0f} CLP", delta=None)
-col6.metric(label="Margen de Beneficio Total", value=f"{overall_profit_margin:.2f} %", delta=None)
+col6.metric(label="Margen de Beneficio Total antes de impuestos", value=f"{overall_profit_margin:.2f} %", delta=None)
+
+# Additional metric for profit after tax
+st.subheader('Beneficio Después de Impuestos')
+st.metric("Beneficio Después de Impuestos (19%)", f"{total_profit_after_tax:,.0f} CLP")
 
 # Sales Trends
 st.subheader('Tendencias de Ventas')
