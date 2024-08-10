@@ -60,14 +60,14 @@ else:
     col1, col2, col3, col4, col5, col6 = st.columns(6)
 
     col1.metric(label="Ventas", value=f"{total_revenue:,.0f} CLP", delta=None)
-    col2.metric(label="Beneficio Total", value=f"{total_profit:,.0f} CLP", delta=None)
+    col2.metric(label="Ganancias", value=f"{total_profit:,.0f} CLP", delta=None)
     col3.metric(label="Total de Pedidos", value=f"{total_orders:,}", delta=None)
     col4.metric(label="Valor Promedio por Pedido", value=f"{average_order_value:,.0f} CLP", delta=None)
-    col5.metric(label="Beneficio Promedio por Pedido", value=f"{average_profit_per_order:,.0f} CLP", delta=None)
-    col6.metric(label="Margen de Beneficio Total", value=f"{overall_profit_margin:.2f} %", delta=None)
+    col5.metric(label="Ganancia Promedio por Pedido", value=f"{average_profit_per_order:,.0f} CLP", delta=None)
+    col6.metric(label="Margen", value=f"{overall_profit_margin:.2f} %", delta=None)
 
     # Display Total Discounts
-    st.metric("Total en Descuentos", f"{total_descuentos:,.0f} CLP")
+    st.metric("Descuentos Aplicados", f"{total_descuentos:,.0f} CLP")
 
     # Calculate profit after tax
     tax_rate = 0.19
@@ -75,7 +75,7 @@ else:
 
     # Additional metric for profit after tax
     st.subheader('Después de Impuestos')
-    st.metric("Beneficio Después de Impuestos (19%)", f"{total_profit_after_tax:,.0f} CLP")
+    st.metric("Ganancias Después de Impuestos (19%)", f"{total_profit_after_tax:,.0f} CLP")
 
     # Add space before Sales Trends section
     st.write("")
