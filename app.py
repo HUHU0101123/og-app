@@ -33,27 +33,57 @@ average_order_value = total_revenue / total_orders if total_orders > 0 else 0
 average_profit_per_order = total_profit / total_orders if total_orders > 0 else 0
 overall_profit_margin = (total_profit / total_revenue) * 100 if total_revenue > 0 else 0
 
-# Using columns for a better layout
-col1, col2, col3 = st.columns([1, 1, 1])
-with col1:
-    st.metric("Total Revenue", f"{total_revenue:,.0f} CLP")
-with col2:
-    st.metric("Total Profit", f"{total_profit:,.0f} CLP")
-with col3:
-    st.metric("Total Orders", f"{total_orders:,}")
-
-col1, col2 = st.columns([1, 1])
-with col1:
-    st.metric("Average Order Value", f"{average_order_value:,.0f} CLP")
-with col2:
-    st.metric("Average Profit per Order", f"{average_profit_per_order:,.0f} CLP")
-
-# Overall Profit Margin
-st.markdown(f"""
-    <div style="display: flex; justify-content: center; margin-top: 20px;">
-        <div style="text-align: center;">
-            <h3 style="font-size: 20px; margin-bottom: 5px;">Overall Profit Margin</h3>
-            <p style="font-size: 28px; font-weight: bold;">{overall_profit_margin:.2f} %</p>
+# Display metrics in a single row with consistent spacing
+st.markdown("""
+    <style>
+    .metric-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-around;
+        gap: 10px;
+    }
+    .metric-box {
+        flex: 1;
+        min-width: 150px;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        background-color: #f5f5f5;
+    }
+    .metric-box h3 {
+        margin: 0;
+        font-size: 16px;
+    }
+    .metric-box p {
+        margin: 0;
+        font-size: 20px;
+        font-weight: bold;
+    }
+    </style>
+    <div class="metric-container">
+        <div class="metric-box">
+            <h3>Total Revenue</h3>
+            <p>{total_revenue:,.0f} CLP</p>
+        </div>
+        <div class="metric-box">
+            <h3>Total Profit</h3>
+            <p>{total_profit:,.0f} CLP</p>
+        </div>
+        <div class="metric-box">
+            <h3>Total Orders</h3>
+            <p>{total_orders:,}</p>
+        </div>
+        <div class="metric-box">
+            <h3>Average Order Value</h3>
+            <p>{average_order_value:,.0f} CLP</p>
+        </div>
+        <div class="metric-box">
+            <h3>Average Profit per Order</h3>
+            <p>{average_profit_per_order:,.0f} CLP</p>
+        </div>
+        <div class="metric-box">
+            <h3>Overall Profit Margin</h3>
+            <p>{overall_profit_margin:.2f} %</p>
         </div>
     </div>
 """, unsafe_allow_html=True)
@@ -160,20 +190,6 @@ shipping_status.columns = ['Shipping Status', 'Count']
 fig_shipping_status = px.pie(shipping_status, names='Shipping Status', values='Count',
                              title='Shipping Status Distribution')
 st.plotly_chart(fig_shipping_status)
-
-# Average Shipping Cost
-average_shipping_cost = filtered_df['Envio'].mean()
-st.metric("Average Shipping Cost", f"{average_shipping_cost:,.0f} CLP")
-
-# Geographic Analysis
-st.subheader('Geographic Analysis')
-# Sales by City
-sales_by_city = filtered_df.groupby('Ciudad de Envio').agg({'Total': 'sum'}).reset_index()
-fig_sales_by_city = px.bar(sales_by_city, x='Ciudad de Envio', y='Total',
-                          title='Sales by City',
-                          labels={'Total': 'Sales Amount'})
-fig_sales_by_city.update_layout(xaxis_title='City', yaxis_title='Sales Amount')
-st.plotly_chart(fig_sales_by_city)
 
 # Detailed Analysis by Product
 st.subheader('Detailed Analysis by Product')
