@@ -107,7 +107,29 @@ else:
                                    title='Ventas vs Ganancias Después de Impuestos',
                                    template='plotly_dark')
         fig_sales_trends.for_each_trace(lambda t: t.update(name='Ventas' if t.name == 'Total' else 'Ganancias Después de Impuestos'))
-        fig_sales_trends.update_layout(legend_title_text='Métricas')
+        fig_sales_trends.update_layout(showlegend=False)
+        fig_sales_trends.update_layout(
+            annotations=[
+                dict(
+                    x=sales_trends['Month'].iloc[-1],  # Posición X para la anotación
+                    y=sales_trends['Total'].iloc[-1],  # Posición Y para la anotación
+                    text='Ventas',
+                    showarrow=True,
+                    arrowhead=2,
+                    ax=0,
+                    ay=-40
+                ),
+                dict(
+                    x=sales_trends['Month'].iloc[-1],  # Posición X para la anotación
+                    y=sales_trends['Ganancia Después de Impuestos'].iloc[-1],  # Posición Y para la anotación
+                    text='Ganancias Después de Impuestos',
+                    showarrow=True,
+                    arrowhead=2,
+                    ax=0,
+                    ay=-40
+                )
+            ]
+        )
         st.plotly_chart(fig_sales_trends)
     else:
         st.write("No hay datos suficientes para mostrar tendencias de ventas.")
