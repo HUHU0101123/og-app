@@ -193,50 +193,6 @@ else:
         except Exception as e:
             st.error(f'Error al analizar el desempeño de productos: {str(e)}')
 
-        # Información sobre Métodos de Pago y Descuentos
-        st.subheader('Análisis de Métodos de Pago y Descuentos')
-
-        # Desglose de métodos de pago
-        payment_methods = filtered_df['Nombre de Pago'].value_counts().reset_index()
-        payment_methods.columns = ['Método de Pago', 'Cantidad']
-        fig_payment_methods = px.pie(payment_methods, names='Método de Pago', values='Cantidad',
-                                    title='Desglose de Ventas por Método de Pago',
-                                    template='plotly_dark')
-        st.plotly_chart(fig_payment_methods)
-
-        # Descuentos Aplicados
-        discounts = filtered_df.groupby('Cupones').agg({'Subtotal': 'sum', 'Total': 'sum'}).reset_index()
-        discounts.columns = ['Cupón', 'Subtotal', 'Total']
-        fig_discounts = px.bar(discounts, x='Cupón', y=['Subtotal', 'Total'],
-                              title='Impacto de Descuentos en Ventas',
-                              labels={'value': 'Monto', 'Cupón': 'Cupón'},
-                              template='plotly_dark')
-        fig_discounts.update_layout(barmode='group')
-        st.plotly_chart(fig_discounts)
-
-        # Información sobre Envíos
-        st.subheader('Información sobre Envíos')
-
-        # Distribución de métodos de envío
-        shipping_methods = filtered_df['Nombre del metodo de envio'].value_counts().reset_index()
-        shipping_methods.columns = ['Método de Envío', 'Cantidad']
-        fig_shipping_methods = px.pie(shipping_methods, names='Método de Envío', values='Cantidad',
-                                      title='Distribución de Pedidos por Método de Envío',
-                                      template='plotly_dark')
-        st.plotly_chart(fig_shipping_methods)
-
-        # Estado de los envíos
-        shipping_status = filtered_df['Estado del Envio'].value_counts().reset_index()
-        shipping_status.columns = ['Estado del Envío', 'Cantidad']
-        fig_shipping_status = px.pie(shipping_status, names='Estado del Envío', values='Cantidad',
-                                     title='Estado de los Envíos',
-                                     template='plotly_dark')
-        st.plotly_chart(fig_shipping_status)
-
-        # Costo Promedio de Envío
-        average_shipping_cost = filtered_df['Envio'].mean()
-        st.metric("Costo Promedio de Envío", f"{average_shipping_cost:,.0f} CLP")
-
         # Análisis Detallado por Producto
         st.subheader('Análisis Detallado por Producto')
         producto_seleccionado = st.selectbox('Selecciona un Producto:', filtered_df['Nombre del Producto'].unique())
