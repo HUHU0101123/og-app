@@ -108,18 +108,18 @@ else:
                                    template='plotly_dark')
         fig_sales_trends.for_each_trace(lambda t: t.update(name='Ventas' if t.name == 'Total' else 'Ganancias Después de Impuestos'))
 
-    # Calcular la posición media para cada curva
-        midpoints = {
-            'Ventas': sales_trends.loc[sales_trends['Total'] == sales_trends['Total'].max() // 2, 'Month'].values[0],
-            'Ganancias Después de Impuestos': sales_trends.loc[sales_trends['Ganancia Después de Impuestos'] == sales_trends['Ganancia Después de Impuestos'].max() // 2, 'Month'].values[0]
-        }
-    
+        # Calcular el punto medio en el eje x
+        num_points = len(sales_trends['Month'])
+        mid_index = num_points // 2
+        mid_month = sales_trends['Month'].iloc[mid_index]
+        
+        # Añadir anotaciones en el medio de las curvas
         fig_sales_trends.update_layout(showlegend=False)
         fig_sales_trends.update_layout(
             annotations=[
                 dict(
-                    x=midpoints['Ventas'],  # Posición X para la anotación
-                    y=sales_trends[sales_trends['Month'] == midpoints['Ventas']]['Total'].mean(),  # Posición Y para la anotación
+                    x=mid_month,  # Posición X para la anotación
+                    y=sales_trends[sales_trends['Month'] == mid_month]['Total'].mean(),  # Posición Y para la anotación
                     text='Ventas',
                     showarrow=True,
                     arrowhead=2,
@@ -127,8 +127,8 @@ else:
                     ay=-40
                 ),
                 dict(
-                    x=midpoints['Ganancias Después de Impuestos'],  # Posición X para la anotación
-                    y=sales_trends[sales_trends['Month'] == midpoints['Ganancias Después de Impuestos']]['Ganancia Después de Impuestos'].mean(),  # Posición Y para la anotación
+                    x=mid_month,  # Posición X para la anotación
+                    y=sales_trends[sales_trends['Month'] == mid_month]['Ganancia Después de Impuestos'].mean(),  # Posición Y para la anotación
                     text='Ganancias Después de Impuestos',
                     showarrow=True,
                     arrowhead=2,
