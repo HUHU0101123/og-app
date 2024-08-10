@@ -29,6 +29,10 @@ def format_chilean_number(number, decimal_places=0):
     formatted = "{:,.{prec}f}".format(number, prec=decimal_places).replace(',', 'X').replace('.', ',').replace('X', '.')
     return formatted
 
+# Función para formatear porcentajes
+def format_percentage(percentage):
+    return "{:.2f} %".format(percentage).replace('.', ',')
+
 # Configuración del diseño del panel lateral
 st.sidebar.subheader('Filtros Interactivos')
 
@@ -78,7 +82,7 @@ else:
         col3.metric(label="Total de Pedidos", value=f"{format_chilean_number(total_orders, 0)}")
         col4.metric(label="Valor Promedio por Pedido", value=f"{format_chilean_number(average_order_value, 0)} CLP")
         col5.metric(label="Ganancia Promedio por Pedido", value=f"{format_chilean_number(average_profit_per_order, 0)} CLP")
-        col6.metric(label="Margen", value=f"{overall_profit_margin:.2f} %")
+        col6.metric(label="Margen", value=format_percentage(overall_profit_margin))
 
         # Mostrar total de descuentos
         st.metric("Descuentos Aplicados", f"{format_chilean_number(total_descuentos, 0)} CLP")
@@ -94,7 +98,7 @@ else:
         # Métrica adicional para ganancia después de impuestos
         st.subheader('Después de Impuestos')
         st.metric("Ganancias Después de Impuestos (19%)", f"{format_chilean_number(total_profit_after_tax, 0)} CLP")
-        st.metric("Margen Después de Impuestos", f"{overall_margin_after_tax:.2f} %")
+        st.metric("Margen Después de Impuestos", format_percentage(overall_margin_after_tax))
 
         # Espacio antes de la sección de Ventas
         st.write("")
@@ -180,10 +184,9 @@ else:
                                                  color='SKU del Producto',
                                                  title='Productos Más Vendidos por Categoría',
                                                  labels={'Cantidad de Productos': 'Cantidad Vendida'},
-                                                 template='plotly_dark',
-                                                 color_discrete_sequence=px.colors.qualitative.Plotly)
-                
-                fig_top_selling_products.update_layout(barmode='stack', xaxis_title='Categoría', yaxis_title='Cantidad Vendida')
+                                                 template='plotly_dark')
+                fig_top_selling_products.update_layout(xaxis_title='Categoría', yaxis_title='Cantidad Vendida')
+
                 st.plotly_chart(fig_top_selling_products)
 
                 # Crear gráfico de dispersión para rentabilidad de productos
