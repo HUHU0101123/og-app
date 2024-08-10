@@ -34,23 +34,25 @@ average_profit_per_order = total_profit / total_orders if total_orders > 0 else 
 overall_profit_margin = (total_profit / total_revenue) * 100 if total_revenue > 0 else 0
 
 # Using columns for a better layout
-col1, col2, col3, col4, col5 = st.columns(5)
+col1, col2, col3 = st.columns(3)
 with col1:
     st.metric("Total Revenue", f"{total_revenue:,.0f} CLP")
 with col2:
     st.metric("Total Profit", f"{total_profit:,.0f} CLP")
 with col3:
     st.metric("Total Orders", f"{total_orders:,}")
-with col4:
+
+col1, col2 = st.columns(2)
+with col1:
     st.metric("Average Order Value", f"{average_order_value:,.0f} CLP")
-with col5:
+with col2:
     st.metric("Average Profit per Order", f"{average_profit_per_order:,.0f} CLP")
 
 # Overall Profit Margin with more compact layout
 st.markdown(f"""
 <div style="display: flex; justify-content: center; margin-top: 10px;">
     <div style="text-align: center;">
-        <h3 style="font-size: 16px;">Overall Profit Margin</h3>
+        <h3 style="font-size: 18px; margin-bottom: 5px;">Overall Profit Margin</h3>
         <p style="font-size: 24px; font-weight: bold;">{overall_profit_margin:.2f} %</p>
     </div>
 </div>
@@ -173,20 +175,21 @@ fig_sales_by_city = px.bar(sales_by_city, x='Ciudad de Envio', y='Total',
 fig_sales_by_city.update_layout(xaxis_title='City', yaxis_title='Sales Amount')
 st.plotly_chart(fig_sales_by_city)
 
-# Margin Analysis
-st.subheader('Margin Analysis')
-# Overall Margin Analysis
-overall_margin = (filtered_df['Ganancia'].sum() / filtered_df['Total'].sum()) * 100
-st.metric("Overall Margin", f"{overall_margin:.2f} %")
+# Detailed Analysis by Product
+st.subheader('Detailed Analysis by Product')
+producto_seleccionado = st.selectbox('Select a Product:', df['Nombre del Producto'].unique())
+producto_df = df[df['Nombre del Producto'] == producto_seleccionado]
 
-# Product Margin Analysis
-product_margin_analysis = filtered_df.groupby('Nombre del Producto').agg({
-    'Total': 'sum',
-    'Ganancia': 'sum'
-}).reset_index()
-product_margin_analysis['Margen (%)'] = (product_margin_analysis['Ganancia'] / product_margin_analysis['Total']) * 100
-fig_product_margin = px.bar(product_margin_analysis, x='Nombre del Producto', y='Margen (%)',
-                            title='Margin Analysis by Product',
-                            labels={'Margen (%)': 'Margin (%)'})
-fig_product_margin.update_layout(xaxis_title='Product Name', yaxis_title='Margin (%)')
-st.plotly_chart(fig_product_margin)
+# Detailed Metrics
+col1, col2, col3 = st.columns(3)
+with col1:
+    st.metric("Total Sold", f"{producto_df['Total'].sum():,.0f} CLP")
+with col2:
+    st.metric("Quantity Sold", f"{producto_df['Cantidad de Productos'].sum():,.0f}")
+with col3:
+    st.metric("Total Profit", f"{producto_df['Ganancia'].sum():,.0f} CLP")
+
+# Sales of Selected Product Over Time
+fig_producto = px.line(producto_df, x='Fecha', y='Total',
+                      title=f'Sales of {producto_seleccionado} Over Time')
+st.plotly_chart(fig_producto)
