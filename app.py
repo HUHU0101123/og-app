@@ -1,41 +1,73 @@
 import streamlit as st
 import pandas as pd
+import plotly.express as px
 
 # Load the Excel file
-file_name = "https://raw.githubusercontent.com/HUHU0101123/og-app/main/datasource.xlsx"  # Replace with your actual file name
+file_name = "https://raw.githubusercontent.com/HUHU0101123/og-app/main/datasource.xlsx"  
 data = pd.read_excel(file_name)
 
 # Strip any extra whitespace from column names
 data.columns = data.columns.str.strip()
 
-# Convert 'Date' column to datetime
-data['Date'] = pd.to_datetime(data['Date'])
+# Título del dashboard
+st.title('Análisis de Ventas por Producto')
 
-# Streamlit app title
-st.title("Sales Dashboard")
+# Convertir la columna 'Fecha' a datetime si no lo está ya
+data['Fecha'] = pd.to_datetime(data['Fecha'])
 
-# Display the DataFrame
-st.header("Sales Data")
-st.write(data)
+# Agrupar por SKU y Nombre del Producto
+ventas_por_producto = data.groupby(['SKU del Producto', 'Nombre del Producto']).agg({
+    'Cantidad de Productos': 'sum',
+    'Total': 'sum',
+    'Ganancia': 'sum'
+}).reset_index()
 
-# Line chart of total sales over time
-st.subheader("Total Sales Over Time")
-# Assuming 'Sales' is the total sales column
-st.line_chart(data.set_index('Date')['Sales'])
+# Calcular el precio promedio por producto
+ventas_por_producto['Precio Promedio'] = ventas_por_producto['Total'] / ventas_por_producto['Cantidad de Productos']
 
-# Bar chart of units sold by product
-st.subheader("Units Sold by Product")
-# Assuming 'Quantity' is the units sold column
-st.bar_chart(data.groupby('Product')['Quantity'].sum())
+# Ordenar por Total de ventas descendente
+ventas_por_producto = ventas_por_producto.sort_values('Total', ascending=False)
 
-# Sidebar for product selection
-product = st.sidebar.selectbox("Select a Product", data['Product'].unique())
-filtered_data = data[data['Product'] == product]
+# Mostrar tabla de ventas por producto
+st.subheader('Tabla de Ventas por Producto')
+st.dataframe(ventas_por_producto)
 
-# Display filtered data
-st.subheader(f"Data for {product}")
-st.write(filtered_data)
+# Gráfico de barras de ventas totales por producto
+st.subheader('Ventas Totales por Producto')
+fig_ventas = px.bar(ventas_por_producto, x='Nombre del Producto', y='Total', 
+                    text='Total', color='SKU del Producto')
+fig_ventas.update_traces(texttemplate='%{text:.2s}', textposition='outside')
+fig_ventas.update_layout(uniformtext_minsize=8, uniformtext_mode='hide')
+st.plotly_chart(fig_ventas)
 
-# Bar chart of total sales by selected product
-st.subheader(f"Total Sales for {product}")
-st.bar_chart(filtered_data.groupby('Date')['Sales'].sum())
+# Gráfico de dispersión de Cantidad vs Ganancia
+st.subheader('Cantidad vs Ganancia por Producto')
+fig_scatter = px.scatter(ventas_por_producto, x='Cantidad de Productos', y='Ganancia', 
+                         size='Total', color='SKU del Producto', hover_name='Nombre del Producto', 
+                         log_x=True, size_max=60)
+st.plotly_chart(fig_scatter)
+
+# Análisis de tendencias de ventas en el tiempo
+ventas_diarias = data.groupby('Fecha').agg({
+    'Total': 'sum',
+    'Cantidad de Productos': 'sum'
+}).reset_index()
+
+st.subheader('Tendencia de Ventas en el Tiempo')
+fig_trend = px.line(ventas_diarias, x='Fecha', y='Total', title='Ventas Diarias')
+st.plotly_chart(fig_trend)
+
+# Filtro para análisis detallado por producto
+st.subheader('Análisis Detallado por Producto')
+producto_seleccionado = st.selectbox('Selecciona un producto:', data['Nombre del Producto'].unique())
+
+producto_df = data[data['Nombre del Producto'] == producto_seleccionado]
+
+col1, col2, col3 = st.columns(3)
+col1.metric("Total Vendido", f"{producto_df['Total'].sum():,.0f}")
+col2.metric("Cantidad Vendida", f"{producto_df['Cantidad de Productos'].sum():,.0f}")
+col3.metric("Ganancia Total", f"{producto_df['Ganancia'].sum():,.0f}")
+
+# Gráfico de ventas del producto seleccionado en el tiempo
+fig_producto = px.line(producto_df, x='Fecha', y='Total', title=f'Ventas de {producto_seleccionado} en el Tiempo')
+st.plotly_chart(fig_producto)
