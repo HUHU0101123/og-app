@@ -27,8 +27,9 @@ ventas_por_producto = df.groupby(['SKU del Producto', 'Nombre del Producto']).ag
     'Ganancia': 'sum'
 }).reset_index()
 
-# Calculate the average price per product
+# Calculate additional KPIs
 ventas_por_producto['Precio Promedio'] = ventas_por_producto['Total'] / ventas_por_producto['Cantidad de Productos']
+ventas_por_producto['Rentabilidad (%)'] = (ventas_por_producto['Ganancia'] / ventas_por_producto['Total']) * 100
 
 # Sort by Total Sales in descending order
 ventas_por_producto = ventas_por_producto.sort_values('Total', ascending=False)
@@ -37,33 +38,42 @@ ventas_por_producto = ventas_por_producto.sort_values('Total', ascending=False)
 st.subheader('Sales Overview by Product')
 st.dataframe(ventas_por_producto)
 
-# Plot: Total Sales by Product
-st.subheader('Total Sales by Product')
-fig_ventas = px.bar(ventas_por_producto, x='Nombre del Producto', y='Total',
-                    text='Total', color='SKU del Producto',
-                    title='Total Sales by Product')
-fig_ventas.update_traces(texttemplate='%{text:.2s}', textposition='outside')
-fig_ventas.update_layout(uniformtext_minsize=8, uniformtext_mode='hide')
-st.plotly_chart(fig_ventas)
+# 1. KPI Cards
+st.subheader('Key Performance Indicators (KPIs)')
+col1, col2, col3 = st.columns(3)
+col1.metric("Total Revenue", f"{df['Total'].sum():,.0f} CLP")
+col2.metric("Total Quantity Sold", f"{df['Cantidad de Productos'].sum():,.0f}")
+col3.metric("Total Profit", f"{df['Ganancia'].sum():,.0f} CLP")
 
-# Plot: Quantity vs Profit by Product
-st.subheader('Quantity vs Profit by Product')
-fig_scatter = px.scatter(ventas_por_producto, x='Cantidad de Productos', y='Ganancia',
-                         size='Total', color='SKU del Producto',
-                         hover_name='Nombre del Producto', log_x=True, size_max=60,
-                         title='Quantity vs Profit by Product')
-st.plotly_chart(fig_scatter)
+# 2. Pie Chart: Sales Distribution by Product
+st.subheader('Sales Distribution by Product')
+fig_pie = px.pie(ventas_por_producto, names='Nombre del Producto', values='Total', 
+                 title='Sales Distribution by Product')
+st.plotly_chart(fig_pie)
 
-# Trend Analysis: Daily Sales
-ventas_diarias = df.groupby('Fecha').agg({
-    'Total': 'sum',
-    'Cantidad de Productos': 'sum'
-}).reset_index()
+# 3. Heatmap: Sales and Profit by Date
+st.subheader('Sales and Profit Heatmap')
+ventas_diarias = df.groupby(['Fecha']).agg({'Total': 'sum', 'Ganancia': 'sum'}).reset_index()
+ventas_diarias['Fecha'] = ventas_diarias['Fecha'].dt.to_period('M').astype(str)
+fig_heatmap = px.imshow(ventas_diarias.pivot(index='Fecha', columns='Fecha', values='Total'),
+                        color_continuous_scale='Viridis',
+                        title='Monthly Sales Heatmap')
+st.plotly_chart(fig_heatmap)
 
-st.subheader('Sales Trend Over Time')
-fig_trend = px.line(ventas_diarias, x='Fecha', y='Total', 
-                    title='Daily Sales Trend')
-st.plotly_chart(fig_trend)
+# 4. Line Chart: Profit Margin Over Time
+st.subheader('Profit Margin Over Time')
+ventas_diarias['Margen (%)'] = (ventas_diarias['Ganancia'] / ventas_diarias['Total']) * 100
+fig_margin = px.line(ventas_diarias, x='Fecha', y='Margen (%)', 
+                     title='Profit Margin Over Time')
+st.plotly_chart(fig_margin)
+
+# 5. Scatter Plot: Average Price vs Profit Margin by Product
+st.subheader('Average Price vs Profit Margin by Product')
+fig_scatter_avg_price = px.scatter(ventas_por_producto, x='Precio Promedio', y='Rentabilidad (%)',
+                                   size='Total', color='Nombre del Producto',
+                                   hover_name='Nombre del Producto',
+                                   title='Average Price vs Profit Margin by Product')
+st.plotly_chart(fig_scatter_avg_price)
 
 # Detailed Analysis by Product
 st.subheader('Detailed Analysis by Product')
@@ -79,8 +89,4 @@ col3.metric("Total Profit", f"{producto_df['Ganancia'].sum():,.0f} CLP")
 # Plot: Sales of Selected Product Over Time
 fig_producto = px.line(producto_df, x='Fecha', y='Total', 
                       title=f'Sales of {producto_seleccionado} Over Time')
-st.plotly_chart(fig_producto)
-
-# Gráfico de ventas del producto seleccionado en el tiempo
-fig_producto = px.line(producto_df, x='Fecha', y='Total', title=f'Ventas de {producto_seleccionado} en el Tiempo')
 st.plotly_chart(fig_producto)
