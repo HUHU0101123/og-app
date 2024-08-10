@@ -44,11 +44,12 @@ st.markdown("""
     }
     .metric-box {
         flex: 1;
-        min-width: 150px;
+        min-width: 200px;
         padding: 10px;
-        border: 1px solid #ddd;
+        border: 1px solid #444;
         border-radius: 5px;
-        background-color: #f5f5f5;
+        background-color: #333;
+        color: #fff;
     }
     .metric-box h3 {
         margin: 0;
@@ -56,7 +57,7 @@ st.markdown("""
     }
     .metric-box p {
         margin: 0;
-        font-size: 20px;
+        font-size: 18px;
         font-weight: bold;
     }
     </style>
@@ -98,7 +99,8 @@ sales_trends['Month'] = sales_trends['Fecha'].dt.to_period('M').astype(str)
 # Line chart for Sales and Profit Trends
 fig_sales_trends = px.line(sales_trends, x='Month', y=['Total', 'Ganancia'],
                            labels={'value': 'Amount', 'Month': 'Date'},
-                           title='Sales and Profit Trends Over Time')
+                           title='Sales and Profit Trends Over Time',
+                           template='plotly_dark')
 fig_sales_trends.update_layout(legend_title_text='Metrics')
 st.plotly_chart(fig_sales_trends)
 
@@ -145,7 +147,8 @@ product_performance['Rentabilidad (%)'] = (product_performance['Ganancia'] / pro
 fig_top_selling_products = px.bar(product_performance.sort_values('Cantidad de Productos', ascending=False),
                                   x='Nombre del Producto', y='Cantidad de Productos',
                                   title='Top-Selling Products',
-                                  labels={'Cantidad de Productos': 'Quantity Sold'})
+                                  labels={'Cantidad de Productos': 'Quantity Sold'},
+                                  template='plotly_dark')
 fig_top_selling_products.update_layout(xaxis_title='Product Name', yaxis_title='Quantity Sold')
 st.plotly_chart(fig_top_selling_products)
 
@@ -153,7 +156,8 @@ st.plotly_chart(fig_top_selling_products)
 fig_product_profitability = px.scatter(product_performance, x='Precio Promedio', y='Rentabilidad (%)',
                                        size='Total', color='Nombre del Producto',
                                        hover_name='Nombre del Producto',
-                                       title='Product Profitability')
+                                       title='Product Profitability',
+                                       template='plotly_dark')
 fig_product_profitability.update_layout(xaxis_title='Average Price', yaxis_title='Profitability (%)')
 st.plotly_chart(fig_product_profitability)
 
@@ -163,7 +167,8 @@ st.subheader('Payment and Discount Analysis')
 payment_methods = filtered_df['Nombre de Pago'].value_counts().reset_index()
 payment_methods.columns = ['Payment Method', 'Count']
 fig_payment_methods = px.pie(payment_methods, names='Payment Method', values='Count',
-                            title='Sales Breakdown by Payment Method')
+                            title='Sales Breakdown by Payment Method',
+                            template='plotly_dark')
 st.plotly_chart(fig_payment_methods)
 
 # Discounts Applied
@@ -171,7 +176,8 @@ discounts = filtered_df.groupby('Cupones').agg({'Subtotal': 'sum', 'Total': 'sum
 discounts.columns = ['Coupon', 'Subtotal', 'Total']
 fig_discounts = px.bar(discounts, x='Coupon', y=['Subtotal', 'Total'],
                       title='Impact of Discounts on Sales',
-                      labels={'value': 'Amount', 'Coupon': 'Coupon'})
+                      labels={'value': 'Amount', 'Coupon': 'Coupon'},
+                      template='plotly_dark')
 fig_discounts.update_layout(barmode='group', xaxis_title='Coupon', yaxis_title='Amount')
 st.plotly_chart(fig_discounts)
 
@@ -181,15 +187,21 @@ st.subheader('Shipping Insights')
 shipping_methods = filtered_df['Nombre del metodo de envio'].value_counts().reset_index()
 shipping_methods.columns = ['Shipping Method', 'Count']
 fig_shipping_methods = px.pie(shipping_methods, names='Shipping Method', values='Count',
-                              title='Distribution of Shipping Methods')
+                              title='Distribution of Shipping Methods',
+                              template='plotly_dark')
 st.plotly_chart(fig_shipping_methods)
 
 # Shipping Status
 shipping_status = filtered_df['Estado del Envio'].value_counts().reset_index()
 shipping_status.columns = ['Shipping Status', 'Count']
 fig_shipping_status = px.pie(shipping_status, names='Shipping Status', values='Count',
-                             title='Shipping Status Distribution')
+                             title='Shipping Status Distribution',
+                             template='plotly_dark')
 st.plotly_chart(fig_shipping_status)
+
+# Average Shipping Cost
+average_shipping_cost = filtered_df['Envio'].mean()
+st.metric("Average Shipping Cost", f"{average_shipping_cost:,.0f} CLP")
 
 # Detailed Analysis by Product
 st.subheader('Detailed Analysis by Product')
@@ -207,5 +219,6 @@ with col3:
 
 # Sales of Selected Product Over Time
 fig_producto = px.line(producto_df, x='Fecha', y='Total',
-                      title=f'Sales of {producto_seleccionado} Over Time')
+                      title=f'Sales of {producto_seleccionado} Over Time',
+                      template='plotly_dark')
 st.plotly_chart(fig_producto)
