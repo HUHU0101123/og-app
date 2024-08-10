@@ -2,21 +2,26 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 
-# Load the Excel file from GitHub
-url = "https://raw.githubusercontent.com/HUHU0101123/og-app/main/datasource.xlsx"
-data = pd.read_excel(url)
+# Load the CSV file from GitHub
+url = "https://raw.githubusercontent.com/HUHU0101123/og-app/main/datasource.csv"  # Change this to your actual file URL
+df = pd.read_csv(url)
 
 # Strip any extra whitespace from column names
-data.columns = data.columns.str.strip()
+df.columns = df.columns.str.strip()
+
+# Display the raw data with an expander
+with st.expander('Data'):
+    st.write('**Raw data**')
+    st.dataframe(df)
 
 # Título del dashboard
 st.title('Análisis de Ventas por Producto')
 
 # Convertir la columna 'Fecha' a datetime si no lo está ya
-data['Fecha'] = pd.to_datetime(data['Fecha'])
+df['Fecha'] = pd.to_datetime(df['Fecha'])
 
 # Agrupar por SKU y Nombre del Producto
-ventas_por_producto = data.groupby(['SKU del Producto', 'Nombre del Producto']).agg({
+ventas_por_producto = df.groupby(['SKU del Producto', 'Nombre del Producto']).agg({
     'Cantidad de Productos': 'sum',
     'Total': 'sum',
     'Ganancia': 'sum'
@@ -48,7 +53,7 @@ fig_scatter = px.scatter(ventas_por_producto, x='Cantidad de Productos', y='Gana
 st.plotly_chart(fig_scatter)
 
 # Análisis de tendencias de ventas en el tiempo
-ventas_diarias = data.groupby('Fecha').agg({
+ventas_diarias = df.groupby('Fecha').agg({
     'Total': 'sum',
     'Cantidad de Productos': 'sum'
 }).reset_index()
@@ -59,9 +64,9 @@ st.plotly_chart(fig_trend)
 
 # Filtro para análisis detallado por producto
 st.subheader('Análisis Detallado por Producto')
-producto_seleccionado = st.selectbox('Selecciona un producto:', data['Nombre del Producto'].unique())
+producto_seleccionado = st.selectbox('Selecciona un producto:', df['Nombre del Producto'].unique())
 
-producto_df = data[data['Nombre del Producto'] == producto_seleccionado]
+producto_df = df[df['Nombre del Producto'] == producto_seleccionado]
 
 col1, col2, col3 = st.columns(3)
 col1.metric("Total Vendido", f"{producto_df['Total'].sum():,.0f}")
