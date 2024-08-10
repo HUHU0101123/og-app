@@ -115,8 +115,8 @@ else:
     # Desempeño de Productos
     st.subheader('Desempeño de Productos')
 
-    # Verificar nombres de columnas en el DataFrame filtrado
-    st.write("Columnas en filtered_df:", filtered_df.columns)
+    # Verificar nombres de columnas en el DataFrame filtrado (Esta línea puede ser eliminada si no es necesaria)
+    # st.write("Columnas en filtered_df:", filtered_df.columns)
 
     try:
         product_performance = filtered_df.groupby(['Nombre del Producto', 'SKU del Producto', 'Categoria']).agg({
@@ -153,6 +153,7 @@ else:
     except KeyError as e:
         st.error(f"Error al agrupar los datos: {e}")
 
+    
     # Análisis de Métodos de Pago y Descuentos
     st.subheader('Análisis de Métodos de Pago y Descuentos')
 
