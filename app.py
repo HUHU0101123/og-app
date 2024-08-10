@@ -24,6 +24,10 @@ merged_df = pd.merge(df, categorias_df, on='Nombre del Producto', how='left')
 # Crear una nueva columna para diferenciar entre 'Venta al Detalle' y 'Venta Mayorista'
 merged_df['Tipo de Venta'] = merged_df['Cantidad de Productos'].apply(lambda x: 'Venta al Detalle' if x < 6 else 'Venta Mayorista')
 
+# Función para formatear números con el formato chileno
+def format_chilean_number(number):
+    return "{:,.0f}".format(number).replace(',', '.').replace('.', ',', 1)
+
 # Configuración del diseño del panel lateral
 st.sidebar.subheader('Filtros Interactivos')
 
@@ -68,15 +72,15 @@ else:
 
         # Mostrar métricas en columnas
         col1, col2, col3, col4, col5, col6 = st.columns(6)
-        col1.metric(label="Ventas", value=f"{total_revenue:,.0f} CLP")
-        col2.metric(label="Ganancias", value=f"{total_profit:,.0f} CLP")
-        col3.metric(label="Total de Pedidos", value=f"{total_orders:,}")
-        col4.metric(label="Valor Promedio por Pedido", value=f"{average_order_value:,.0f} CLP")
-        col5.metric(label="Ganancia Promedio por Pedido", value=f"{average_profit_per_order:,.0f} CLP")
+        col1.metric(label="Ventas", value=f"{format_chilean_number(total_revenue)} CLP")
+        col2.metric(label="Ganancias", value=f"{format_chilean_number(total_profit)} CLP")
+        col3.metric(label="Total de Pedidos", value=f"{format_chilean_number(total_orders)}")
+        col4.metric(label="Valor Promedio por Pedido", value=f"{format_chilean_number(average_order_value)} CLP")
+        col5.metric(label="Ganancia Promedio por Pedido", value=f"{format_chilean_number(average_profit_per_order)} CLP")
         col6.metric(label="Margen", value=f"{overall_profit_margin:.2f} %")
 
         # Mostrar total de descuentos
-        st.metric("Descuentos Aplicados", f"{total_descuentos:,.0f} CLP")
+        st.metric("Descuentos Aplicados", f"{format_chilean_number(total_descuentos)} CLP")
 
         # Calcular ganancia después de impuestos
         tax_rate = 0.19
@@ -88,7 +92,7 @@ else:
 
         # Métrica adicional para ganancia después de impuestos
         st.subheader('Después de Impuestos')
-        st.metric("Ganancias Después de Impuestos (19%)", f"{total_profit_after_tax:,.0f} CLP")
+        st.metric("Ganancias Después de Impuestos (19%)", f"{format_chilean_number(total_profit_after_tax)} CLP")
         st.metric("Margen Después de Impuestos", f"{overall_margin_after_tax:.2f} %")
 
         # Espacio antes de la sección de Ventas
@@ -187,11 +191,12 @@ else:
                                                        hover_name='Nombre del Producto',
                                                        title='Rentabilidad de Productos',
                                                        template='plotly_dark')
+                fig_product_profitability.update_layout(xaxis_title='Precio Promedio', yaxis_title='Rentabilidad (%)')
                 st.plotly_chart(fig_product_profitability)
             else:
                 st.write("No hay datos suficientes para mostrar el desempeño de productos.")
-        except Exception as e:
-            st.error(f'Error al analizar el desempeño de productos: {str(e)}')
+        except KeyError as e:
+            st.error(f"Error al agrupar los datos: {e}")
 
         # Análisis Detallado por Producto
         st.subheader('Análisis Detallado por Producto')
@@ -200,9 +205,9 @@ else:
 
         if not producto_df.empty:
             col1, col2, col3 = st.columns(3)
-            col1.metric("Total Vendido", f"{producto_df['Total'].sum():,.0f} CLP")
-            col2.metric("Cantidad Vendida", f"{producto_df['Cantidad de Productos'].sum():,.0f}")
-            col3.metric("Beneficio Total", f"{producto_df['Ganancia'].sum():,.0f} CLP")
+            col1.metric("Total Vendido", f"{format_chilean_number(producto_df['Total'].sum())} CLP")
+            col2.metric("Cantidad Vendida", f"{format_chilean_number(producto_df['Cantidad de Productos'].sum())}")
+            col3.metric("Beneficio Total", f"{format_chilean_number(producto_df['Ganancia'].sum())} CLP")
 
             # Gráfico: Ventas del Producto Seleccionado a lo Largo del Tiempo
             fig_producto = px.line(producto_df, x='Fecha', y='Total', 
