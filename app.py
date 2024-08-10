@@ -118,13 +118,15 @@ else:
 
     if not product_performance.empty:
         # Top-Selling Products Bar Chart with SKU as color
-        fig_top_selling_products = px.bar(product_performance.sort_values('Cantidad de Productos', ascending=False),
-                                          x='Nombre del Producto', y='Cantidad de Productos',
+        product_performance_sorted = product_performance.sort_values('Cantidad de Productos', ascending=False)
+        fig_top_selling_products = px.bar(product_performance_sorted,
+                                          y='Nombre del Producto', x='Cantidad de Productos',
                                           color='SKU del Producto',  # Color by SKU
                                           title='Productos Más Vendidos',
                                           labels={'Cantidad de Productos': 'Cantidad Vendida'},
-                                          template='plotly_dark')
-        fig_top_selling_products.update_layout(xaxis_title='Nombre del Producto', yaxis_title='Cantidad Vendida')
+                                          template='plotly_dark',
+                                          orientation='h')  # Horizontal bars
+        fig_top_selling_products.update_layout(xaxis_title='Cantidad Vendida', yaxis_title='Nombre del Producto')
         st.plotly_chart(fig_top_selling_products)
 
         # Product Profitability
