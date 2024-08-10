@@ -117,13 +117,6 @@ st.metric("Average Shipping Cost", f"{average_shipping_cost:,.0f} CLP")
 
 # Geographic Analysis
 st.subheader('Geographic Analysis')
-# Sales by Country (only Chile)
-sales_by_country = filtered_df.groupby('Pais de Envio').agg({'Total': 'sum'}).reset_index()
-fig_sales_by_country = px.bar(sales_by_country, x='Pais de Envio', y='Total',
-                              title='Sales by Country',
-                              labels={'Total': 'Sales Amount'})
-st.plotly_chart(fig_sales_by_country)
-
 # Sales by City
 sales_by_city = filtered_df.groupby('Ciudad de Envio').agg({'Total': 'sum'}).reset_index()
 fig_sales_by_city = px.bar(sales_by_city, x='Ciudad de Envio', y='Total',
