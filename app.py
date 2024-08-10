@@ -7,8 +7,15 @@ import plotly.graph_objects as go
 url = "https://raw.githubusercontent.com/HUHU0101123/og-app/main/datasource.csv"  # Change this to your actual file URL
 df = pd.read_csv(url)
 
+url1 = "https://raw.githubusercontent.com/HUHU0101123/og-app/main/categorias.csv"  # Change this to your actual file URL
+df1 = pd.read_csv(url1)
+
+
 # Strip any extra whitespace from column names
 df.columns = df.columns.str.strip()
+
+# Strip any extra whitespace from column names
+df1.columns = df1.columns.str.strip()
 
 # Convert the 'Fecha' column to datetime
 df['Fecha'] = pd.to_datetime(df['Fecha'])
