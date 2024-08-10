@@ -33,55 +33,15 @@ average_order_value = total_revenue / total_orders if total_orders > 0 else 0
 average_profit_per_order = total_profit / total_orders if total_orders > 0 else 0
 overall_profit_margin = (total_profit / total_revenue) * 100 if total_revenue > 0 else 0
 
-# Display metrics using Streamlit's built-in functions with custom styling
-st.markdown(
-    """
-    <style>
-    .metric-title {
-        font-size: 14px;
-        color: #f0f0f0;
-    }
-    .metric-value {
-        font-size: 18px;
-        color: #ffffff;
-    }
-    </style>
-    <div style="display: flex; justify-content: space-between; flex-wrap: wrap;">
-        <div style="flex: 1; margin: 5px;">
-            <div class="metric-title">Ingresos Totales</div>
-            <div class="metric-value">{total_revenue:,.0f} CLP</div>
-        </div>
-        <div style="flex: 1; margin: 5px;">
-            <div class="metric-title">Beneficio Total</div>
-            <div class="metric-value">{total_profit:,.0f} CLP</div>
-        </div>
-        <div style="flex: 1; margin: 5px;">
-            <div class="metric-title">Total de Pedidos</div>
-            <div class="metric-value">{total_orders:,}</div>
-        </div>
-        <div style="flex: 1; margin: 5px;">
-            <div class="metric-title">Valor Promedio por Pedido</div>
-            <div class="metric-value">{average_order_value:,.0f} CLP</div>
-        </div>
-        <div style="flex: 1; margin: 5px;">
-            <div class="metric-title">Beneficio Promedio por Pedido</div>
-            <div class="metric-value">{average_profit_per_order:,.0f} CLP</div>
-        </div>
-        <div style="flex: 1; margin: 5px;">
-            <div class="metric-title">Margen de Beneficio Total</div>
-            <div class="metric-value">{overall_profit_margin:.2f} %</div>
-        </div>
-    </div>
-    """.format(
-        total_revenue=total_revenue,
-        total_profit=total_profit,
-        total_orders=total_orders,
-        average_order_value=average_order_value,
-        average_profit_per_order=average_profit_per_order,
-        overall_profit_margin=overall_profit_margin
-    ),
-    unsafe_allow_html=True
-)
+# Display metrics using Streamlit's built-in functions
+col1, col2, col3, col4, col5, col6 = st.columns(6)
+
+col1.metric(label="Ingresos Totales", value=f"{total_revenue:,.0f} CLP", delta=None)
+col2.metric(label="Beneficio Total", value=f"{total_profit:,.0f} CLP", delta=None)
+col3.metric(label="Total de Pedidos", value=f"{total_orders:,}", delta=None)
+col4.metric(label="Valor Promedio por Pedido", value=f"{average_order_value:,.0f} CLP", delta=None)
+col5.metric(label="Beneficio Promedio por Pedido", value=f"{average_profit_per_order:,.0f} CLP", delta=None)
+col6.metric(label="Margen de Beneficio Total", value=f"{overall_profit_margin:.2f} %", delta=None)
 
 # Sales Trends
 st.subheader('Tendencias de Ventas')
