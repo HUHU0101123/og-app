@@ -19,12 +19,13 @@ st.title('Sales Analysis Dashboard')
 # Interactive Filters
 st.sidebar.subheader('Interactive Filters')
 date_range = st.sidebar.date_input('Select Date Range', [df['Fecha'].min().date(), df['Fecha'].max().date()])
-# Convert date_range to datetime
 date_range = [pd.to_datetime(date) for date in date_range]
 filtered_df = df[(df['Fecha'] >= date_range[0]) & (df['Fecha'] <= date_range[1])]
 
 # Summary Metrics
 st.subheader('Summary Metrics')
+
+# Summary metrics
 total_revenue = filtered_df['Total'].sum()
 total_profit = filtered_df['Ganancia'].sum()
 total_orders = filtered_df['ID'].nunique()
@@ -32,16 +33,44 @@ average_order_value = total_revenue / total_orders if total_orders > 0 else 0
 average_profit_per_order = total_profit / total_orders if total_orders > 0 else 0
 overall_profit_margin = (total_profit / total_revenue) * 100 if total_revenue > 0 else 0
 
-col1, col2, col3, col4, col5 = st.columns(5)
-col1.metric("Total Revenue", f"{total_revenue:,.0f} CLP")
-col2.metric("Total Profit", f"{total_profit:,.0f} CLP")
-col3.metric("Total Orders", f"{total_orders:,}")
-col4.metric("Average Order Value", f"{average_order_value:,.0f} CLP")
-col5.metric("Average Profit per Order", f"{average_profit_per_order:,.0f} CLP")
-st.metric("Overall Profit Margin", f"{overall_profit_margin:.2f} %")
+# Using markdown for better text styling
+st.markdown(f"""
+<div style="display: flex; justify-content: space-between;">
+    <div style="flex: 1; margin-right: 10px;">
+        <h3 style="font-size: 14px;">Total Revenue</h3>
+        <p style="font-size: 18px; font-weight: bold;">{total_revenue:,.0f} CLP</p>
+    </div>
+    <div style="flex: 1; margin-right: 10px;">
+        <h3 style="font-size: 14px;">Total Profit</h3>
+        <p style="font-size: 18px; font-weight: bold;">{total_profit:,.0f} CLP</p>
+    </div>
+    <div style="flex: 1; margin-right: 10px;">
+        <h3 style="font-size: 14px;">Total Orders</h3>
+        <p style="font-size: 18px; font-weight: bold;">{total_orders:,}</p>
+    </div>
+    <div style="flex: 1; margin-right: 10px;">
+        <h3 style="font-size: 14px;">Average Order Value</h3>
+        <p style="font-size: 18px; font-weight: bold;">{average_order_value:,.0f} CLP</p>
+    </div>
+    <div style="flex: 1;">
+        <h3 style="font-size: 14px;">Average Profit per Order</h3>
+        <p style="font-size: 18px; font-weight: bold;">{average_profit_per_order:,.0f} CLP</p>
+    </div>
+</div>
+""", unsafe_allow_html=True)
+
+st.markdown(f"""
+<div style="display: flex; justify-content: center; margin-top: 20px;">
+    <div style="flex: 1; text-align: center;">
+        <h3 style="font-size: 14px;">Overall Profit Margin</h3>
+        <p style="font-size: 18px; font-weight: bold;">{overall_profit_margin:.2f} %</p>
+    </div>
+</div>
+""", unsafe_allow_html=True)
 
 # Sales Trends
 st.subheader('Sales Trends')
+
 # Aggregating data for trends
 sales_trends = filtered_df.resample('M', on='Fecha').agg({'Total': 'sum', 'Ganancia': 'sum'}).reset_index()
 sales_trends['Month'] = sales_trends['Fecha'].dt.to_period('M').astype(str)
@@ -97,6 +126,7 @@ fig_top_selling_products = px.bar(product_performance.sort_values('Cantidad de P
                                   x='Nombre del Producto', y='Cantidad de Productos',
                                   title='Top-Selling Products',
                                   labels={'Cantidad de Productos': 'Quantity Sold'})
+fig_top_selling_products.update_layout(xaxis_title='Product Name', yaxis_title='Quantity Sold')
 st.plotly_chart(fig_top_selling_products)
 
 # Product Profitability
@@ -104,6 +134,7 @@ fig_product_profitability = px.scatter(product_performance, x='Precio Promedio',
                                        size='Total', color='Nombre del Producto',
                                        hover_name='Nombre del Producto',
                                        title='Product Profitability')
+fig_product_profitability.update_layout(xaxis_title='Average Price', yaxis_title='Profitability (%)')
 st.plotly_chart(fig_product_profitability)
 
 # Payment and Discount Analysis
@@ -121,7 +152,7 @@ discounts.columns = ['Coupon', 'Subtotal', 'Total']
 fig_discounts = px.bar(discounts, x='Coupon', y=['Subtotal', 'Total'],
                       title='Impact of Discounts on Sales',
                       labels={'value': 'Amount', 'Coupon': 'Coupon'})
-fig_discounts.update_layout(barmode='group')
+fig_discounts.update_layout(barmode='group', xaxis_title='Coupon', yaxis_title='Amount')
 st.plotly_chart(fig_discounts)
 
 # Shipping Insights
@@ -151,6 +182,7 @@ sales_by_city = filtered_df.groupby('Ciudad de Envio').agg({'Total': 'sum'}).res
 fig_sales_by_city = px.bar(sales_by_city, x='Ciudad de Envio', y='Total',
                           title='Sales by City',
                           labels={'Total': 'Sales Amount'})
+fig_sales_by_city.update_layout(xaxis_title='City', yaxis_title='Sales Amount')
 st.plotly_chart(fig_sales_by_city)
 
 # Margin Analysis
@@ -168,4 +200,5 @@ product_margin_analysis['Margen (%)'] = (product_margin_analysis['Ganancia'] / p
 fig_product_margin = px.bar(product_margin_analysis, x='Nombre del Producto', y='Margen (%)',
                             title='Margin Analysis by Product',
                             labels={'Margen (%)': 'Margin (%)'})
+fig_product_margin.update_layout(xaxis_title='Product Name', yaxis_title='Margin (%)')
 st.plotly_chart(fig_product_margin)
