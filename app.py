@@ -95,7 +95,7 @@ else:
 
     if not sales_trends.empty:
         # Line chart for Sales and Profit After Tax Trends
-        fig_sales_trends = px.line(sales_trends, x='Month', y=['Total', 'Ganancia Después de Impuestos'],
+        fig_sales_trends = px.line(sales_trends, x='Month', y=['Ventas', 'Ganancia Después de Impuestos'],
                                    labels={'value': 'Monto', 'Month': 'Fecha'},
                                    title='Ventas vs Ganancias Después de Impuestos',
                                    template='plotly_dark')
