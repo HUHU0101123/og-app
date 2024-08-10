@@ -25,8 +25,9 @@ merged_df = pd.merge(df, categorias_df, on='Nombre del Producto', how='left')
 merged_df['Tipo de Venta'] = merged_df['Cantidad de Productos'].apply(lambda x: 'Venta al Detalle' if x < 6 else 'Venta Mayorista')
 
 # Función para formatear números con el formato chileno
-def format_chilean_number(number):
-    return "{:,.0f}".format(number).replace(',', '.').replace('.', ',', 1)
+def format_chilean_number(number, decimal_places=0):
+    formatted = "{:,.{prec}f}".format(number, prec=decimal_places).replace(',', 'X').replace('.', ',').replace('X', '.')
+    return formatted
 
 # Configuración del diseño del panel lateral
 st.sidebar.subheader('Filtros Interactivos')
@@ -72,15 +73,15 @@ else:
 
         # Mostrar métricas en columnas
         col1, col2, col3, col4, col5, col6 = st.columns(6)
-        col1.metric(label="Ventas", value=f"{format_chilean_number(total_revenue)} CLP")
-        col2.metric(label="Ganancias", value=f"{format_chilean_number(total_profit)} CLP")
-        col3.metric(label="Total de Pedidos", value=f"{format_chilean_number(total_orders)}")
-        col4.metric(label="Valor Promedio por Pedido", value=f"{format_chilean_number(average_order_value)} CLP")
-        col5.metric(label="Ganancia Promedio por Pedido", value=f"{format_chilean_number(average_profit_per_order)} CLP")
+        col1.metric(label="Ventas", value=f"{format_chilean_number(total_revenue, 0)} CLP")
+        col2.metric(label="Ganancias", value=f"{format_chilean_number(total_profit, 0)} CLP")
+        col3.metric(label="Total de Pedidos", value=f"{format_chilean_number(total_orders, 0)}")
+        col4.metric(label="Valor Promedio por Pedido", value=f"{format_chilean_number(average_order_value, 0)} CLP")
+        col5.metric(label="Ganancia Promedio por Pedido", value=f"{format_chilean_number(average_profit_per_order, 0)} CLP")
         col6.metric(label="Margen", value=f"{overall_profit_margin:.2f} %")
 
         # Mostrar total de descuentos
-        st.metric("Descuentos Aplicados", f"{format_chilean_number(total_descuentos)} CLP")
+        st.metric("Descuentos Aplicados", f"{format_chilean_number(total_descuentos, 0)} CLP")
 
         # Calcular ganancia después de impuestos
         tax_rate = 0.19
@@ -92,7 +93,7 @@ else:
 
         # Métrica adicional para ganancia después de impuestos
         st.subheader('Después de Impuestos')
-        st.metric("Ganancias Después de Impuestos (19%)", f"{format_chilean_number(total_profit_after_tax)} CLP")
+        st.metric("Ganancias Después de Impuestos (19%)", f"{format_chilean_number(total_profit_after_tax, 0)} CLP")
         st.metric("Margen Después de Impuestos", f"{overall_margin_after_tax:.2f} %")
 
         # Espacio antes de la sección de Ventas
@@ -185,9 +186,12 @@ else:
                 fig_top_selling_products.update_layout(barmode='stack', xaxis_title='Categoría', yaxis_title='Cantidad Vendida')
                 st.plotly_chart(fig_top_selling_products)
 
-                # Gráfico de dispersión para Rentabilidad de Productos
-                fig_product_profitability = px.scatter(product_performance, x='Precio Promedio', y='Rentabilidad (%)',
-                                                       size='Total', color='Nombre del Producto',
+                # Crear gráfico de dispersión para rentabilidad de productos
+                fig_product_profitability = px.scatter(product_performance,
+                                                       x='Precio Promedio',
+                                                       y='Rentabilidad (%)',
+                                                       size='Total',
+                                                       color='Nombre del Producto',
                                                        hover_name='Nombre del Producto',
                                                        title='Rentabilidad de Productos',
                                                        template='plotly_dark')
@@ -205,12 +209,12 @@ else:
 
         if not producto_df.empty:
             col1, col2, col3 = st.columns(3)
-            col1.metric("Total Vendido", f"{format_chilean_number(producto_df['Total'].sum())} CLP")
-            col2.metric("Cantidad Vendida", f"{format_chilean_number(producto_df['Cantidad de Productos'].sum())}")
-            col3.metric("Beneficio Total", f"{format_chilean_number(producto_df['Ganancia'].sum())} CLP")
+            col1.metric("Total Vendido", f"{format_chilean_number(producto_df['Total'].sum(), 0)} CLP")
+            col2.metric("Cantidad Vendida", f"{format_chilean_number(producto_df['Cantidad de Productos'].sum(), 0)}")
+            col3.metric("Beneficio Total", f"{format_chilean_number(producto_df['Ganancia'].sum(), 0)} CLP")
 
             # Gráfico: Ventas del Producto Seleccionado a lo Largo del Tiempo
-            fig_producto = px.line(producto_df, x='Fecha', y='Total', 
+            fig_producto = px.line(producto_df, x='Fecha', y='Total',
                                   title=f'Ventas de {producto_seleccionado} a lo Largo del Tiempo',
                                   template='plotly_dark')
             st.plotly_chart(fig_producto)
