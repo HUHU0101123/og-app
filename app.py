@@ -55,6 +55,10 @@ total_profit_after_tax = total_profit * (1 - tax_rate)
 st.subheader('Después de Impuestos y Descuentos')
 st.metric("Beneficio Después de Impuestos (19%)", f"{total_profit_after_tax:,.0f} CLP")
 
+# Add space before Sales Trends section
+st.write("")
+st.write("")  # Add additional space here if needed
+
 # Sales Trends
 st.subheader('Tendencias de Ventas')
 
