@@ -88,17 +88,19 @@ else:
 
     # Sales Trends
     st.subheader('Ventas')
-
+    
     # Aggregating data for trends
     sales_trends = filtered_df.resample('M', on='Fecha').agg({'Total': 'sum', 'Ganancia': 'sum', 'Ganancia Después de Impuestos': 'sum'}).reset_index()
     sales_trends['Month'] = sales_trends['Fecha'].dt.to_period('M').astype(str)
-
+    
     if not sales_trends.empty:
         # Line chart for Sales and Profit After Tax Trends
         fig_sales_trends = px.line(sales_trends, x='Month', y=['Total', 'Ganancia Después de Impuestos'],
                                    labels={'value': 'Monto', 'Month': 'Fecha'},
                                    title='Ventas vs Ganancias Después de Impuestos',
                                    template='plotly_dark')
+        # Update the legend to rename the lines
+        fig_sales_trends.for_each_trace(lambda t: t.update(name='Ventas' if t.name == 'Total' else 'Ganancias Después de Impuestos'))
         fig_sales_trends.update_layout(legend_title_text='Métricas')
         st.plotly_chart(fig_sales_trends)
     else:
