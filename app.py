@@ -13,102 +13,163 @@ df.columns = df.columns.str.strip()
 # Convert the 'Fecha' column to datetime
 df['Fecha'] = pd.to_datetime(df['Fecha'])
 
-# Display the raw data with an expander
-with st.expander('Raw Data'):
-    st.write(df)
-
 # Dashboard Title
 st.title('Sales Analysis Dashboard')
 
-# Group by SKU and Product Name
-ventas_por_producto = df.groupby(['SKU del Producto', 'Nombre del Producto']).agg({
+# Summary Metrics
+st.subheader('Summary Metrics')
+total_revenue = df['Total'].sum()
+total_profit = df['Ganancia'].sum()
+total_orders = df['ID'].nunique()
+average_order_value = total_revenue / total_orders
+average_profit_per_order = total_profit / total_orders
+overall_profit_margin = (total_profit / total_revenue) * 100
+
+col1, col2, col3, col4, col5 = st.columns(5)
+col1.metric("Total Revenue", f"{total_revenue:,.0f} CLP")
+col2.metric("Total Profit", f"{total_profit:,.0f} CLP")
+col3.metric("Total Orders", f"{total_orders:,}")
+col4.metric("Average Order Value", f"{average_order_value:,.0f} CLP")
+col5.metric("Average Profit per Order", f"{average_profit_per_order:,.0f} CLP")
+st.metric("Overall Profit Margin", f"{overall_profit_margin:.2f} %")
+
+# Sales Trends
+st.subheader('Sales Trends')
+# Aggregating data for trends
+sales_trends = df.resample('M', on='Fecha').agg({'Total': 'sum', 'Ganancia': 'sum'}).reset_index()
+sales_trends['Month'] = sales_trends['Fecha'].dt.to_period('M').astype(str)
+
+# Line chart for Sales and Profit Trends
+fig_sales_trends = px.line(sales_trends, x='Month', y=['Total', 'Ganancia'],
+                           labels={'value': 'Amount', 'Month': 'Date'},
+                           title='Sales and Profit Trends Over Time')
+fig_sales_trends.update_layout(legend_title_text='Metrics')
+st.plotly_chart(fig_sales_trends)
+
+# Product Performance
+st.subheader('Product Performance Overview')
+product_performance = df.groupby(['Nombre del Producto', 'SKU del Producto']).agg({
     'Cantidad de Productos': 'sum',
     'Total': 'sum',
     'Ganancia': 'sum'
 }).reset_index()
+product_performance['Precio Promedio'] = product_performance['Total'] / product_performance['Cantidad de Productos']
+product_performance['Rentabilidad (%)'] = (product_performance['Ganancia'] / product_performance['Total']) * 100
 
-# Calculate additional KPIs
-ventas_por_producto['Precio Promedio'] = ventas_por_producto['Total'] / ventas_por_producto['Cantidad de Productos']
-ventas_por_producto['Rentabilidad (%)'] = (ventas_por_producto['Ganancia'] / ventas_por_producto['Total']) * 100
+# Top-Selling Products Bar Chart
+fig_top_selling_products = px.bar(product_performance.sort_values('Cantidad de Productos', ascending=False),
+                                  x='Nombre del Producto', y='Cantidad de Productos',
+                                  title='Top-Selling Products',
+                                  labels={'Cantidad de Productos': 'Quantity Sold'})
+st.plotly_chart(fig_top_selling_products)
 
-# Sort by Total Sales in descending order
-ventas_por_producto = ventas_por_producto.sort_values('Total', ascending=False)
+# Product Profitability
+fig_product_profitability = px.scatter(product_performance, x='Precio Promedio', y='Rentabilidad (%)',
+                                       size='Total', color='Nombre del Producto',
+                                       hover_name='Nombre del Producto',
+                                       title='Product Profitability')
+st.plotly_chart(fig_product_profitability)
 
-# Display the sales table
-st.subheader('Sales Overview by Product and SKU')
-st.dataframe(ventas_por_producto)
+# Payment and Discount Analysis
+st.subheader('Payment and Discount Analysis')
+# Payment Methods Breakdown
+payment_methods = df['Nombre de Pago'].value_counts().reset_index()
+payment_methods.columns = ['Payment Method', 'Count']
+fig_payment_methods = px.pie(payment_methods, names='Payment Method', values='Count',
+                            title='Sales Breakdown by Payment Method')
+st.plotly_chart(fig_payment_methods)
 
-# 1. KPI Cards
-st.subheader('Key Performance Indicators (KPIs)')
-col1, col2, col3 = st.columns(3)
-col1.metric("Total Revenue", f"{df['Total'].sum():,.0f} CLP")
-col2.metric("Total Quantity Sold", f"{df['Cantidad de Productos'].sum():,.0f}")
-col3.metric("Total Profit", f"{df['Ganancia'].sum():,.0f} CLP")
+# Discounts Applied
+discounts = df.groupby('Cupones').agg({'Subtotal': 'sum', 'Total': 'sum'}).reset_index()
+discounts.columns = ['Coupon', 'Subtotal', 'Total']
+fig_discounts = px.bar(discounts, x='Coupon', y=['Subtotal', 'Total'],
+                      title='Impact of Discounts on Sales',
+                      labels={'value': 'Amount', 'Coupon': 'Coupon'})
+fig_discounts.update_layout(barmode='group')
+st.plotly_chart(fig_discounts)
 
-# 2. Treemap: Sales Distribution by Product and SKU
-st.subheader('Sales Distribution by Product and SKU')
-fig_treemap = px.treemap(ventas_por_producto, path=['Nombre del Producto', 'SKU del Producto'], values='Total',
-                        color='Total', hover_data={'Nombre del Producto': True, 'SKU del Producto': True},
-                        color_continuous_scale='Viridis', title='Sales Distribution by Product and SKU')
-st.plotly_chart(fig_treemap)
+# Shipping Insights
+st.subheader('Shipping Insights')
+# Shipping Methods Distribution
+shipping_methods = df['Nombre del metodo de envio'].value_counts().reset_index()
+shipping_methods.columns = ['Shipping Method', 'Count']
+fig_shipping_methods = px.pie(shipping_methods, names='Shipping Method', values='Count',
+                              title='Distribution of Shipping Methods')
+st.plotly_chart(fig_shipping_methods)
 
-# 3. Bar Chart: Total Sales and Profit by SKU
-st.subheader('Total Sales and Profit by SKU')
-fig_bar = px.bar(ventas_por_producto, x='SKU del Producto', y=['Total', 'Ganancia'],
-                 title='Total Sales and Profit by SKU',
-                 labels={'SKU del Producto': 'SKU', 'value': 'Amount'},
-                 color='variable', text='value')
-fig_bar.update_layout(barmode='group')
-st.plotly_chart(fig_bar)
+# Shipping Status
+shipping_status = df['Estado del Envio'].value_counts().reset_index()
+shipping_status.columns = ['Shipping Status', 'Count']
+fig_shipping_status = px.pie(shipping_status, names='Shipping Status', values='Count',
+                             title='Shipping Status Distribution')
+st.plotly_chart(fig_shipping_status)
 
-# 4. Heatmap: Sales and Profit by Month
-st.subheader('Monthly Sales and Profit Heatmap')
-# Aggregating data by month
-ventas_mensuales = df.resample('M', on='Fecha').agg({'Total': 'sum', 'Ganancia': 'sum'}).reset_index()
-ventas_mensuales['Month'] = ventas_mensuales['Fecha'].dt.to_period('M').astype(str)
+# Average Shipping Cost
+average_shipping_cost = df['Envio'].mean()
+st.metric("Average Shipping Cost", f"{average_shipping_cost:,.0f} CLP")
 
-# Creating the heatmap using a matrix of months vs. sales/profit
-fig_heatmap = go.Figure()
+# Geographic Analysis
+st.subheader('Geographic Analysis')
+# Sales by Country
+sales_by_country = df.groupby('Pais de Envio').agg({'Total': 'sum'}).reset_index()
+fig_sales_by_country = px.bar(sales_by_country, x='Pais de Envio', y='Total',
+                              title='Sales by Country',
+                              labels={'Total': 'Sales Amount'})
+st.plotly_chart(fig_sales_by_country)
 
-fig_heatmap.add_trace(go.Heatmap(
-    z=ventas_mensuales[['Total', 'Ganancia']].values.T,
-    x=ventas_mensuales['Month'],
-    y=['Total', 'Ganancia'],
-    colorscale='Viridis',
-    colorbar=dict(title='Value')
-))
+# Sales by City
+sales_by_city = df.groupby('Ciudad de Envio').agg({'Total': 'sum'}).reset_index()
+fig_sales_by_city = px.bar(sales_by_city, x='Ciudad de Envio', y='Total',
+                          title='Sales by City',
+                          labels={'Total': 'Sales Amount'})
+st.plotly_chart(fig_sales_by_city)
 
-fig_heatmap.update_layout(title='Monthly Sales and Profit Heatmap', xaxis_title='Month', yaxis_title='Metric')
-st.plotly_chart(fig_heatmap)
+# Customer Insights
+# Placeholder if customer data is available
+# st.subheader('Customer Insights')
+# st.write("Customer segmentation data not available")
 
-# 5. Line Chart: Profit Margin Over Time
-st.subheader('Profit Margin Over Time')
-ventas_diarias = df.groupby('Fecha').agg({'Total': 'sum', 'Ganancia': 'sum'}).reset_index()
-ventas_diarias['Margen (%)'] = (ventas_diarias['Ganancia'] / ventas_diarias['Total']) * 100
-fig_margin = px.line(ventas_diarias, x='Fecha', y='Margen (%)', 
-                     title='Profit Margin Over Time')
-st.plotly_chart(fig_margin)
+# Margin Analysis
+st.subheader('Margin Analysis')
+# Overall Margin Analysis
+overall_margin = (df['Ganancia'].sum() / df['Total'].sum()) * 100
+st.metric("Overall Margin", f"{overall_margin:.2f} %")
 
-# 6. Scatter Plot: Average Price vs Profit Margin by Product
-st.subheader('Average Price vs Profit Margin by Product')
-fig_scatter_avg_price = px.scatter(ventas_por_producto, x='Precio Promedio', y='Rentabilidad (%)',
-                                   size='Total', color='Nombre del Producto',
-                                   hover_name='Nombre del Producto',
-                                   title='Average Price vs Profit Margin by Product')
-st.plotly_chart(fig_scatter_avg_price)
+# Product Margin Analysis
+product_margin_analysis = df.groupby('Nombre del Producto').agg({
+    'Total': 'sum',
+    'Ganancia': 'sum'
+}).reset_index()
+product_margin_analysis['Margen (%)'] = (product_margin_analysis['Ganancia'] / product_margin_analysis['Total']) * 100
+fig_product_margin = px.bar(product_margin_analysis, x='Nombre del Producto', y='Margen (%)',
+                            title='Margin Analysis by Product',
+                            labels={'Margen (%)': 'Margin (%)'})
+st.plotly_chart(fig_product_margin)
 
-# Detailed Analysis by Product
-st.subheader('Detailed Analysis by Product')
-producto_seleccionado = st.selectbox('Select a Product:', df['Nombre del Producto'].unique())
+# Interactive Filters
+st.sidebar.subheader('Interactive Filters')
+date_range = st.sidebar.date_input('Select Date Range', [df['Fecha'].min(), df['Fecha'].max()])
+filtered_df = df[(df['Fecha'] >= date_range[0]) & (df['Fecha'] <= date_range[1])]
+selected_country = st.sidebar.selectbox('Select Country:', df['Pais de Envio'].unique())
+filtered_df = filtered_df[filtered_df['Pais de Envio'] == selected_country]
 
-producto_df = df[df['Nombre del Producto'] == producto_seleccionado]
+# Update KPIs with filters
+st.sidebar.subheader('Filtered KPIs')
+total_revenue_filtered = filtered_df['Total'].sum()
+total_profit_filtered = filtered_df['Ganancia'].sum()
+total_orders_filtered = filtered_df['ID'].nunique()
+average_order_value_filtered = total_revenue_filtered / total_orders_filtered if total_orders_filtered > 0 else 0
+average_profit_per_order_filtered = total_profit_filtered / total_orders_filtered if total_orders_filtered > 0 else 0
+overall_profit_margin_filtered = (total_profit_filtered / total_revenue_filtered) * 100 if total_revenue_filtered > 0 else 0
 
-col1, col2, col3 = st.columns(3)
-col1.metric("Total Sold", f"{producto_df['Total'].sum():,.0f} CLP")
-col2.metric("Quantity Sold", f"{producto_df['Cantidad de Productos'].sum():,.0f}")
-col3.metric("Total Profit", f"{producto_df['Ganancia'].sum():,.0f} CLP")
+col1, col2, col3, col4, col5 = st.sidebar.columns(5)
+col1.metric("Total Revenue", f"{total_revenue_filtered:,.0f} CLP")
+col2.metric("Total Profit", f"{total_profit_filtered:,.0f} CLP")
+col3.metric("Total Orders", f"{total_orders_filtered:,}")
+col4.metric("Average Order Value", f"{average_order_value_filtered:,.0f} CLP")
+col5.metric("Average Profit per Order", f"{average_profit_per_order_filtered:,.0f} CLP")
+st.sidebar.metric("Overall Profit Margin", f"{overall_profit_margin_filtered:.2f} %")
 
-# Plot: Sales of Selected Product Over Time
-fig_producto = px.line(producto_df, x='Fecha', y='Total', 
-                      title=f'Sales of {producto_seleccionado} Over Time')
-st.plotly_chart(fig_producto)
+# Display filtered data preview
+st.sidebar.subheader('Filtered Data Preview')
+st.sidebar.dataframe(filtered_df.head())
