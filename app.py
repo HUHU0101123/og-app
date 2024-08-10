@@ -114,37 +114,44 @@ else:
 
     # Desempeño de Productos
     st.subheader('Desempeño de Productos')
-    product_performance = filtered_df.groupby(['Nombre del Producto', 'SKU del Producto', 'Categoría']).agg({
-        'Cantidad de Productos': 'sum',
-        'Total': 'sum',
-        'Ganancia': 'sum'
-    }).reset_index()
-    product_performance['Precio Promedio'] = product_performance['Total'] / product_performance['Cantidad de Productos']
-    product_performance['Rentabilidad (%)'] = (product_performance['Ganancia'] / product_performance['Total']) * 100
 
-    if not product_performance.empty:
-        # Gráfico de barras para Productos Más Vendidos
-        product_performance_sorted = product_performance.sort_values('Cantidad de Productos', ascending=False)
-        fig_top_selling_products = px.bar(product_performance_sorted,
-                                          y='Nombre del Producto', x='Cantidad de Productos',
-                                          color='Categoría',  # Color por categoría
-                                          title='Productos Más Vendidos',
-                                          labels={'Cantidad de Productos': 'Cantidad Vendida'},
-                                          template='plotly_dark',
-                                          orientation='h')
-        fig_top_selling_products.update_layout(xaxis_title='Cantidad Vendida', yaxis_title='Nombre del Producto')
-        st.plotly_chart(fig_top_selling_products)
+    # Verificar nombres de columnas en el DataFrame filtrado
+    st.write("Columnas en filtered_df:", filtered_df.columns)
 
-        # Gráfico de dispersión para Rentabilidad de Productos
-        fig_product_profitability = px.scatter(product_performance, x='Precio Promedio', y='Rentabilidad (%)',
-                                               size='Total', color='Nombre del Producto',
-                                               hover_name='Nombre del Producto',
-                                               title='Rentabilidad de Productos',
-                                               template='plotly_dark')
-        fig_product_profitability.update_layout(xaxis_title='Precio Promedio', yaxis_title='Rentabilidad (%)')
-        st.plotly_chart(fig_product_profitability)
-    else:
-        st.write("No hay datos suficientes para mostrar el desempeño de productos.")
+    try:
+        product_performance = filtered_df.groupby(['Nombre del Producto', 'SKU del Producto', 'Categoria']).agg({
+            'Cantidad de Productos': 'sum',
+            'Total': 'sum',
+            'Ganancia': 'sum'
+        }).reset_index()
+        product_performance['Precio Promedio'] = product_performance['Total'] / product_performance['Cantidad de Productos']
+        product_performance['Rentabilidad (%)'] = (product_performance['Ganancia'] / product_performance['Total']) * 100
+
+        if not product_performance.empty:
+            # Gráfico de barras para Productos Más Vendidos
+            product_performance_sorted = product_performance.sort_values('Cantidad de Productos', ascending=False)
+            fig_top_selling_products = px.bar(product_performance_sorted,
+                                              y='Nombre del Producto', x='Cantidad de Productos',
+                                              color='Categoria',  # Color por categoría
+                                              title='Productos Más Vendidos',
+                                              labels={'Cantidad de Productos': 'Cantidad Vendida'},
+                                              template='plotly_dark',
+                                              orientation='h')
+            fig_top_selling_products.update_layout(xaxis_title='Cantidad Vendida', yaxis_title='Nombre del Producto')
+            st.plotly_chart(fig_top_selling_products)
+
+            # Gráfico de dispersión para Rentabilidad de Productos
+            fig_product_profitability = px.scatter(product_performance, x='Precio Promedio', y='Rentabilidad (%)',
+                                                   size='Total', color='Nombre del Producto',
+                                                   hover_name='Nombre del Producto',
+                                                   title='Rentabilidad de Productos',
+                                                   template='plotly_dark')
+            fig_product_profitability.update_layout(xaxis_title='Precio Promedio', yaxis_title='Rentabilidad (%)')
+            st.plotly_chart(fig_product_profitability)
+        else:
+            st.write("No hay datos suficientes para mostrar el desempeño de productos.")
+    except KeyError as e:
+        st.error(f"Error al agrupar los datos: {e}")
 
     # Análisis de Métodos de Pago y Descuentos
     st.subheader('Análisis de Métodos de Pago y Descuentos')
@@ -157,29 +164,38 @@ else:
                                 template='plotly_dark')
     st.plotly_chart(fig_payment_methods)
 
-    # Análisis de Cupones y Descuentos
+    # Descuentos Aplicados
     discounts = filtered_df.groupby('Cupones').agg({'Subtotal': 'sum', 'Total': 'sum'}).reset_index()
-    fig_discounts = px.bar(discounts, x='Cupones', y=['Subtotal', 'Total'],
-                           title='Impacto de Cupones en las Ventas',
-                           template='plotly_dark')
-    fig_discounts.update_layout(xaxis_title='Cupón', yaxis_title='Monto')
+    discounts.columns = ['Cupón', 'Subtotal', 'Total']
+    fig_discounts = px.bar(discounts, x='Cupón', y=['Subtotal', 'Total'],
+                          title='Impacto de Descuentos en Ventas',
+                          labels={'value': 'Monto', 'Cupón': 'Cupón'},
+                          template='plotly_dark')
+    fig_discounts.update_layout(barmode='group')
     st.plotly_chart(fig_discounts)
 
     # Información sobre Envíos
     st.subheader('Información sobre Envíos')
 
-    # Distribución de Métodos de Envío
+    # Distribución de métodos de envío
     shipping_methods = filtered_df['Nombre del metodo de envio'].value_counts().reset_index()
     shipping_methods.columns = ['Método de Envío', 'Cantidad']
     fig_shipping_methods = px.pie(shipping_methods, names='Método de Envío', values='Cantidad',
-                                  title='Distribución de Métodos de Envío',
+                                  title='Distribución de Pedidos por Método de Envío',
                                   template='plotly_dark')
     st.plotly_chart(fig_shipping_methods)
 
-    # Tiempo Promedio de Entrega
-    filtered_df['Tiempo de Entrega'] = (pd.to_datetime(filtered_df['Fecha de Envio']) - filtered_df['Fecha']).dt.days
-    average_delivery_time = filtered_df['Tiempo de Entrega'].mean()
-    st.metric("Tiempo Promedio de Entrega", f"{average_delivery_time:.2f} días")
+    # Estado de los envíos
+    shipping_status = filtered_df['Estado del Envio'].value_counts().reset_index()
+    shipping_status.columns = ['Estado del Envío', 'Cantidad']
+    fig_shipping_status = px.pie(shipping_status, names='Estado del Envío', values='Cantidad',
+                                 title='Estado de los Envíos',
+                                 template='plotly_dark')
+    st.plotly_chart(fig_shipping_status)
+
+    # Costo Promedio de Envío
+    average_shipping_cost = filtered_df['Envio'].mean()
+    st.metric("Costo Promedio de Envío", f"{average_shipping_cost:,.0f} CLP")
 
     # Análisis Detallado por Producto
     st.subheader('Análisis Detallado por Producto')
