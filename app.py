@@ -25,9 +25,18 @@ st.write("")
 
 # Interactive Filters
 st.sidebar.subheader('Filtros Interactivos')
+
+# Date Range Filter
 date_range = st.sidebar.date_input('Selecciona el Rango de Fechas', [df['Fecha'].min().date(), df['Fecha'].max().date()])
 date_range = [pd.to_datetime(date) for date in date_range]
+
+# Tipo de Venta Filter
+tipo_venta = st.sidebar.selectbox('Selecciona el Tipo de Venta', ['Todo', 'Venta al Detalle', 'Venta Mayorista'])
+
+# Filter DataFrame based on selections
 filtered_df = df[(df['Fecha'] >= date_range[0]) & (df['Fecha'] <= date_range[1])]
+if tipo_venta != 'Todo':
+    filtered_df = filtered_df[filtered_df['Tipo de Venta'] == tipo_venta]
 
 # Summary Metrics
 st.subheader('Antes de Impuestos')
