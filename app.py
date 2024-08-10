@@ -108,7 +108,7 @@ else:
 
     # Product Performance
     st.subheader('Desempeño de Productos')
-    product_performance = filtered_df.groupby(['Nombre del Producto', 'SKU del Producto', 'Tipo de Venta']).agg({
+    product_performance = filtered_df.groupby(['Nombre del Producto', 'SKU del Producto']).agg({
         'Cantidad de Productos': 'sum',
         'Total': 'sum',
         'Ganancia': 'sum'
@@ -117,16 +117,14 @@ else:
     product_performance['Rentabilidad (%)'] = (product_performance['Ganancia'] / product_performance['Total']) * 100
 
     if not product_performance.empty:
-        # Top-Selling Products Bar Chart with SKU
+        # Top-Selling Products Bar Chart with SKU as color
         fig_top_selling_products = px.bar(product_performance.sort_values('Cantidad de Productos', ascending=False),
                                           x='Nombre del Producto', y='Cantidad de Productos',
-                                          color='Tipo de Venta',
+                                          color='SKU del Producto',  # Color by SKU
                                           title='Productos Más Vendidos',
                                           labels={'Cantidad de Productos': 'Cantidad Vendida'},
-                                          template='plotly_dark',
-                                          text='SKU del Producto')  # Add SKU to bars
+                                          template='plotly_dark')
         fig_top_selling_products.update_layout(xaxis_title='Nombre del Producto', yaxis_title='Cantidad Vendida')
-        fig_top_selling_products.update_traces(texttemplate='%{text}', textposition='outside')
         st.plotly_chart(fig_top_selling_products)
 
         # Product Profitability
