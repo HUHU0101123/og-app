@@ -33,50 +33,50 @@ date_range = [pd.to_datetime(date) for date in date_range]
 # Tipo de Venta Filter
 tipo_venta = st.sidebar.selectbox('Selecciona el Tipo de Venta', ['Todo', 'Venta al Detalle', 'Venta Mayorista'])
 
-# Filtra el DataFrame según las selecciones
-    filtered_df = df[(df['Fecha'] >= date_range[0]) & (df['Fecha'] <= date_range[1])]
-    if tipo_venta != 'Todo':
-        filtered_df = filtered_df[filtered_df['Tipo de Venta'] == tipo_venta]
+# Filter DataFrame based on selections
+filtered_df = df[(df['Fecha'] >= date_range[0]) & (df['Fecha'] <= date_range[1])]
+if tipo_venta != 'Todo':
+    filtered_df = filtered_df[filtered_df['Tipo de Venta'] == tipo_venta]
 
-    # Verifica si el DataFrame filtrado está vacío
-    if filtered_df.empty:
-        st.error('No hay datos disponibles para los filtros seleccionados.')
-    else:
-        # Cálculo de métricas antes de impuestos
-        st.subheader('Antes de Impuestos')
+# Check if filtered DataFrame is empty
+if filtered_df.empty:
+    st.error('No hay datos disponibles para los filtros seleccionados.')
+else:
+    # Summary Metrics
+    st.subheader('Antes de Impuestos')
 
-        # Calcula las métricas
-        total_revenue = filtered_df['Total'].sum()
-        total_profit = filtered_df['Ganancia'].sum()
-        total_orders = filtered_df['ID'].nunique()
-        average_order_value = total_revenue / total_orders if total_orders > 0 else 0
-        average_profit_per_order = total_profit / total_orders if total_orders > 0 else 0
-        overall_profit_margin = (total_profit / total_revenue) * 100 if total_revenue > 0 else 0
+    # Calculate metrics
+    total_revenue = filtered_df['Total'].sum()
+    total_profit = filtered_df['Ganancia'].sum()
+    total_orders = filtered_df['ID'].nunique()
+    average_order_value = total_revenue / total_orders if total_orders > 0 else 0
+    average_profit_per_order = total_profit / total_orders if total_orders > 0 else 0
+    overall_profit_margin = (total_profit / total_revenue) * 100 if total_revenue > 0 else 0
 
-        # Calcula el Total de Descuentos
-        total_descuentos = filtered_df['Descuento'].sum()  # Asegúrate de que la columna 'Descuento' existe en tu DataFrame
+    # Calculate Total Discounts
+    total_descuentos = filtered_df['Descuento'].sum()  # Ensure 'Descuento' column exists in your DataFrame
 
-        # Muestra las métricas utilizando las funciones integradas de Streamlit
-        col1, col2, col3, col4, col5, col6 = st.columns(6)
+    # Display metrics using Streamlit's built-in functions
+    col1, col2, col3, col4, col5, col6 = st.columns(6)
 
-        col1.metric(label="Ingresos Totales", value=f"{total_revenue:,.0f} CLP", delta=None)
-        col2.metric(label="Beneficio Total", value=f"{total_profit:,.0f} CLP", delta=None)
-        col3.metric(label="Total de Pedidos", value=f"{total_orders:,}", delta=None)
-        col4.metric(label="Valor Promedio por Pedido", value=f"{average_order_value:,.0f} CLP", delta=None)
-        col5.metric(label="Beneficio Promedio por Pedido", value=f"{average_profit_per_order:,.0f} CLP", delta=None)
-        col6.metric(label="Margen de Beneficio Total", value=f"{overall_profit_margin:.2f} %", delta=None)
+    col1.metric(label="Ingresos Totales", value=f"{total_revenue:,.0f} CLP", delta=None)
+    col2.metric(label="Beneficio Total", value=f"{total_profit:,.0f} CLP", delta=None)
+    col3.metric(label="Total de Pedidos", value=f"{total_orders:,}", delta=None)
+    col4.metric(label="Valor Promedio por Pedido", value=f"{average_order_value:,.0f} CLP", delta=None)
+    col5.metric(label="Beneficio Promedio por Pedido", value=f"{average_profit_per_order:,.0f} CLP", delta=None)
+    col6.metric(label="Margen de Beneficio Total", value=f"{overall_profit_margin:.2f} %", delta=None)
 
-        # Muestra el Total de Descuentos antes del Beneficio Después de Impuestos
-        st.subheader('Descuentos Aplicados')
-        st.metric("Total de Descuentos", f"{total_descuentos:,.0f} CLP")
+    # Display Total Discounts
+    st.subheader('Descuentos Aplicados')
+    st.metric("Total de Descuentos", f"{total_descuentos:,.0f} CLP")
 
-        # Calcula el beneficio después de impuestos
-        tax_rate = 0.19
-        total_profit_after_tax = total_profit * (1 - tax_rate)
+    # Calculate profit after tax
+    tax_rate = 0.19
+    total_profit_after_tax = total_profit * (1 - tax_rate)
 
-        # Muestra el Beneficio Después de Impuestos
-        st.subheader('Después de Impuestos')
-        st.metric("Beneficio Después de Impuestos (19%)", f"{total_profit_after_tax:,.0f} CLP")
+    # Additional metric for profit after tax
+    st.subheader('Después de Impuestos')
+    st.metric("Beneficio Después de Impuestos (19%)", f"{total_profit_after_tax:,.0f} CLP")
 
     # Add space before Sales Trends section
     st.write("")
@@ -172,6 +172,7 @@ tipo_venta = st.sidebar.selectbox('Selecciona el Tipo de Venta', ['Todo', 'Venta
 
     # Payment and Discount Analysis
     st.subheader('Análisis de Métodos de Pago y Descuentos')
+
     # Payment Methods Breakdown
     payment_methods = filtered_df['Nombre de Pago'].value_counts().reset_index()
     payment_methods.columns = ['Método de Pago', 'Cantidad']
@@ -192,6 +193,7 @@ tipo_venta = st.sidebar.selectbox('Selecciona el Tipo de Venta', ['Todo', 'Venta
 
     # Shipping Insights
     st.subheader('Información sobre Envíos')
+
     # Shipping Methods Distribution
     shipping_methods = filtered_df['Nombre del metodo de envio'].value_counts().reset_index()
     shipping_methods.columns = ['Método de Envío', 'Cantidad']
