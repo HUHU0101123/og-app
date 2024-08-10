@@ -51,17 +51,23 @@ fig_pie = px.pie(ventas_por_producto, names='Nombre del Producto', values='Total
                  title='Sales Distribution by Product')
 st.plotly_chart(fig_pie)
 
-# 3. Heatmap: Sales and Profit by Date
-st.subheader('Sales and Profit Heatmap')
-ventas_diarias = df.groupby(['Fecha']).agg({'Total': 'sum', 'Ganancia': 'sum'}).reset_index()
-ventas_diarias['Fecha'] = ventas_diarias['Fecha'].dt.to_period('M').astype(str)
-fig_heatmap = px.imshow(ventas_diarias.pivot(index='Fecha', columns='Fecha', values='Total'),
-                        color_continuous_scale='Viridis',
-                        title='Monthly Sales Heatmap')
+# 3. Heatmap: Sales and Profit by Month
+st.subheader('Monthly Sales and Profit Heatmap')
+# Aggregating data by month
+ventas_mensuales = df.resample('M', on='Fecha').agg({'Total': 'sum', 'Ganancia': 'sum'}).reset_index()
+# Creating the heatmap using a matrix of months vs. sales/profit
+fig_heatmap = go.Figure(data=go.Heatmap(
+    z=ventas_mensuales[['Total', 'Ganancia']].values.T,
+    x=ventas_mensuales['Fecha'].dt.to_period('M').astype(str),
+    y=['Total', 'Ganancia'],
+    colorscale='Viridis'
+))
+fig_heatmap.update_layout(title='Monthly Sales and Profit Heatmap', xaxis_title='Month', yaxis_title='Metric')
 st.plotly_chart(fig_heatmap)
 
 # 4. Line Chart: Profit Margin Over Time
 st.subheader('Profit Margin Over Time')
+ventas_diarias = df.groupby('Fecha').agg({'Total': 'sum', 'Ganancia': 'sum'}).reset_index()
 ventas_diarias['Margen (%)'] = (ventas_diarias['Ganancia'] / ventas_diarias['Total']) * 100
 fig_margin = px.line(ventas_diarias, x='Fecha', y='Margen (%)', 
                      title='Profit Margin Over Time')
