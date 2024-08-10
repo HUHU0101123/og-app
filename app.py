@@ -67,8 +67,7 @@ else:
     col6.metric(label="Margen de Beneficio Total", value=f"{overall_profit_margin:.2f} %", delta=None)
 
     # Display Total Discounts
-    st.subheader('Descuentos Aplicados')
-    st.metric("Total de Descuentos", f"{total_descuentos:,.0f} CLP")
+    st.metric("Total en Descuentos", f"{total_descuentos:,.0f} CLP")
 
     # Calculate profit after tax
     tax_rate = 0.19
