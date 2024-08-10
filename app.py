@@ -3,18 +3,26 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 
-# Load the CSV file from GitHub
-url = "https://raw.githubusercontent.com/HUHU0101123/og-app/main/datasource.csv"  # Change this to your actual file URL
-df = pd.read_csv(url)
+# Load the CSV files from GitHub
+url1 = "https://raw.githubusercontent.com/HUHU0101123/og-app/main/datasource.csv"  # First datasource URL
+url2 = "https://raw.githubusercontent.com/HUHU0101123/og-app/main/categorias.csv"  # Second datasource URL
+
+df = pd.read_csv(url1)
+categorias_df = pd.read_csv(url2)
 
 # Strip any extra whitespace from column names
 df.columns = df.columns.str.strip()
+categorias_df.columns = categorias_df.columns.str.strip()
 
-# Convert the 'Fecha' column to datetime
+# Convert the 'Fecha' column to datetime in the main dataframe
 df['Fecha'] = pd.to_datetime(df['Fecha'])
 
+# Merge the two dataframes
+# Assuming that both dataframes have a common column 'SKU del Producto'
+merged_df = pd.merge(df, categorias_df, on='SKU del Producto', how='left')
+
 # Create a new column to differentiate between 'Venta al Detalle' and 'Venta Mayorista'
-df['Tipo de Venta'] = df['Cantidad de Productos'].apply(lambda x: 'Venta al Detalle' if x < 6 else 'Venta Mayorista')
+merged_df['Tipo de Venta'] = merged_df['Cantidad de Productos'].apply(lambda x: 'Venta al Detalle' if x < 6 else 'Venta Mayorista')
 
 # Dashboard Title
 st.title('Dashboard de Análisis de Ventas')
@@ -27,14 +35,14 @@ st.write("")
 st.sidebar.subheader('Filtros Interactivos')
 
 # Date Range Filter
-date_range = st.sidebar.date_input('Selecciona el Rango de Fechas', [df['Fecha'].min().date(), df['Fecha'].max().date()])
+date_range = st.sidebar.date_input('Selecciona el Rango de Fechas', [merged_df['Fecha'].min().date(), merged_df['Fecha'].max().date()])
 date_range = [pd.to_datetime(date) for date in date_range]
 
 # Tipo de Venta Filter
 tipo_venta = st.sidebar.selectbox('Selecciona el Tipo de Venta', ['Todo', 'Venta al Detalle', 'Venta Mayorista'])
 
 # Filter DataFrame based on selections
-filtered_df = df[(df['Fecha'] >= date_range[0]) & (df['Fecha'] <= date_range[1])]
+filtered_df = merged_df[(merged_df['Fecha'] >= date_range[0]) & (merged_df['Fecha'] <= date_range[1])]
 if tipo_venta != 'Todo':
     filtered_df = filtered_df[filtered_df['Tipo de Venta'] == tipo_venta]
 
@@ -111,7 +119,8 @@ else:
     product_performance = filtered_df.groupby(['Nombre del Producto', 'SKU del Producto']).agg({
         'Cantidad de Productos': 'sum',
         'Total': 'sum',
-        'Ganancia': 'sum'
+        'Ganancia': 'sum',
+        'Categoria': 'first'  # Assuming 'Categoria' is a column in categorias_df
     }).reset_index()
     product_performance['Precio Promedio'] = product_performance['Total'] / product_performance['Cantidad de Productos']
     product_performance['Rentabilidad (%)'] = (product_performance['Ganancia'] / product_performance['Total']) * 100
@@ -131,7 +140,7 @@ else:
 
         # Product Profitability
         fig_product_profitability = px.scatter(product_performance, x='Precio Promedio', y='Rentabilidad (%)',
-                                               size='Total', color='Nombre del Producto',
+                                               size='Total', color='Categoria',
                                                hover_name='Nombre del Producto',
                                                title='Rentabilidad de Productos',
                                                template='plotly_dark')
