@@ -1,0 +1,101 @@
+ID,Estado del Pago,Estado del Envio,Fecha,Subtotal,Envio,Descuento,Total,Ganancia,Margen (%),Moneda,Nombre del Producto,SKU del Producto,Cantidad de Productos,Precio del Producto,Rentabilidad del producto,Margen del producto (%),Pais de Envio,Ciudad de Envio,Nombre del metodo de envio,Nombre de Pago,Cupones
+1,Pagado,Enviado,2024-07-01,50000,2500,5000,47500,15000,31.58,CLP,Blusa Roja,BLU001,1,50000,30%,25%,Chile,Santiago,Envio Rapido,Tarjeta,CUPON15
+2,Pagado,Enviado,2024-07-02,30000,1500,3000,28500,9000,30,CLP,Vestido Azul,VES002,1,30000,30%,20%,Chile,Valparaíso,Envio Estandar,PayPal,CUPON20
+3,Pendiente,No Enviado,2024-07-03,45000,2000,4500,42500,12000,28.24,CLP,Falda Negra,FAL003,1,45000,25%,22%,Chile,Concepción,Envio Express,Tarjeta,SIN CUPÓN
+4,Fallido,No Enviado,2024-07-04,60000,3000,6000,57000,18000,31.58,CLP,Chaqueta Gris,CHA004,1,60000,30%,30%,Chile,Antofagasta,Envio Estandar,Transferencia,CUPON10
+5,Pagado,Enviado,2024-07-05,25000,1200,2500,23700,7500,31.58,CLP,Pantalón Verde,PAN005,1,25000,30%,25%,Chile,Temuco,Envio Rapido,Tarjeta,CUPON5
+6,Pagado,Enviado,2024-07-06,35000,1700,3500,33200,10500,31.58,CLP,Camisa Blanca,CAM006,1,35000,30%,25%,Chile,Puerto Montt,Envio Estándar,PayPal,SIN CUPÓN
+7,Pagado,Enviado,2024-07-07,40000,2000,4000,38000,12000,31.58,CLP,Falda Amarilla,FAL007,1,40000,30%,25%,Chile,Viña del Mar,Envío Express,Tarjeta,CUPON20
+8,Pendiente,No Enviado,2024-07-08,55000,2750,5500,52250,16000,29.09,CLP,Blazer Azul,BLA008,1,55000,30%,27%,Chile,Rancagua,Envío Rápido,Transferencia,SIN CUPÓN
+9,Pagado,Enviado,2024-07-09,20000,1000,2000,19000,6000,31.58,CLP,Jeans Negro,JEA009,1,20000,30%,25%,Chile,La Serena,Envío Estándar,Tarjeta,CUPON10
+10,Fallido,No Enviado,2024-07-10,15000,750,1500,14250,4500,31.58,CLP,Camiseta Verde,CAM010,1,15000,30%,25%,Chile,Coquimbo,Envío Rápido,PayPal,SIN CUPÓN
+11,Pagado,Enviado,2024-07-11,50000,2500,5000,47500,15000,31.58,CLP,Blusa Roja,BLU011,1,50000,30%,25%,Chile,Santiago,Envío Express,Transferencia,CUPON15
+12,Pagado,Enviado,2024-07-12,35000,1700,3500,33200,10500,31.58,CLP,Vestido Negro,VES012,1,35000,30%,25%,Chile,Temuco,Envío Rápido,Tarjeta,CUPON20
+13,Pendiente,No Enviado,2024-07-13,25000,1200,2500,23700,7500,31.58,CLP,Falda Blanca,FAL013,1,25000,30%,25%,Chile,Puerto Montt,Envío Estándar,PayPal,CUPON5
+14,Pagado,Enviado,2024-07-14,45000,2000,4500,42500,12000,28.24,CLP,Chaqueta Roja,CHA014,1,45000,25%,22%,Chile,Valdivia,Envío Express,Tarjeta,SIN CUPÓN
+15,Pagado,Enviado,2024-07-15,30000,1500,3000,28500,9000,30,CLP,Blusa Verde,BLU015,1,30000,30%,20%,Chile,Chillán,Envío Rápido,PayPal,CUPON10
+16,Fallido,No Enviado,2024-07-16,55000,2750,5500,52250,16000,29.09,CLP,Vestido Blanco,VES016,1,55000,30%,27%,Chile,Osorno,Envío Estándar,Transferencia,CUPON20
+17,Pagado,Enviado,2024-07-17,60000,3000,6000,57000,18000,31.58,CLP,Falda Azul,FAL017,1,60000,30%,30%,Chile,Punta Arenas,Envío Express,Tarjeta,CUPON5
+18,Pagado,Enviado,2024-07-18,20000,1000,2000,19000,6000,31.58,CLP,Pantalón Marrón,PAN018,1,20000,30%,25%,Chile,Iquique,Envío Rápido,PayPal,SIN CUPÓN
+19,Pagado,Enviado,2024-07-19,50000,2500,5000,47500,15000,31.58,CLP,Chaqueta Negra,CHA019,1,50000,30%,25%,Chile,Rancagua,Envío Estándar,Transferencia,CUPON15
+20,Pendiente,No Enviado,2024-07-20,40000,2000,4000,38000,12000,31.58,CLP,Camisa Verde,CAM020,1,40000,30%,25%,Chile,Valparaíso,Envío Express,Tarjeta,SIN CUPÓN
+21,Pagado,Enviado,2024-07-21,35000,1700,3500,33200,10500,31.58,CLP,Blusa Blanca,BLU021,1,35000,30%,25%,Chile,La Serena,Envío Rápido,PayPal,CUPON10
+22,Pagado,Enviado,2024-07-22,25000,1200,2500,23700,7500,31.58,CLP,Falda Roja,FAL022,1,25000,30%,25%,Chile,Santiago,Envío Estándar,Tarjeta,CUPON20
+23,Fallido,No Enviado,2024-07-23,45000,2000,4500,42500,12000,28.24,CLP,Vestido Verde,VES023,1,45000,25%,22%,Chile,Puerto Montt,Envío Express,Transferencia,CUPON5
+24,Pagado,Enviado,2024-07-24,55000,2750,5500,52250,16000,29.09,CLP,Pantalón Azul,PAN024,1,55000,30%,27%,Chile,Concepción,Envío Rápido,PayPal,SIN CUPÓN
+25,Pendiente,No Enviado,2024-07-25,60000,3000,6000,57000,18000,31.58,CLP,Camiseta Amarilla,CAM025,1,60000,30%,30%,Chile,Santiago,Envío Estándar,Tarjeta,CUPON15
+26,Pagado,Enviado,2024-07-26,20000,1000,2000,19000,6000,31.58,CLP,Blusa Marrón,BLU026,1,20000,30%,25%,Chile,Antofagasta,Envío Express,PayPal,CUPON20
+27,Fallido,No Enviado,2024-07-27,50000,2500,5000,47500,15000,31.58,CLP,Falda Gris,FAL027,1,50000,30%,25%,Chile,Valdivia,Envío Rápido,Tarjeta,SIN CUPÓN
+28,Pagado,Enviado,2024-07-28,40000,2000,4000,38000,12000,31.58,CLP,Pantalón Verde,PAN028,1,40000,30%,25%,Chile,Viña del Mar,Envío Estándar,PayPal,CUPON10
+29,Pendiente,No Enviado,2024-07-29,30000,1500,3000,28500,9000,30,CLP,Vestido Blanco,VES029,1,30000,30%,20%,Chile,Punta Arenas,Envío Express,Transferencia,CUPON20
+30,Pagado,Enviado,2024-07-30,25000,1200,2500,23700,7500,31.58,CLP,Camiseta Verde,CAM030,1,25000,30%,25%,Chile,Osorno,Envío Rápido,Tarjeta,CUPON5
+31,Pagado,Enviado,2024-08-10,55000,2750,5500,52250,16000,29.09,CLP,Chaqueta Marrón,CHA100,1,55000,30%,27%,Chile,Viña del Mar,Envío Rápido,PayPal,CUPON10
+32,Pagado,Enviado,2024-07-31,45000,2250,4500,42750,13500,31.58,CLP,Falda Gris,FAL032,1,45000,30%,30%,Chile,Iquique,Envío Estándar,Transferencia,SIN CUPÓN
+33,Pendiente,No Enviado,2024-08-01,30000,1500,3000,28500,9000,30,CLP,Chaqueta Negra,CHA033,1,30000,30%,25%,Chile,Santiago,Envío Rápido,Tarjeta,CUPON10
+34,Pagado,Enviado,2024-08-02,25000,1200,2500,23700,7500,31.58,CLP,Vestido Amarillo,VES034,1,25000,30%,25%,Chile,Antofagasta,Envío Express,PayPal,SIN CUPÓN
+35,Fallido,No Enviado,2024-08-03,50000,2500,5000,47500,15000,31.58,CLP,Camisa Blanca,CAM035,1,50000,30%,25%,Chile,Valparaíso,Envío Rápido,Transferencia,CUPON15
+36,Pagado,Enviado,2024-08-04,35000,1750,3500,33250,10500,29.79,CLP,Blusa Roja,BLU036,1,35000,30%,28%,Chile,Rancagua,Envío Estándar,Tarjeta,SIN CUPÓN
+37,Pagado,Enviado,2024-08-05,55000,2750,5500,52250,16500,31.58,CLP,Pantalón Verde,PAN037,1,55000,30%,30%,Chile,La Serena,Envío Express,PayPal,CUPON20
+38,Pendiente,No Enviado,2024-08-06,40000,2000,4000,38000,12000,31.58,CLP,Falda Negra,FAL038,1,40000,30%,25%,Chile,Punta Arenas,Envío Rápido,Transferencia,CUPON5
+39,Pagado,Enviado,2024-08-07,60000,3000,6000,57000,18000,31.58,CLP,Vestido Azul,VES039,1,60000,30%,30%,Chile,Valdivia,Envío Estándar,Tarjeta,SIN CUPÓN
+40,Pagado,Enviado,2024-08-08,20000,1000,2000,19000,6000,31.58,CLP,Blusa Verde,BLU040,1,20000,30%,25%,Chile,Osorno,Envío Rápido,PayPal,CUPON10
+41,Fallido,No Enviado,2024-08-09,50000,2500,5000,47500,15000,31.58,CLP,Pantalón Marrón,PAN041,1,50000,30%,25%,Chile,Iquique,Envío Estándar,Transferencia,SIN CUPÓN
+42,Pagado,Enviado,2024-08-10,35000,1750,3500,33250,10500,29.79,CLP,Vestido Negro,VES042,1,35000,30%,28%,Chile,Viña del Mar,Envío Rápido,Tarjeta,CUPON15
+43,Pagado,Enviado,2024-08-11,55000,2750,5500,52250,16500,31.58,CLP,Chaqueta Gris,CHA043,1,55000,30%,30%,Chile,Temuco,Envío Express,PayPal,SIN CUPÓN
+44,Pendiente,No Enviado,2024-08-12,40000,2000,4000,38000,12000,31.58,CLP,Falda Blanca,FAL044,1,40000,30%,25%,Chile,Concepción,Envío Estándar,Transferencia,CUPON5
+45,Pagado,Enviado,2024-08-13,60000,3000,6000,57000,18000,31.58,CLP,Blazer Azul,BLA045,1,60000,30%,30%,Chile,Chillán,Envío Rápido,Tarjeta,CUPON20
+46,Fallido,No Enviado,2024-08-14,20000,1000,2000,19000,6000,31.58,CLP,Jeans Negro,JEA046,1,20000,30%,25%,Chile,Rancagua,Envío Express,PayPal,SIN CUPÓN
+47,Pagado,Enviado,2024-08-15,50000,2500,5000,47500,15000,31.58,CLP,Camiseta Verde,CAM047,1,50000,30%,25%,Chile,Santiago,Envío Estándar,Transferencia,CUPON10
+48,Pagado,Enviado,2024-08-16,25000,1200,2500,23700,7500,31.58,CLP,Falda Marrón,FAL048,1,25000,30%,25%,Chile,Antofagasta,Envío Rápido,Tarjeta,CUPON15
+49,Pendiente,No Enviado,2024-08-17,55000,2750,5500,52250,16500,31.58,CLP,Pantalón Azul,PAN049,1,55000,30%,30%,Chile,Valdivia,Envío Express,PayPal,SIN CUPÓN
+50,Pagado,Enviado,2024-08-18,35000,1750,3500,33250,10500,29.79,CLP,Camisa Marrón,CAM050,1,35000,30%,28%,Chile,Osorno,Envío Estándar,Transferencia,CUPON5
+51,Fallido,No Enviado,2024-08-19,60000,3000,6000,57000,18000,31.58,CLP,Vestido Verde,VES051,1,60000,30%,30%,Chile,Santiago,Envío Rápido,Tarjeta,CUPON10
+52,Pagado,Enviado,2024-08-20,45000,2250,4500,42750,13500,31.58,CLP,Falda Roja,FAL052,1,45000,30%,25%,Chile,Rancagua,Envío Express,PayPal,SIN CUPÓN
+53,Pagado,Enviado,2024-08-21,30000,1500,3000,28500,9000,30,CLP,Blusa Azul,BLU053,1,30000,30%,20%,Chile,Iquique,Envío Estándar,Transferencia,CUPON15
+54,Pendiente,No Enviado,2024-08-22,25000,1250,2500,23750,7500,31.58,CLP,Vestido Amarillo,VES054,1,25000,30%,25%,Chile,Viña del Mar,Envío Rápido,Tarjeta,CUPON20
+55,Pagado,Enviado,2024-08-23,40000,2000,4000,38000,12000,31.58,CLP,Chaqueta Negra,CHA055,1,40000,30%,25%,Chile,Temuco,Envío Express,PayPal,SIN CUPÓN
+56,Fallido,No Enviado,2024-08-24,55000,2750,5500,52250,16500,31.58,CLP,Camiseta Blanca,CAM056,1,55000,30%,30%,Chile,Concepción,Envío Estándar,Transferencia,CUPON5
+57,Pagado,Enviado,2024-08-25,60000,3000,6000,57000,18000,31.58,CLP,Falda Verde,FAL057,1,60000,30%,30%,Chile,Chillán,Envío Rápido,Tarjeta,CUPON10
+58,Pendiente,No Enviado,2024-08-26,50000,2500,5000,47500,15000,31.58,CLP,Blusa Marrón,BLU058,1,50000,30%,25%,Chile,Rancagua,Envío Express,PayPal,SIN CUPÓN
+59,Pagado,Enviado,2024-08-27,45000,2250,4500,42750,13500,31.58,CLP,Chaqueta Roja,CHA059,1,45000,30%,25%,Chile,Santiago,Envío Estándar,Transferencia,CUPON15
+60,Pagado,Enviado,2024-08-28,55000,2750,5500,52250,16500,31.58,CLP,Vestido Blanco,VES060,1,55000,30%,30%,Chile,Antofagasta,Envío Rápido,Tarjeta,SIN CUPÓN
+61,Pagado,Enviado,2024-08-29,60000,3000,6000,57000,18000,31.58,CLP,Blazer Marrón,BLA061,1,60000,30%,30%,Chile,Valdivia,Envío Express,PayPal,CUPON10
+62,Pendiente,No Enviado,2024-08-30,40000,2000,4000,38000,12000,31.58,CLP,Pantalón Gris,PAN062,1,40000,30%,25%,Chile,Osorno,Envío Estándar,Transferencia,CUPON20
+63,Fallido,No Enviado,2024-08-31,20000,1000,2000,19000,6000,31.58,CLP,Camiseta Negra,CAM063,1,20000,30%,25%,Chile,Iquique,Envío Rápido,Tarjeta,SIN CUPÓN
+64,Pagado,Enviado,2024-09-01,50000,2500,5000,47500,15000,31.58,CLP,Falda Azul,FAL064,1,50000,30%,25%,Chile,Viña del Mar,Envío Express,PayPal,CUPON5
+65,Pendiente,No Enviado,2024-09-02,45000,2250,4500,42750,13500,31.58,CLP,Vestido Verde,VES065,1,45000,30%,25%,Chile,Santiago,Envío Estándar,Transferencia,CUPON10
+66,Pagado,Enviado,2024-09-03,55000,2750,5500,52250,16500,31.58,CLP,Blusa Blanca,BLU066,1,55000,30%,30%,Chile,Rancagua,Envío Rápido,Tarjeta,SIN CUPÓN
+67,Pagado,Enviado,2024-09-04,35000,1750,3500,33250,10500,29.79,CLP,Chaqueta Marrón,CHA067,1,35000,30%,28%,Chile,Antofagasta,Envío Express,PayPal,CUPON15
+68,Fallido,No Enviado,2024-09-05,50000,2500,5000,47500,15000,31.58,CLP,Pantalón Blanco,PAN068,1,50000,30%,25%,Chile,Valdivia,Envío Estándar,Transferencia,CUPON20
+69,Pagado,Enviado,2024-09-06,30000,1500,3000,28500,9000,30,CLP,Blusa Gris,BLU069,1,30000,30%,25%,Chile,Osorno,Envío Rápido,Tarjeta,SIN CUPÓN
+70,Pendiente,No Enviado,2024-09-07,25000,1250,2500,23750,7500,31.58,CLP,Falda Negra,FAL070,1,25000,30%,25%,Chile,Iquique,Envío Express,PayPal,CUPON5
+71,Pagado,Enviado,2024-09-08,60000,3000,6000,57000,18000,31.58,CLP,Vestido Azul,VES071,1,60000,30%,30%,Chile,Viña del Mar,Envío Estándar,Transferencia,CUPON10
+72,Pagado,Enviado,2024-09-09,40000,2000,4000,38000,12000,31.58,CLP,Pantalón Verde,PAN072,1,40000,30%,25%,Chile,Santiago,Envío Rápido,Tarjeta,SIN CUPÓN
+73,Fallido,No Enviado,2024-09-10,50000,2500,5000,47500,15000,31.58,CLP,Camisa Blanca,CAM073,1,50000,30%,25%,Chile,Rancagua,Envío Express,PayPal,CUPON15
+74,Pagado,Enviado,2024-09-11,45000,2250,4500,42750,13500,31.58,CLP,Blazer Negro,BLA074,1,45000,30%,25%,Chile,Antofagasta,Envío Rápido,Transferencia,SIN CUPÓN
+75,Pendiente,No Enviado,2024-09-12,60000,3000,6000,57000,18000,31.58,CLP,Vestido Negro,VES075,1,60000,30%,30%,Chile,Valdivia,Envío Estándar,Tarjeta,CUPON20
+76,Pagado,Enviado,2024-09-13,25000,1250,2500,23750,7500,31.58,CLP,Falda Roja,FAL076,1,25000,30%,25%,Chile,Osorno,Envío Express,PayPal,SIN CUPÓN
+77,Fallido,No Enviado,2024-09-14,55000,2750,5500,52250,16500,31.58,CLP,Blusa Negra,BLU077,1,55000,30%,30%,Chile,Iquique,Envío Rápido,Transferencia,CUPON5
+78,Pagado,Enviado,2024-09-15,40000,2000,4000,38000,12000,31.58,CLP,Chaqueta Verde,CHA078,1,40000,30%,25%,Chile,Viña del Mar,Envío Estándar,Tarjeta,CUPON10
+79,Pagado,Enviado,2024-09-16,50000,2500,5000,47500,15000,31.58,CLP,Pantalón Gris,PAN079,1,50000,30%,25%,Chile,Santiago,Envío Rápido,PayPal,SIN CUPÓN
+80,Pendiente,No Enviado,2024-09-17,45000,2250,4500,42750,13500,31.58,CLP,Vestido Blanco,VES080,1,45000,30%,25%,Chile,Rancagua,Envío Express,Transferencia,CUPON15
+81,Fallido,No Enviado,2024-09-18,55000,2750,5500,52250,16500,31.58,CLP,Camisa Roja,CAM081,1,55000,30%,30%,Chile,Antofagasta,Envío Estándar,Tarjeta,SIN CUPÓN
+82,Pagado,Enviado,2024-09-19,60000,3000,6000,57000,18000,31.58,CLP,Blazer Gris,BLA082,1,60000,30%,30%,Chile,Valdivia,Envío Rápido,PayPal,CUPON20
+83,Pagado,Enviado,2024-09-20,20000,1000,2000,19000,6000,31.58,CLP,Camiseta Blanca,CAM083,1,20000,30%,25%,Chile,Osorno,Envío Express,Transferencia,SIN CUPÓN
+84,Pendiente,No Enviado,2024-09-21,50000,2500,5000,47500,15000,31.58,CLP,Falda Azul,FAL084,1,50000,30%,25%,Chile,Iquique,Envío Rápido,Tarjeta,CUPON5
+85,Pagado,Enviado,2024-09-22,45000,2250,4500,42750,13500,31.58,CLP,Vestido Marrón,VES085,1,45000,30%,25%,Chile,Viña del Mar,Envío Estándar,PayPal,SIN CUPÓN
+86,Fallido,No Enviado,2024-09-23,55000,2750,5500,52250,16500,31.58,CLP,Pantalón Negro,PAN086,1,55000,30%,30%,Chile,Santiago,Envío Rápido,Transferencia,CUPON10
+87,Pagado,Enviado,2024-09-24,35000,1750,3500,33250,10500,29.79,CLP,Chaqueta Azul,CHA087,1,35000,30%,28%,Chile,Rancagua,Envío Express,Tarjeta,CUPON15
+88,Pagado,Enviado,2024-09-25,60000,3000,6000,57000,18000,31.58,CLP,Blazer Blanco,BLA088,1,60000,30%,30%,Chile,Antofagasta,Envío Rápido,PayPal,CUPON20
+89,Pendiente,No Enviado,2024-09-26,50000,2500,5000,47500,15000,31.58,CLP,Falda Gris,FAL089,1,50000,30%,25%,Chile,Valdivia,Envío Estándar,Transferencia,CUPON5
+90,Pagado,Enviado,2024-09-27,45000,2250,4500,42750,13500,31.58,CLP,Vestido Rojo,VES090,1,45000,30%,25%,Chile,Osorno,Envío Rápido,Tarjeta,SIN CUPÓN
+91,Fallido,No Enviado,2024-09-28,30000,1500,3000,28500,9000,30,CLP,Camiseta Verde,CAM091,1,30000,30%,25%,Chile,Santiago,Envío Express,Transferencia,CUPON10
+92,Pagado,Enviado,2024-09-29,25000,1250,2500,23750,7500,31.58,CLP,Blusa Roja,BLU092,1,25000,30%,25%,Chile,Rancagua,Envío Rápido,Tarjeta,CUPON15
+93,Pendiente,No Enviado,2024-09-30,55000,2750,5500,52250,16500,31.58,CLP,Falda Negra,FAL093,1,55000,30%,30%,Chile,Antofagasta,Envío Express,PayPal,CUPON20
+94,Pagado,Enviado,2024-10-01,60000,3000,6000,57000,18000,31.58,CLP,Vestido Gris,VES094,1,60000,30%,30%,Chile,Valdivia,Envío Estándar,Transferencia,SIN CUPÓN
+95,Pagado,Enviado,2024-10-02,40000,2000,4000,38000,12000,31.58,CLP,Blusa Azul,BLU095,1,40000,30%,25%,Chile,Osorno,Envío Rápido,Tarjeta,CUPON5
+96,Fallido,No Enviado,2024-10-03,50000,2500,5000,47500,15000,31.58,CLP,Camiseta Negra,CAM096,1,50000,30%,25%,Chile,Santiago,Envío Estándar,Transferencia,CUPON10
+97,Pagado,Enviado,2024-10-04,45000,2250,4500,42750,13500,31.58,CLP,Falda Verde,FAL097,1,45000,30%,25%,Chile,Rancagua,Envío Rápido,Tarjeta,CUPON15
+98,Pagado,Enviado,2024-10-05,55000,2750,5500,52250,16500,31.58,CLP,Vestido Marrón,VES098,1,55000,30%,30%,Chile,Antofagasta,Envío Express,PayPal,SIN CUPÓN
+99,Pendiente,No Enviado,2024-10-06,30000,1500,3000,28500,9000,30,CLP,Blusa Blanca,BLU099,1,30000,30%,20%,Chile,Valdivia,Envío Rápido,Transferencia,CUPON20
+100,Pagado,Enviado,2024-10-07,25000,1250,2500,23750,7500,31.58,CLP,Falda Marrón,FAL100,1,25000,30%,25%,Chile,Osorno,Envío Estándar,Tarjeta,SIN CUPÓN
