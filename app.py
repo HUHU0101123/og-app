@@ -32,6 +32,10 @@ start_date = st.sidebar.date_input('Fecha de Inicio', merged_df['Fecha'].min().d
 # Selector de fecha final
 end_date = st.sidebar.date_input('Fecha de Fin', merged_df['Fecha'].max().date())
 
+# Convertir las fechas seleccionadas a tipo datetime para comparación
+start_date = pd.to_datetime(start_date)
+end_date = pd.to_datetime(end_date)
+
 # Asegúrate de que la fecha de fin sea después de la fecha de inicio
 if start_date > end_date:
     st.sidebar.error('La fecha de fin debe ser posterior a la fecha de inicio.')
@@ -183,14 +187,13 @@ else:
                                                        hover_name='Nombre del Producto',
                                                        title='Rentabilidad de Productos',
                                                        template='plotly_dark')
-                fig_product_profitability.update_layout(xaxis_title='Precio Promedio', yaxis_title='Rentabilidad (%)')
                 st.plotly_chart(fig_product_profitability)
             else:
                 st.write("No hay datos suficientes para mostrar el desempeño de productos.")
-        except KeyError as e:
-            st.error(f"Error al agrupar los datos: {e}")
+        except Exception as e:
+            st.error(f'Error al analizar el desempeño de productos: {str(e)}')
 
-        # Análisis de Métodos de Pago y Descuentos
+        # Información sobre Métodos de Pago y Descuentos
         st.subheader('Análisis de Métodos de Pago y Descuentos')
 
         # Desglose de métodos de pago
