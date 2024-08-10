@@ -76,13 +76,11 @@ else:
     # Calculate margin after tax
     overall_margin_after_tax = (total_profit_after_tax / total_revenue) * 100 if total_revenue > 0 else 0
 
-    # Additional metric for profit after tax
+    # Additional metrics for profit after tax
     st.subheader('Después de Impuestos')
 
-    # Use single column for alignment
-    with st.container():
-        st.write("Ganancias Después de Impuestos (19%): ", f"{total_profit_after_tax:,.0f} CLP")
-        st.write("Margen Después de Impuestos: ", f"{overall_margin_after_tax:.2f} %")
+    st.write(f"**Ganancias Después de Impuestos (19%)**: {total_profit_after_tax:,.0f} CLP")
+    st.write(f"**Margen Después de Impuestos**: {overall_margin_after_tax:.2f} %")
 
     # Add space before Sales Trends section
     st.write("")
