@@ -55,13 +55,19 @@ st.plotly_chart(fig_pie)
 st.subheader('Monthly Sales and Profit Heatmap')
 # Aggregating data by month
 ventas_mensuales = df.resample('M', on='Fecha').agg({'Total': 'sum', 'Ganancia': 'sum'}).reset_index()
+ventas_mensuales['Month'] = ventas_mensuales['Fecha'].dt.to_period('M').astype(str)
+
 # Creating the heatmap using a matrix of months vs. sales/profit
-fig_heatmap = go.Figure(data=go.Heatmap(
+fig_heatmap = go.Figure()
+
+fig_heatmap.add_trace(go.Heatmap(
     z=ventas_mensuales[['Total', 'Ganancia']].values.T,
-    x=ventas_mensuales['Fecha'].dt.to_period('M').astype(str),
+    x=ventas_mensuales['Month'],
     y=['Total', 'Ganancia'],
-    colorscale='Viridis'
+    colorscale='Viridis',
+    colorbar=dict(title='Value')
 ))
+
 fig_heatmap.update_layout(title='Monthly Sales and Profit Heatmap', xaxis_title='Month', yaxis_title='Metric')
 st.plotly_chart(fig_heatmap)
 
@@ -92,6 +98,10 @@ col1.metric("Total Sold", f"{producto_df['Total'].sum():,.0f} CLP")
 col2.metric("Quantity Sold", f"{producto_df['Cantidad de Productos'].sum():,.0f}")
 col3.metric("Total Profit", f"{producto_df['Ganancia'].sum():,.0f} CLP")
 
+# Plot: Sales of Selected Product Over Time
+fig_producto = px.line(producto_df, x='Fecha', y='Total', 
+                      title=f'Sales of {producto_seleccionado} Over Time')
+st.plotly_chart(fig_producto)
 # Plot: Sales of Selected Product Over Time
 fig_producto = px.line(producto_df, x='Fecha', y='Total', 
                       title=f'Sales of {producto_seleccionado} Over Time')
