@@ -71,9 +71,10 @@ else:
 
     # Calculate profit after tax
     tax_rate = 0.19
-    total_profit_after_tax = total_profit * (1 - tax_rate)
+    filtered_df['Ganancia Después de Impuestos'] = filtered_df['Ganancia'] * (1 - tax_rate)
 
     # Calculate margin after tax
+    total_profit_after_tax = filtered_df['Ganancia Después de Impuestos'].sum()
     overall_margin_after_tax = (total_profit_after_tax / total_revenue) * 100 if total_revenue > 0 else 0
 
     # Additional metric for profit after tax
@@ -83,20 +84,20 @@ else:
 
     # Add space before Sales Trends section
     st.write("")
-    st.write("")  # Add additional space here if needed
+    st.write("")
 
     # Sales Trends
     st.subheader('Tendencias de Ventas')
 
     # Aggregating data for trends
-    sales_trends = filtered_df.resample('M', on='Fecha').agg({'Total': 'sum', 'Ganancia': 'sum'}).reset_index()
+    sales_trends = filtered_df.resample('M', on='Fecha').agg({'Total': 'sum', 'Ganancia': 'sum', 'Ganancia Después de Impuestos': 'sum'}).reset_index()
     sales_trends['Month'] = sales_trends['Fecha'].dt.to_period('M').astype(str)
 
     if not sales_trends.empty:
-        # Line chart for Sales and Profit Trends
-        fig_sales_trends = px.line(sales_trends, x='Month', y=['Total', 'Ganancia'],
+        # Line chart for Sales and Profit After Tax Trends
+        fig_sales_trends = px.line(sales_trends, x='Month', y=['Total', 'Ganancia Después de Impuestos'],
                                    labels={'value': 'Monto', 'Month': 'Fecha'},
-                                   title='Tendencias de Ventas y Beneficio a lo Largo del Tiempo',
+                                   title='Tendencias de Ventas y Ganancias Después de Impuestos a lo Largo del Tiempo',
                                    template='plotly_dark')
         fig_sales_trends.update_layout(legend_title_text='Métricas')
         st.plotly_chart(fig_sales_trends)
