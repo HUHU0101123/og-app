@@ -25,7 +25,7 @@ filtered_df = df[(df['Fecha'] >= date_range[0]) & (df['Fecha'] <= date_range[1])
 # Summary Metrics
 st.subheader('Summary Metrics')
 
-# Summary metrics
+# Calculate metrics
 total_revenue = filtered_df['Total'].sum()
 total_profit = filtered_df['Ganancia'].sum()
 total_orders = filtered_df['ID'].nunique()
@@ -33,37 +33,25 @@ average_order_value = total_revenue / total_orders if total_orders > 0 else 0
 average_profit_per_order = total_profit / total_orders if total_orders > 0 else 0
 overall_profit_margin = (total_profit / total_revenue) * 100 if total_revenue > 0 else 0
 
-# Using markdown for better text styling
-st.markdown(f"""
-<div style="display: flex; justify-content: space-between;">
-    <div style="flex: 1; margin-right: 10px;">
-        <h3 style="font-size: 14px;">Total Revenue</h3>
-        <p style="font-size: 18px; font-weight: bold;">{total_revenue:,.0f} CLP</p>
-    </div>
-    <div style="flex: 1; margin-right: 10px;">
-        <h3 style="font-size: 14px;">Total Profit</h3>
-        <p style="font-size: 18px; font-weight: bold;">{total_profit:,.0f} CLP</p>
-    </div>
-    <div style="flex: 1; margin-right: 10px;">
-        <h3 style="font-size: 14px;">Total Orders</h3>
-        <p style="font-size: 18px; font-weight: bold;">{total_orders:,}</p>
-    </div>
-    <div style="flex: 1; margin-right: 10px;">
-        <h3 style="font-size: 14px;">Average Order Value</h3>
-        <p style="font-size: 18px; font-weight: bold;">{average_order_value:,.0f} CLP</p>
-    </div>
-    <div style="flex: 1;">
-        <h3 style="font-size: 14px;">Average Profit per Order</h3>
-        <p style="font-size: 18px; font-weight: bold;">{average_profit_per_order:,.0f} CLP</p>
-    </div>
-</div>
-""", unsafe_allow_html=True)
+# Using columns for a better layout
+col1, col2, col3, col4, col5 = st.columns(5)
+with col1:
+    st.metric("Total Revenue", f"{total_revenue:,.0f} CLP")
+with col2:
+    st.metric("Total Profit", f"{total_profit:,.0f} CLP")
+with col3:
+    st.metric("Total Orders", f"{total_orders:,}")
+with col4:
+    st.metric("Average Order Value", f"{average_order_value:,.0f} CLP")
+with col5:
+    st.metric("Average Profit per Order", f"{average_profit_per_order:,.0f} CLP")
 
+# Overall Profit Margin with more compact layout
 st.markdown(f"""
-<div style="display: flex; justify-content: center; margin-top: 20px;">
-    <div style="flex: 1; text-align: center;">
-        <h3 style="font-size: 14px;">Overall Profit Margin</h3>
-        <p style="font-size: 18px; font-weight: bold;">{overall_profit_margin:.2f} %</p>
+<div style="display: flex; justify-content: center; margin-top: 10px;">
+    <div style="text-align: center;">
+        <h3 style="font-size: 16px;">Overall Profit Margin</h3>
+        <p style="font-size: 24px; font-weight: bold;">{overall_profit_margin:.2f} %</p>
     </div>
 </div>
 """, unsafe_allow_html=True)
