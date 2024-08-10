@@ -88,11 +88,11 @@ else:
 
     # Sales Trends
     st.subheader('Ventas')
-    
+
     # Aggregating data for trends
     sales_trends = filtered_df.resample('M', on='Fecha').agg({'Total': 'sum', 'Ganancia': 'sum', 'Ganancia Después de Impuestos': 'sum'}).reset_index()
     sales_trends['Month'] = sales_trends['Fecha'].dt.to_period('M').astype(str)
-    
+
     if not sales_trends.empty:
         # Line chart for Sales and Profit After Tax Trends
         fig_sales_trends = px.line(sales_trends, x='Month', y=['Total', 'Ganancia Después de Impuestos'],
@@ -105,44 +105,6 @@ else:
         st.plotly_chart(fig_sales_trends)
     else:
         st.write("No hay datos suficientes para mostrar tendencias de ventas.")
-
-    # Sales by Year, Month, and Week
-    st.subheader('Desglose de Ventas por Período')
-
-    # Aggregating data by year, month, and week
-    sales_by_year = filtered_df.resample('Y', on='Fecha').agg({'Total': 'sum', 'ID': 'count'}).reset_index()
-    sales_by_month = filtered_df.resample('M', on='Fecha').agg({'Total': 'sum', 'ID': 'count'}).reset_index()
-    sales_by_week = filtered_df.resample('W', on='Fecha').agg({'Total': 'sum', 'ID': 'count'}).reset_index()
-
-    # Display total sales and orders for the year
-    if not sales_by_year.empty:
-        yearly_sales = sales_by_year.tail(1).iloc[0]
-        st.subheader(f'Ventas del Año {yearly_sales["Fecha"].year}')
-        col1, col2 = st.columns(2)
-        col1.metric("Ventas Totales", f"{yearly_sales['Total']:,.0f} CLP")
-        col2.metric("Total de Pedidos", f"{yearly_sales['ID']:,}")
-    else:
-        st.write("No hay datos suficientes para mostrar el desglose de ventas por año.")
-
-    # Display total sales and orders for the current month
-    if not sales_by_month.empty:
-        monthly_sales = sales_by_month.tail(1).iloc[0]
-        st.subheader(f'Ventas del Mes {monthly_sales["Fecha"].strftime("%B %Y")}')
-        col1, col2 = st.columns(2)
-        col1.metric("Ventas Totales", f"{monthly_sales['Total']:,.0f} CLP")
-        col2.metric("Total de Pedidos", f"{monthly_sales['ID']:,}")
-    else:
-        st.write("No hay datos suficientes para mostrar el desglose de ventas por mes.")
-
-    # Display total sales and orders for the current week
-    if not sales_by_week.empty:
-        weekly_sales = sales_by_week.tail(1).iloc[0]
-        st.subheader(f'Ventas de la Semana del {weekly_sales["Fecha"].strftime("%d %b %Y")}')
-        col1, col2 = st.columns(2)
-        col1.metric("Ventas Totales", f"{weekly_sales['Total']:,.0f} CLP")
-        col2.metric("Total de Pedidos", f"{weekly_sales['ID']:,}")
-    else:
-        st.write("No hay datos suficientes para mostrar el desglose de ventas por semana.")
 
     # Product Performance
     st.subheader('Desempeño de Productos')
