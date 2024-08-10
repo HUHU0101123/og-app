@@ -34,7 +34,7 @@ average_profit_per_order = total_profit / total_orders if total_orders > 0 else 
 overall_profit_margin = (total_profit / total_revenue) * 100 if total_revenue > 0 else 0
 
 # Using columns for a better layout
-col1, col2, col3 = st.columns(3)
+col1, col2, col3 = st.columns([1, 1, 1])
 with col1:
     st.metric("Total Revenue", f"{total_revenue:,.0f} CLP")
 with col2:
@@ -42,20 +42,20 @@ with col2:
 with col3:
     st.metric("Total Orders", f"{total_orders:,}")
 
-col1, col2 = st.columns(2)
+col1, col2 = st.columns([1, 1])
 with col1:
     st.metric("Average Order Value", f"{average_order_value:,.0f} CLP")
 with col2:
     st.metric("Average Profit per Order", f"{average_profit_per_order:,.0f} CLP")
 
-# Overall Profit Margin with more compact layout
+# Overall Profit Margin
 st.markdown(f"""
-<div style="display: flex; justify-content: center; margin-top: 10px;">
-    <div style="text-align: center;">
-        <h3 style="font-size: 18px; margin-bottom: 5px;">Overall Profit Margin</h3>
-        <p style="font-size: 24px; font-weight: bold;">{overall_profit_margin:.2f} %</p>
+    <div style="display: flex; justify-content: center; margin-top: 20px;">
+        <div style="text-align: center;">
+            <h3 style="font-size: 20px; margin-bottom: 5px;">Overall Profit Margin</h3>
+            <p style="font-size: 28px; font-weight: bold;">{overall_profit_margin:.2f} %</p>
+        </div>
     </div>
-</div>
 """, unsafe_allow_html=True)
 
 # Sales Trends
@@ -83,21 +83,21 @@ sales_by_week = filtered_df.resample('W', on='Fecha').agg({'Total': 'sum', 'ID':
 # Display total sales and orders for the year
 yearly_sales = sales_by_year.tail(1).iloc[0]
 st.subheader(f'Sales for the Year {yearly_sales["Fecha"].year}')
-col1, col2 = st.columns(2)
+col1, col2 = st.columns([1, 1])
 col1.metric("Total Sales", f"{yearly_sales['Total']:,.0f} CLP")
 col2.metric("Total Orders", f"{yearly_sales['ID']:,}")
 
 # Display total sales and orders for the current month
 monthly_sales = sales_by_month.tail(1).iloc[0]
 st.subheader(f'Sales for the Month {monthly_sales["Fecha"].strftime("%B %Y")}')
-col1, col2 = st.columns(2)
+col1, col2 = st.columns([1, 1])
 col1.metric("Total Sales", f"{monthly_sales['Total']:,.0f} CLP")
 col2.metric("Total Orders", f"{monthly_sales['ID']:,}")
 
 # Display total sales and orders for the current week
 weekly_sales = sales_by_week.tail(1).iloc[0]
 st.subheader(f'Sales for the Week of {weekly_sales["Fecha"].strftime("%d %b %Y")}')
-col1, col2 = st.columns(2)
+col1, col2 = st.columns([1, 1])
 col1.metric("Total Sales", f"{weekly_sales['Total']:,.0f} CLP")
 col2.metric("Total Orders", f"{weekly_sales['ID']:,}")
 
