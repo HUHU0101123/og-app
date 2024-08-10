@@ -52,7 +52,7 @@ if filtered_df.empty:
 else:
     # Métricas de resumen
     st.subheader('Antes de Impuestos')
-
+    
     # Calcular métricas
     total_revenue = filtered_df['Total'].sum()
     total_profit = filtered_df['Ganancia'].sum()
@@ -60,10 +60,10 @@ else:
     average_order_value = total_revenue / total_orders if total_orders > 0 else 0
     average_profit_per_order = total_profit / total_orders if total_orders > 0 else 0
     overall_profit_margin = (total_profit / total_revenue) * 100 if total_revenue > 0 else 0
-
+    
     # Calcular descuentos totales
     total_descuentos = filtered_df['Descuento'].sum()
-
+    
     # Mostrar métricas en columnas
     col1, col2, col3, col4, col5, col6 = st.columns(6)
     col1.metric(label="Ventas", value=f"{total_revenue:,.0f} CLP")
@@ -72,34 +72,36 @@ else:
     col4.metric(label="Valor Promedio por Pedido", value=f"{average_order_value:,.0f} CLP")
     col5.metric(label="Ganancia Promedio por Pedido", value=f"{average_profit_per_order:,.0f} CLP")
     col6.metric(label="Margen", value=f"{overall_profit_margin:.2f} %")
-
+    
     # Mostrar total de descuentos
     st.metric("Descuentos Aplicados", f"{total_descuentos:,.0f} CLP")
-
+    
     # Calcular ganancia después de impuestos
     tax_rate = 0.19
     filtered_df['Ganancia Después de Impuestos'] = filtered_df['Ganancia'] * (1 - tax_rate)
-
+    
     # Calcular margen después de impuestos
     total_profit_after_tax = filtered_df['Ganancia Después de Impuestos'].sum()
     overall_margin_after_tax = (total_profit_after_tax / total_revenue) * 100 if total_revenue > 0 else 0
-
+    
     # Métrica adicional para ganancia después de impuestos
     st.subheader('Después de Impuestos')
     st.metric("Ganancias Después de Impuestos (19%)", f"{total_profit_after_tax:,.0f} CLP")
     st.metric("Margen Después de Impuestos", f"{overall_margin_after_tax:.2f} %")
-
+    
+    # Espacio antes de la sección de Ventas
+    st.write("")
+    st.write("")
+    st.write("")
+    st.write("")  # Añadido para más espacio
+    
     # Tendencias de Ventas
     st.subheader('Ventas')
-
-    # Agregar espacio antes de la sección
-    st.write("")
-    st.write("")
-
+    
     # Agregación de datos para tendencias
     sales_trends = filtered_df.resample('M', on='Fecha').agg({'Total': 'sum', 'Ganancia': 'sum', 'Ganancia Después de Impuestos': 'sum'}).reset_index()
     sales_trends['Month'] = sales_trends['Fecha'].dt.to_period('M').astype(str)
-
+    
     if not sales_trends.empty:
         # Gráfico de líneas para Ventas y Ganancia Después de Impuestos
         fig_sales_trends = px.line(sales_trends, x='Month', y=['Total', 'Ganancia Después de Impuestos'],
@@ -107,7 +109,7 @@ else:
                                    title='Ventas vs Ganancias Después de Impuestos',
                                    template='plotly_dark')
         fig_sales_trends.for_each_trace(lambda t: t.update(name='Ventas' if t.name == 'Total' else 'Ganancias Después de Impuestos'))
-
+    
         # Calcular el punto medio en el eje x
         num_points = len(sales_trends['Month'])
         mid_index = num_points // 2
@@ -140,6 +142,7 @@ else:
         st.plotly_chart(fig_sales_trends)
     else:
         st.write("No hay datos suficientes para mostrar tendencias de ventas.")
+
 
     # Desempeño de Productos
     st.subheader('Desempeño de Productos')
