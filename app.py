@@ -39,7 +39,7 @@ st.markdown("""
     .metric-container {
         display: flex;
         flex-wrap: wrap;
-        justify-content: space-around;
+        justify-content: space-between;
         gap: 10px;
     }
     .metric-box {
@@ -87,7 +87,9 @@ st.markdown("""
             <p>{overall_profit_margin:.2f} %</p>
         </div>
     </div>
-""", unsafe_allow_html=True)
+""".format(total_revenue=total_revenue, total_profit=total_profit, total_orders=total_orders,
+           average_order_value=average_order_value, average_profit_per_order=average_profit_per_order,
+           overall_profit_margin=overall_profit_margin), unsafe_allow_html=True)
 
 # Sales Trends
 st.subheader('Sales Trends')
@@ -194,8 +196,8 @@ st.plotly_chart(fig_shipping_methods)
 # Shipping Status
 shipping_status = filtered_df['Estado del Envio'].value_counts().reset_index()
 shipping_status.columns = ['Shipping Status', 'Count']
-fig_shipping_status = px.pie(shipping_status, names='Shipping Status', values='Count',
-                             title='Shipping Status Distribution',
+fig_shipping_status = px.bar(shipping_status, x='Shipping Status', y='Count',
+                             title='Shipping Status Breakdown',
                              template='plotly_dark')
 st.plotly_chart(fig_shipping_status)
 
