@@ -115,9 +115,6 @@ else:
     # Desempeño de Productos
     st.subheader('Desempeño de Productos')
 
-    # Verificar nombres de columnas en el DataFrame filtrado (Esta línea puede ser eliminada si no es necesaria)
-    # st.write("Columnas en filtered_df:", filtered_df.columns)
-
     try:
         product_performance = filtered_df.groupby(['Nombre del Producto', 'SKU del Producto', 'Categoria']).agg({
             'Cantidad de Productos': 'sum',
@@ -128,16 +125,27 @@ else:
         product_performance['Rentabilidad (%)'] = (product_performance['Ganancia'] / product_performance['Total']) * 100
 
         if not product_performance.empty:
-            # Gráfico de barras para Productos Más Vendidos
-            product_performance_sorted = product_performance.sort_values('Cantidad de Productos', ascending=False)
-            fig_top_selling_products = px.bar(product_performance_sorted,
-                                              y='Nombre del Producto', x='Cantidad de Productos',
-                                              color='Categoria',  # Color por categoría
-                                              title='Productos Más Vendidos',
-                                              labels={'Cantidad de Productos': 'Cantidad Vendida'},
-                                              template='plotly_dark',
-                                              orientation='h')
-            fig_top_selling_products.update_layout(xaxis_title='Cantidad Vendida', yaxis_title='Nombre del Producto')
+            # Agregación de datos para productos más vendidos por categoría
+            category_sales = product_performance.groupby(['Categoria', 'SKU del Producto']).agg({
+                'Cantidad de Productos': 'sum'
+            }).reset_index()
+            
+            category_totals = category_sales.groupby('Categoria').agg({
+                'Cantidad de Productos': 'sum'
+            }).reset_index()
+            category_totals = category_totals.rename(columns={'Cantidad de Productos': 'Total Vendido'})
+            
+            # Crear gráfico de barras apiladas para mostrar productos más vendidos dentro de cada categoría
+            fig_top_selling_products = px.bar(category_sales,
+                                             x='Categoria',
+                                             y='Cantidad de Productos',
+                                             color='SKU del Producto',
+                                             title='Productos Más Vendidos por Categoría',
+                                             labels={'Cantidad de Productos': 'Cantidad Vendida'},
+                                             template='plotly_dark',
+                                             color_discrete_sequence=px.colors.qualitative.Plotly)
+            
+            fig_top_selling_products.update_layout(barmode='stack', xaxis_title='Categoría', yaxis_title='Cantidad Vendida')
             st.plotly_chart(fig_top_selling_products)
 
             # Gráfico de dispersión para Rentabilidad de Productos
@@ -153,7 +161,6 @@ else:
     except KeyError as e:
         st.error(f"Error al agrupar los datos: {e}")
 
-    
     # Análisis de Métodos de Pago y Descuentos
     st.subheader('Análisis de Métodos de Pago y Descuentos')
 
