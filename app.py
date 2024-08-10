@@ -79,8 +79,9 @@ else:
     # Additional metric for profit after tax
     st.subheader('Después de Impuestos')
 
-    # Display metrics in the same row
-    col1, col2 = st.columns(2)
+    # Display metrics in the same row with reduced space
+    col1, col2 = st.columns([1, 1])  # Equal width columns
+
     col1.metric("Ganancias Después de Impuestos (19%)", f"{total_profit_after_tax:,.0f} CLP")
     col2.metric("Margen Después de Impuestos", f"{overall_margin_after_tax:.2f} %")
 
