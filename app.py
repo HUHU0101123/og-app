@@ -59,7 +59,7 @@ else:
     # Display metrics using Streamlit's built-in functions
     col1, col2, col3, col4, col5, col6 = st.columns(6)
 
-    col1.metric(label="Ingresos Totales", value=f"{total_revenue:,.0f} CLP", delta=None)
+    col1.metric(label="Ventas", value=f"{total_revenue:,.0f} CLP", delta=None)
     col2.metric(label="Beneficio Total", value=f"{total_profit:,.0f} CLP", delta=None)
     col3.metric(label="Total de Pedidos", value=f"{total_orders:,}", delta=None)
     col4.metric(label="Valor Promedio por Pedido", value=f"{average_order_value:,.0f} CLP", delta=None)
