@@ -79,12 +79,10 @@ else:
     # Additional metric for profit after tax
     st.subheader('Después de Impuestos')
 
-    # Use container to control spacing
+    # Use single column for alignment
     with st.container():
-        col1, col2 = st.columns([1, 1])  # Equal width columns
-
-        col1.metric("Ganancias Después de Impuestos (19%)", f"{total_profit_after_tax:,.0f} CLP")
-        col2.metric("Margen Después de Impuestos", f"{overall_margin_after_tax:.2f} %")
+        st.write("Ganancias Después de Impuestos (19%): ", f"{total_profit_after_tax:,.0f} CLP")
+        st.write("Margen Después de Impuestos: ", f"{overall_margin_after_tax:.2f} %")
 
     # Add space before Sales Trends section
     st.write("")
