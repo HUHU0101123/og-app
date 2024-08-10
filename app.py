@@ -33,63 +33,20 @@ average_order_value = total_revenue / total_orders if total_orders > 0 else 0
 average_profit_per_order = total_profit / total_orders if total_orders > 0 else 0
 overall_profit_margin = (total_profit / total_revenue) * 100 if total_revenue > 0 else 0
 
-# Display metrics in a single row with consistent spacing
-st.markdown("""
-    <style>
-    .metric-container {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: space-between;
-        gap: 10px;
-    }
-    .metric-box {
-        flex: 1;
-        min-width: 200px;
-        padding: 10px;
-        border: 1px solid #444;
-        border-radius: 5px;
-        background-color: #333;
-        color: #fff;
-    }
-    .metric-box h3 {
-        margin: 0;
-        font-size: 16px;
-    }
-    .metric-box p {
-        margin: 0;
-        font-size: 18px;
-        font-weight: bold;
-    }
-    </style>
-    <div class="metric-container">
-        <div class="metric-box">
-            <h3>Total Revenue</h3>
-            <p>{total_revenue:,.0f} CLP</p>
-        </div>
-        <div class="metric-box">
-            <h3>Total Profit</h3>
-            <p>{total_profit:,.0f} CLP</p>
-        </div>
-        <div class="metric-box">
-            <h3>Total Orders</h3>
-            <p>{total_orders:,}</p>
-        </div>
-        <div class="metric-box">
-            <h3>Average Order Value</h3>
-            <p>{average_order_value:,.0f} CLP</p>
-        </div>
-        <div class="metric-box">
-            <h3>Average Profit per Order</h3>
-            <p>{average_profit_per_order:,.0f} CLP</p>
-        </div>
-        <div class="metric-box">
-            <h3>Overall Profit Margin</h3>
-            <p>{overall_profit_margin:.2f} %</p>
-        </div>
-    </div>
-""".format(total_revenue=total_revenue, total_profit=total_profit, total_orders=total_orders,
-           average_order_value=average_order_value, average_profit_per_order=average_profit_per_order,
-           overall_profit_margin=overall_profit_margin), unsafe_allow_html=True)
+# Display metrics using Streamlit's built-in functions
+col1, col2, col3, col4, col5, col6 = st.columns(6)
+with col1:
+    st.metric("Total Revenue", f"{total_revenue:,.0f} CLP")
+with col2:
+    st.metric("Total Profit", f"{total_profit:,.0f} CLP")
+with col3:
+    st.metric("Total Orders", f"{total_orders:,}")
+with col4:
+    st.metric("Average Order Value", f"{average_order_value:,.0f} CLP")
+with col5:
+    st.metric("Average Profit per Order", f"{average_profit_per_order:,.0f} CLP")
+with col6:
+    st.metric("Overall Profit Margin", f"{overall_profit_margin:.2f} %")
 
 # Sales Trends
 st.subheader('Sales Trends')
@@ -117,21 +74,21 @@ sales_by_week = filtered_df.resample('W', on='Fecha').agg({'Total': 'sum', 'ID':
 # Display total sales and orders for the year
 yearly_sales = sales_by_year.tail(1).iloc[0]
 st.subheader(f'Sales for the Year {yearly_sales["Fecha"].year}')
-col1, col2 = st.columns([1, 1])
+col1, col2 = st.columns(2)
 col1.metric("Total Sales", f"{yearly_sales['Total']:,.0f} CLP")
 col2.metric("Total Orders", f"{yearly_sales['ID']:,}")
 
 # Display total sales and orders for the current month
 monthly_sales = sales_by_month.tail(1).iloc[0]
 st.subheader(f'Sales for the Month {monthly_sales["Fecha"].strftime("%B %Y")}')
-col1, col2 = st.columns([1, 1])
+col1, col2 = st.columns(2)
 col1.metric("Total Sales", f"{monthly_sales['Total']:,.0f} CLP")
 col2.metric("Total Orders", f"{monthly_sales['ID']:,}")
 
 # Display total sales and orders for the current week
 weekly_sales = sales_by_week.tail(1).iloc[0]
 st.subheader(f'Sales for the Week of {weekly_sales["Fecha"].strftime("%d %b %Y")}')
-col1, col2 = st.columns([1, 1])
+col1, col2 = st.columns(2)
 col1.metric("Total Sales", f"{weekly_sales['Total']:,.0f} CLP")
 col2.metric("Total Orders", f"{weekly_sales['ID']:,}")
 
