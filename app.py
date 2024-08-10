@@ -13,6 +13,9 @@ df.columns = df.columns.str.strip()
 # Convert the 'Fecha' column to datetime
 df['Fecha'] = pd.to_datetime(df['Fecha'])
 
+# Create a new column to differentiate between 'Venta al Detalle' and 'Venta Mayorista'
+df['Tipo de Venta'] = df['Cantidad de Productos'].apply(lambda x: 'Venta al Detalle' if x < 6 else 'Venta Mayorista')
+
 # Dashboard Title
 st.title('Dashboard de Análisis de Ventas')
 
@@ -105,7 +108,7 @@ col2.metric("Total de Pedidos", f"{weekly_sales['ID']:,}")
 
 # Product Performance
 st.subheader('Desempeño de Productos')
-product_performance = filtered_df.groupby(['Nombre del Producto', 'SKU del Producto']).agg({
+product_performance = filtered_df.groupby(['Nombre del Producto', 'SKU del Producto', 'Tipo de Venta']).agg({
     'Cantidad de Productos': 'sum',
     'Total': 'sum',
     'Ganancia': 'sum'
@@ -116,6 +119,7 @@ product_performance['Rentabilidad (%)'] = (product_performance['Ganancia'] / pro
 # Top-Selling Products Bar Chart
 fig_top_selling_products = px.bar(product_performance.sort_values('Cantidad de Productos', ascending=False),
                                   x='Nombre del Producto', y='Cantidad de Productos',
+                                  color='Tipo de Venta',
                                   title='Productos Más Vendidos',
                                   labels={'Cantidad de Productos': 'Cantidad Vendida'},
                                   template='plotly_dark')
