@@ -148,13 +148,15 @@ st.plotly_chart(fig_product_margin)
 
 # Interactive Filters
 st.sidebar.subheader('Interactive Filters')
-date_range = st.sidebar.date_input('Select Date Range', [df['Fecha'].min(), df['Fecha'].max()])
+date_range = st.sidebar.date_input('Select Date Range', [df['Fecha'].min().date(), df['Fecha'].max().date()])
+# Convert date_range to datetime
+date_range = [pd.to_datetime(date) for date in date_range]
 filtered_df = df[(df['Fecha'] >= date_range[0]) & (df['Fecha'] <= date_range[1])]
+
 selected_country = st.sidebar.selectbox('Select Country:', df['Pais de Envio'].unique())
 filtered_df = filtered_df[filtered_df['Pais de Envio'] == selected_country]
 
 # Update KPIs with filters
-st.sidebar.subheader('Filtered KPIs')
 total_revenue_filtered = filtered_df['Total'].sum()
 total_profit_filtered = filtered_df['Ganancia'].sum()
 total_orders_filtered = filtered_df['ID'].nunique()
