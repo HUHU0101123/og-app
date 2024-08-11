@@ -14,7 +14,6 @@ def load_data():
 
 df_main, df_categorias = load_data()
 
-# Preprocesamiento de datos
 def preprocess_data(df_main, df_categorias):
     # Convertir la columna 'Fecha' a datetime
     df_main['Fecha'] = pd.to_datetime(df_main['Fecha']).dt.date
@@ -29,7 +28,10 @@ def preprocess_data(df_main, df_categorias):
     # Convertir columnas numéricas
     numeric_columns = ['Cantidad de Productos', 'Precio del Producto', 'Rentabilidad del producto', 'Margen del producto (%)', 'Descuento del producto']
     for col in numeric_columns:
-        df[col] = df[col].str.replace(',', '.').astype(float)
+        if df[col].dtype == 'object':
+            df[col] = df[col].str.replace(',', '.').astype(float)
+        else:
+            df[col] = df[col].astype(float)
     
     # Calcular el total de productos por compra
     df['Total Productos'] = df.groupby('ID')['Cantidad de Productos'].transform('sum')
@@ -38,7 +40,8 @@ def preprocess_data(df_main, df_categorias):
     df['Tipo de Venta'] = df['Total Productos'].apply(lambda x: 'Mayorista' if x >= 6 else 'Detalle')
     
     # Ajustar el precio para envíos a domicilio en Santiago
-    df.loc[df['Nombre del método de envío'] == 'Despacho Santiago (RM) a domicilio', 'Precio del Producto'] -= 2990 / df.groupby('ID')['Cantidad de Productos'].transform('sum')
+    mask = df['Nombre del método de envío'] == 'Despacho Santiago (RM) a domicilio'
+    df.loc[mask, 'Precio del Producto'] -= 2990 / df.loc[mask].groupby('ID')['Cantidad de Productos'].transform('sum')
     
     return df
 
