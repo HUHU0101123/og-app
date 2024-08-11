@@ -44,6 +44,9 @@ def preprocess_data(df_main, df_categorias):
     mask = df['Nombre del método de envío'] == 'Despacho Santiago (RM) a domicilio'
     df.loc[mask, 'Precio del Producto'] -= 2990 / df.loc[mask].groupby('ID')['Cantidad de Productos'].transform('sum')
     
+    # Calcular las ventas netas
+    df['Ventas Netas'] = df['Precio del Producto'] - df['Descuento del producto']
+    
     return df
 
 # Cargar y preprocesar los datos
@@ -94,18 +97,21 @@ col4.metric("Descuento Promedio", f"{(descuentos_totales / ventas_totales * 100)
 col1, col2 = st.columns(2)
 
 with col1:
-    # Calcular la cantidad de ventas por SKU y categoría
-    quantity_per_sku = filtered_df.groupby(['Categoria', 'SKU del Producto'])['Cantidad de Productos'].sum().reset_index()
+    # Calcular las ventas netas y cantidad de productos por SKU y categoría
+    sales_data = filtered_df.groupby(['Categoria', 'SKU del Producto']).agg(
+        Ventas_Netas=('Ventas Netas', 'sum'),
+        Cantidad_Productos=('Cantidad de Productos', 'sum')
+    ).reset_index()
     
-    # Crear un gráfico de barras para ventas por categoría y SKU
+    # Crear un gráfico de barras para ventas netas por categoría y SKU
     fig = px.bar(
-        quantity_per_sku,
+        sales_data,
         x='Categoria',
-        y='Cantidad de Productos',
+        y='Ventas_Netas',
         color='SKU del Producto',
-        title="Ventas por Categoría y SKU",
-        labels={'Cantidad de Productos': 'Cantidad Vendida'},
-        hover_data={'SKU del Producto': True, 'Cantidad de Productos': True}
+        title="Ventas Netas por Categoría y SKU",
+        labels={'Ventas_Netas': 'Ventas Netas'},
+        hover_data={'SKU del Producto': True, 'Cantidad_Productos': True}
     )
     
     st.plotly_chart(fig, use_container_width=True)
