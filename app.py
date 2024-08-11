@@ -97,10 +97,10 @@ col4.metric("Ventas Netas Después de Impuestos", f"${ventas_netas_despues_impue
 
 st.header("Métricas Adicionales")
 col1, col2, col3, col4 = st.columns(4)
-col1.metric("Número de Órdenes", filtered_df['ID'].nunique())
-col2.metric("Beneficio Bruto", f"${beneficio_bruto:,.0f}")
-col3.metric("Beneficio Bruto Después de Impuestos", f"${beneficio_bruto_despues_impuestos:,.0f}")
-col4.metric("Margen Promedio", f"{filtered_df['Margen del producto (%)'].mean():.2f}%")
+col1.metric("Cantidad de Órdenes", filtered_df['ID'].nunique())
+col2.metric("Descuento Promedio", f"{(filtered_df['Descuento del producto'].sum() / ventas_totales * 100):.2f}%")
+col3.metric("Beneficio Bruto", f"${beneficio_bruto:,.0f}")
+col4.metric("Beneficio Bruto Después de Impuestos", f"${beneficio_bruto_despues_impuestos:,.0f}")
 
 # Gráficos
 col1, col2 = st.columns(2)
