@@ -5,6 +5,11 @@ import plotly.express as px
 # Configuración de la página (debe ser la primera llamada a Streamlit)
 st.set_page_config(page_title="Dashboard de Ventas", layout="wide")
 
+# Función para formatear números al estilo chileno
+def format_chilean_currency(value):
+    """Formatea un número al estilo chileno con punto para miles y coma para decimales."""
+    return f"${value:,.2f}".replace(',', 'X').replace('.', ',').replace('X', '.')
+
 # Cargar los archivos CSV desde GitHub
 @st.cache_data
 def load_data():
@@ -90,16 +95,16 @@ beneficio_bruto_despues_impuestos = beneficio_bruto * (1 - 0.19)
 st.header("Resumen de Ventas")
 col1, col2, col3, col4 = st.columns(4)
 
-col1.metric("Ventas Totales", f"${ventas_totales:,.0f}")
+col1.metric("Ventas Totales", format_chilean_currency(ventas_totales))
 col1.markdown("<p style='font-size:10px;'>Ingresos totales antes de descuentos y ajustes.</p>", unsafe_allow_html=True)
 
-col2.metric("Descuentos Aplicados", f"${filtered_df['Descuento del producto'].sum():,.0f}")
+col2.metric("Descuentos Aplicados", format_chilean_currency(filtered_df['Descuento del producto'].sum()))
 col2.markdown("<p style='font-size:10px;'>Total de descuentos otorgados en ventas.</p>", unsafe_allow_html=True)
 
-col3.metric("Ventas Netas", f"${ventas_netas:,.0f}")
+col3.metric("Ventas Netas", format_chilean_currency(ventas_netas))
 col3.markdown("<p style='font-size:10px;'>Ventas totales menos descuentos.</p>", unsafe_allow_html=True)
 
-col4.metric("Ventas Netas Después de Impuestos", f"${ventas_netas_despues_impuestos:,.0f}")
+col4.metric("Ventas Netas Después de Impuestos", format_chilean_currency(ventas_netas_despues_impuestos))
 col4.markdown("<p style='font-size:10px;'>Ventas netas menos impuestos del 19%.</p>", unsafe_allow_html=True)
 
 # Calcular el margen
@@ -112,10 +117,10 @@ col1, col2, col3, col4 = st.columns(4)
 col1.metric("Cantidad de Órdenes", filtered_df['ID'].nunique())
 col1.markdown("<p style='font-size:10px;'>Total de órdenes procesadas.</p>", unsafe_allow_html=True)
 
-col2.metric("Ganancia Bruta", f"${beneficio_bruto:,.0f}")
+col2.metric("Ganancia Bruta", format_chilean_currency(beneficio_bruto))
 col2.markdown("<p style='font-size:10px;'>Ventas netas menos costos de adquisición del producto.</p>", unsafe_allow_html=True)
 
-col3.metric("Ganancia Neta", f"${beneficio_bruto_despues_impuestos:,.0f}")
+col3.metric("Ganancia Neta", format_chilean_currency(beneficio_bruto_despues_impuestos))
 col3.markdown("<p style='font-size:10px;'>Es el dinero que realmente ganaste y puedes guardar o reinvertir en tu negocio.</p>", unsafe_allow_html=True)
 
 col4.metric("Margen", f"{margen:.2f}%")
@@ -126,7 +131,6 @@ col5, = st.columns(1)  # Desempaqueta la lista de columnas
 
 col5.metric("Descuento Promedio %", f"{(filtered_df['Descuento del producto'].sum() / ventas_totales * 100):.2f}%")
 col5.markdown("<p style='font-size:10px;'>Porcentaje promedio de descuento aplicado.</p>", unsafe_allow_html=True)
-
 
 # Gráficos
 col1, col2 = st.columns(2)
@@ -167,6 +171,9 @@ discounts_by_category = filtered_df.groupby('Categoria')['Descuento del producto
 fig = px.bar(discounts_by_category, x=discounts_by_category.index, y=discounts_by_category.values, title="Descuentos por Categoría")
 st.plotly_chart(fig, use_container_width=True)
 
+# Tabla de datos
+st.subheader("Datos Detallados")
+st.dataframe(filtered_df)
 # Tabla de datos
 st.subheader("Datos Detallados")
 st.dataframe(filtered_df)
