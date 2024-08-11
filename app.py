@@ -95,10 +95,10 @@ col4.metric("Ventas Netas Después de Impuestos", f"${ventas_netas_despues_impue
 st.header("Métricas Adicionales")
 col1, col2, col3, col4, col5 = st.columns(5)
 col1.metric("Número de Órdenes", filtered_df['ID'].nunique())
-col2.metric("Rentabilidad Total", f"${beneficio_bruto:,.0f}")
+col2.metric("Beneficio Bruto", f"${beneficio_bruto:,.0f}")
 col3.metric("Margen Promedio", f"{filtered_df['Margen del producto (%)'].mean():.2f}%")
 col4.metric("Descuento Promedio", f"{(filtered_df['Descuento del producto'].sum() / ventas_totales * 100):.2f}%")
-col5.metric("Beneficio Bruto", f"${beneficio_bruto:,.0f}")
+col5.metric("Beneficio Bruto", f"${beneficio_bruto:,.0f}")  # Este es el que se debe eliminar
 
 # Gráficos
 col1, col2 = st.columns(2)
