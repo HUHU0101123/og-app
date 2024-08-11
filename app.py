@@ -52,6 +52,7 @@ date_range = st.sidebar.date_input("Rango de fechas", [df['Fecha'].min(), df['Fe
 categories = st.sidebar.multiselect("Categorías", options=df['Categoria'].unique())
 sale_type = st.sidebar.multiselect("Tipo de Venta", options=df['Tipo de Venta'].unique())
 order_ids = st.sidebar.text_input("IDs de Orden de Compra (separados por coma)", "")
+regions = st.sidebar.multiselect("Región de Envío", options=df['Región de Envío'].unique())  # Filtro para Región de Envío
 
 # Aplicar filtros
 mask = (df['Fecha'] >= date_range[0]) & (df['Fecha'] <= date_range[1])
@@ -62,6 +63,9 @@ if sale_type:
 if order_ids:
     order_id_list = [int(id.strip()) for id in order_ids.split(',')]
     mask &= df['ID'].isin(order_id_list)
+if regions:  # Filtrar por Región de Envío
+    mask &= df['Región de Envío'].isin(regions)
+
 filtered_df = df[mask]
 
 # Calcular las ventas totales
