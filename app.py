@@ -103,7 +103,8 @@ with col1:
         y='Precio del Producto',
         color='SKU del Producto',
         title="Ventas por Categoría con SKU en Leyenda",
-        labels={'SKU del Producto': 'SKU'}
+        labels={'SKU del Producto': 'SKU'},
+        hover_data={'Categoria': True, 'SKU del Producto': True, 'Precio del Producto': True}  # Mostrar SKU y cantidad en el hover
     )
     fig.update_layout(barmode='stack')  # Apila las barras por SKU
     st.plotly_chart(fig, use_container_width=True)
