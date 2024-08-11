@@ -80,19 +80,23 @@ ventas_totales = filtered_df['Precio del Producto'].sum() - filtered_df['Ajuste 
 ventas_netas = ventas_totales - filtered_df['Descuento del producto'].sum()
 ventas_netas_despues_impuestos = ventas_netas * (1 - 0.19)
 
+# Calcular el beneficio bruto
+beneficio_bruto = filtered_df['Rentabilidad del producto'].sum()
+
 # Métricas principales
 st.header("Resumen de Ventas")
-col1, col2, col3, col4 = st.columns(4)
+col1, col2, col3, col4, col5 = st.columns(5)
 
 col1.metric("Ventas Totales", f"${ventas_totales:,.0f}")
 col2.metric("Descuentos Aplicados", f"${filtered_df['Descuento del producto'].sum():,.0f}")
 col3.metric("Ventas Netas", f"${ventas_netas:,.0f}")
-col4.metric("Ventas Netas Después de Impuestos", f"${ventas_netas_despues_impuestos:,.0f}")
+col4.metric("Beneficio Bruto", f"${beneficio_bruto:,.0f}")
+col5.metric("Ventas Netas Después de Impuestos", f"${ventas_netas_despues_impuestos:,.0f}")
 
 st.header("Métricas Adicionales")
 col1, col2, col3, col4 = st.columns(4)
 col1.metric("Número de Órdenes", filtered_df['ID'].nunique())
-col2.metric("Rentabilidad Total", f"${filtered_df['Rentabilidad del producto'].sum():,.0f}")
+col2.metric("Rentabilidad Total", f"${beneficio_bruto:,.0f}")
 col3.metric("Margen Promedio", f"{filtered_df['Margen del producto (%)'].mean():.2f}%")
 col4.metric("Descuento Promedio", f"{(filtered_df['Descuento del producto'].sum() / ventas_totales * 100):.2f}%")
 
