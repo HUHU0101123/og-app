@@ -95,9 +95,17 @@ col4.metric("Descuento Promedio", f"{(descuentos_totales / ventas_totales * 100)
 col1, col2 = st.columns(2)
 
 with col1:
-    # Ventas por categoría
-    sales_by_category = filtered_df.groupby('Categoria')['Precio del Producto'].sum().sort_values(ascending=False)
-    fig = px.bar(sales_by_category, x=sales_by_category.index, y=sales_by_category.values, title="Ventas por Categoría")
+    # Ventas por categoría con colores diferentes y SKU en leyenda
+    sales_by_category_sku = filtered_df.groupby(['Categoria', 'SKU del Producto'])['Precio del Producto'].sum().reset_index()
+    fig = px.bar(
+        sales_by_category_sku,
+        x='Categoria',
+        y='Precio del Producto',
+        color='SKU del Producto',
+        title="Ventas por Categoría con SKU en Leyenda",
+        labels={'SKU del Producto': 'SKU'}
+    )
+    fig.update_layout(barmode='stack')  # Apila las barras por SKU
     st.plotly_chart(fig, use_container_width=True)
 
 with col2:
