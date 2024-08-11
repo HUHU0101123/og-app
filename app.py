@@ -95,18 +95,29 @@ col4.metric("Descuento Promedio", f"{(descuentos_totales / ventas_totales * 100)
 col1, col2 = st.columns(2)
 
 with col1:
-    # Ventas por categoría con colores diferentes y SKU en leyenda
+    # Ventas por categoría con SKU en hover data
+    sales_by_category = filtered_df.groupby('Categoria')['Precio del Producto'].sum().reset_index()
     sales_by_category_sku = filtered_df.groupby(['Categoria', 'SKU del Producto'])['Cantidad de Productos'].sum().reset_index()
+    
     fig = px.bar(
-        sales_by_category_sku,
+        sales_by_category,
         x='Categoria',
-        y='Cantidad de Productos',
-        color='SKU del Producto',
-        title="Ventas por Categoría con SKU en Leyenda",
-        labels={'Cantidad de Productos': 'Cantidad Vendida'},
-        hover_data={'SKU del Producto': True, 'Cantidad de Productos': True}  # Mostrar SKU y cantidad en el hover
+        y='Precio del Producto',
+        title="Ventas por Categoría",
+        labels={'Precio del Producto': 'Ventas Totales por Categoría'},
+        hover_data={'Categoria': False, 'Precio del Producto': True}  # Muestra las ventas totales en el hover
     )
-    fig.update_layout(barmode='stack')  # Apila las barras por SKU
+
+    fig.add_scatter(
+        x=sales_by_category_sku['Categoria'],
+        y=sales_by_category_sku['Cantidad de Productos'],
+        mode='markers',
+        marker=dict(color='rgba(255,0,0,0.5)', size=10),
+        text=sales_by_category_sku['SKU del Producto'],
+        name='Cantidad por SKU',
+        hoverinfo='text+y'
+    )
+    
     st.plotly_chart(fig, use_container_width=True)
 
 with col2:
