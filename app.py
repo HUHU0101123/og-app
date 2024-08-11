@@ -112,11 +112,11 @@ col1, col2, col3, col4 = st.columns(4)
 col1.metric("Cantidad de Órdenes", filtered_df['ID'].nunique())
 col1.markdown("<p style='font-size:10px;'>Total de órdenes procesadas.</p>", unsafe_allow_html=True)
 
-col2.metric("Beneficio Bruto", f"${beneficio_bruto:,.0f}")
+col2.metric("Ganancia Bruta", f"${beneficio_bruto:,.0f}")
 col2.markdown("<p style='font-size:10px;'>Ventas netas menos costos de adquisición del producto.</p>", unsafe_allow_html=True)
 
-col3.metric("Beneficio Bruto Después de Impuestos", f"${beneficio_bruto_despues_impuestos:,.0f}")
-col3.markdown("<p style='font-size:10px;'>Beneficio bruto menos impuestos del 19%.</p>", unsafe_allow_html=True)
+col3.metric("Ganancia Neta", f"${beneficio_bruto_despues_impuestos:,.0f}")
+col3.markdown("<p style='font-size:10px;'>Es el dinero que realmente puedes guardar o reinvertir en tu negocio.</p>", unsafe_allow_html=True)
 
 col4.metric("Margen", f"{margen:.2f}%")
 col4.markdown("<p style='font-size:10px;'>Es el porcentaje del dinero que te queda de las ventas netas, después de pagar por los productos y los impuestos.</p>", unsafe_allow_html=True)
