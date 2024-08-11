@@ -45,9 +45,6 @@ def preprocess_data(df_main, df_categorias):
     mask = df['Nombre del método de envío'] == 'Despacho Santiago (RM) a domicilio'
     df.loc[mask, 'Precio del Producto'] -= 2990 / df.loc[mask].groupby('ID')['Cantidad de Productos'].transform('sum')
     
-    # Calcular el precio antes de descuentos
-    df['Precio Antes de Descuento'] = df['Precio del Producto'] + df['Descuento del producto']
-    
     return df
 
 # Cargar y preprocesar los datos
@@ -74,13 +71,13 @@ filtered_df = df[mask]
 # Métricas principales
 st.header("Resumen de Ventas")
 col1, col2, col3 = st.columns(3)
-ventas_totales = filtered_df['Precio Antes de Descuento'].sum()
+ventas_totales = filtered_df['Precio del Producto'].sum()
 descuentos_totales = filtered_df['Descuento del producto'].sum()
-ventas_netas = filtered_df['Precio del Producto'].sum()
+ventas_netas = ventas_totales  # Las ventas netas son iguales a las ventas totales en este caso
 
-col1.metric("Ventas Totales Antes de Descuentos", f"${ventas_totales:,.0f}")
+col1.metric("Ventas Totales", f"${ventas_totales:,.0f}")
 col2.metric("Descuentos Aplicados", f"${descuentos_totales:,.0f}")
-col3.metric("Ventas Netas Después de Descuentos", f"${ventas_netas:,.0f}")
+col3.metric("Ventas Netas", f"${ventas_netas:,.0f}")
 
 st.header("Métricas Adicionales")
 col1, col2, col3, col4 = st.columns(4)
@@ -113,6 +110,10 @@ st.plotly_chart(fig, use_container_width=True)
 discounts_by_category = filtered_df.groupby('Categoria')['Descuento del producto'].sum().sort_values(ascending=False)
 fig = px.bar(discounts_by_category, x=discounts_by_category.index, y=discounts_by_category.values, title="Descuentos por Categoría")
 st.plotly_chart(fig, use_container_width=True)
+
+# Tabla de datos
+st.subheader("Datos Detallados")
+st.dataframe(filtered_df)
 
 # Tabla de datos
 st.subheader("Datos Detallados")
