@@ -178,7 +178,7 @@ col1.markdown(
 # Ganancia Bruta
 col2.markdown(
     f"""
-    <div style="background-color: #FFCCCB; padding: 10px; border-radius: 5px; text-align: center;">
+    <div style="background-color: #D3D3D3; padding: 10px; border-radius: 5px; text-align: center;">
         <strong style="color: black;">Ganancia Bruta</strong><br>
         <span style="color: black;">{format_chilean_currency(beneficio_bruto)}</span>
         <p style='font-size:10px; color: black;'>Ventas netas menos costos de adquisición del producto.</p>
