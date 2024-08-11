@@ -6,9 +6,13 @@ import plotly.express as px
 st.set_page_config(page_title="Dashboard de Ventas", layout="wide")
 
 # Función para formatear números al estilo chileno
-def format_chilean_currency(value):
-    """Formatea un número al estilo chileno con punto para miles y coma para decimales."""
-    return f"${value:,.2f}".replace(',', 'X').replace('.', ',').replace('X', '.')
+def format_chilean_currency(value, is_percentage=False):
+    """Formatea un número al estilo chileno con punto para miles y coma para decimales.
+    Si is_percentage es True, se formatea como porcentaje."""
+    if is_percentage:
+        return f"{value:.2f}%".replace('.', ',')
+    else:
+        return f"${value:,.0f}".replace(',', 'X').replace('.', ',').replace('X', '.')
 
 # Cargar los archivos CSV desde GitHub
 @st.cache_data
@@ -123,13 +127,13 @@ col2.markdown("<p style='font-size:10px;'>Ventas netas menos costos de adquisici
 col3.metric("Ganancia Neta", format_chilean_currency(beneficio_bruto_despues_impuestos))
 col3.markdown("<p style='font-size:10px;'>Es el dinero que realmente ganaste y puedes guardar o reinvertir en tu negocio.</p>", unsafe_allow_html=True)
 
-col4.metric("Margen", f"{margen:.2f}%")
+col4.metric("Margen", format_chilean_currency(margen, is_percentage=True))
 col4.markdown("<p style='font-size:10px;'>Es el porcentaje del dinero que te queda de las ventas netas después de impuestos, después de pagar por los productos y los impuestos.</p>", unsafe_allow_html=True)
 
 # Nueva fila para el Descuento Promedio
 col5, = st.columns(1)  # Desempaqueta la lista de columnas
 
-col5.metric("Descuento Promedio %", f"{(filtered_df['Descuento del producto'].sum() / ventas_totales * 100):.2f}%")
+col5.metric("Descuento Promedio %", f"{(filtered_df['Descuento del producto'].sum() / ventas_totales * 100):.2f}%".replace('.', ','))
 col5.markdown("<p style='font-size:10px;'>Porcentaje promedio de descuento aplicado.</p>", unsafe_allow_html=True)
 
 # Gráficos
@@ -171,9 +175,6 @@ discounts_by_category = filtered_df.groupby('Categoria')['Descuento del producto
 fig = px.bar(discounts_by_category, x=discounts_by_category.index, y=discounts_by_category.values, title="Descuentos por Categoría")
 st.plotly_chart(fig, use_container_width=True)
 
-# Tabla de datos
-st.subheader("Datos Detallados")
-st.dataframe(filtered_df)
 # Tabla de datos
 st.subheader("Datos Detallados")
 st.dataframe(filtered_df)
