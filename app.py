@@ -214,11 +214,23 @@ col4.markdown(
 # Añadir un espacio antes de la nueva fila
 st.markdown("<br>", unsafe_allow_html=True)
 
-# Nueva fila para el Descuento Promedio % y Cantidad Total de Productos
+# Nueva fila para la Cantidad Total de Productos y Descuento Promedio %
 col1, col2, col3, col4 = st.columns(4)  # Definir 4 columnas para mantener el tamaño uniforme
 
-# Descuento Promedio %
+# Cantidad Total de Productos
 col1.markdown(
+    f"""
+    <div style="background-color: #D3D3D3; padding: 10px; border-radius: 5px; text-align: center;">
+        <strong style="color: black;">Cantidad Total de Productos</strong><br>
+        <span style="color: black;">{int(filtered_df['Cantidad de Productos'].sum())}</span>
+        <p style='font-size:10px; color: black;'>Total de productos vendidos.</p>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
+# Descuento Promedio %
+col2.markdown(
     f"""
     <div style="background-color: #D3D3D3; padding: 10px; border-radius: 5px; text-align: center;">
         <strong style="color: black;">Descuento Promedio %</strong><br>
@@ -229,22 +241,9 @@ col1.markdown(
     unsafe_allow_html=True
 )
 
-# Cantidad Total de Productos
-col2.markdown(
-    f"""
-    <div style="background-color: #D3D3D3; padding: 10px; border-radius: 5px; text-align: center;">
-        <strong style="color: black;">Cantidad Total de Productos</strong><br>
-        <span style="color: black;">{filtered_df['Cantidad de Productos'].sum()}</span>
-        <p style='font-size:10px; color: black;'>Total de productos vendidos.</p>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
-
 # Dejar las otras columnas vacías
 col3.markdown("")
 col4.markdown("")
-
 # Gráficos
 col1, col2 = st.columns(2)
 
