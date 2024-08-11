@@ -130,7 +130,7 @@ col3.markdown(
     <div style="background-color: #FFCCCB; padding: 10px; border-radius: 5px; text-align: center;">
         <strong style="color: black;">Ganancia Neta</strong><br>
         <span style="color: black;">{format_chilean_currency(beneficio_bruto_despues_impuestos)}</span>
-        <p style="color: black;">Es el dinero que realmente ganaste y puedes guardar o reinvertir en tu negocio.</p>
+        <p style="font-size:10px; color: black;">Es el dinero que realmente ganaste y puedes guardar o reinvertir en tu negocio.</p>
     </div>
     """,
     unsafe_allow_html=True
@@ -142,7 +142,7 @@ col4.markdown(
     <div style="background-color: #FFCCCB; padding: 10px; border-radius: 5px; text-align: center;">
         <strong style="color: black;">Margen</strong><br>
         <span style="color: black;">{format_chilean_currency(margen, is_percentage=True)}</span>
-        <p style="color: black;">Es el porcentaje del dinero que te queda de las ventas netas después de impuestos, después de pagar por los productos y los impuestos.</p>
+        <p style="font-size:10px; color: black;">Es el porcentaje del dinero que te queda de las ventas netas después de impuestos, después de pagar por los productos y los impuestos.</p>
     </div>
     """,
     unsafe_allow_html=True
