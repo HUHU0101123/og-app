@@ -14,8 +14,8 @@ df_categorias = pd.read_csv(url_categorias)
 df_main.columns = df_main.columns.str.strip()
 df_categorias.columns = df_categorias.columns.str.strip()
 
-# Convertir la columna 'Fecha' a tipo datetime
-df_main['Fecha'] = pd.to_datetime(df_main['Fecha'], format='%Y-%m-%d %H:%M', errors='coerce')
+# Convertir la columna 'Fecha' a tipo datetime (solo fecha)
+df_main['Fecha'] = pd.to_datetime(df_main['Fecha'], format='%Y-%m-%d %H:%M', errors='coerce').dt.date
 
 # Convertir columnas a tipo numérico (si es necesario)
 df_main['Precio del Producto'] = df_main['Precio del Producto'].str.replace(',', '.').astype(float)
@@ -93,9 +93,9 @@ def format_percentage(percentage):
 st.sidebar.subheader('Filtros Interactivos')
 
 # Selector de fecha de inicio
-start_date = st.sidebar.date_input('Fecha de Inicio', df_main['Fecha'].min().date())
+start_date = st.sidebar.date_input('Fecha de Inicio', df_main['Fecha'].min())
 # Selector de fecha final
-end_date = st.sidebar.date_input('Fecha de Fin', df_main['Fecha'].max().date())
+end_date = st.sidebar.date_input('Fecha de Fin', df_main['Fecha'].max())
 
 # Convertir las fechas seleccionadas a tipo datetime para comparación
 start_date = pd.to_datetime(start_date)
