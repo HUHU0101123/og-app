@@ -69,11 +69,12 @@ if sale_type:
 filtered_df = df[mask]
 
 # Métricas principales
-col1, col2, col3, col4 = st.columns(4)
+col1, col2, col3, col4, col5 = st.columns(5)
 col1.metric("Total Ventas", f"${filtered_df['Precio del Producto'].sum():,.0f}")
 col2.metric("Número de Órdenes", filtered_df['ID'].nunique())
 col3.metric("Rentabilidad Total", f"${filtered_df['Rentabilidad del producto'].sum():,.0f}")
 col4.metric("Margen Promedio", f"{filtered_df['Margen del producto (%)'].mean():.2f}%")
+col5.metric("Total Descuentos", f"${filtered_df['Descuento del producto'].sum():,.0f}")
 
 # Gráficos
 col1, col2 = st.columns(2)
@@ -93,6 +94,11 @@ with col2:
 # Top productos vendidos
 top_products = filtered_df.groupby('SKU del Producto')['Cantidad de Productos'].sum().sort_values(ascending=False).head(10)
 fig = px.bar(top_products, x=top_products.index, y=top_products.values, title="Top 10 Productos Más Vendidos")
+st.plotly_chart(fig, use_container_width=True)
+
+# Descuentos por categoría
+discounts_by_category = filtered_df.groupby('Categoria')['Descuento del producto'].sum().sort_values(ascending=False)
+fig = px.bar(discounts_by_category, x=discounts_by_category.index, y=discounts_by_category.values, title="Descuentos por Categoría")
 st.plotly_chart(fig, use_container_width=True)
 
 # Tabla de datos
