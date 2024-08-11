@@ -107,7 +107,7 @@ margen = (beneficio_bruto / ventas_netas) * 100
 
 # Métricas adicionales
 st.header("Métricas Adicionales")
-col1, col2, col3, col4, col5 = st.columns(5)
+col1, col2, col3, col4 = st.columns(4)
 
 col1.metric("Cantidad de Órdenes", filtered_df['ID'].nunique())
 col1.markdown("<p style='font-size:10px;'>Total de órdenes procesadas.</p>", unsafe_allow_html=True)
