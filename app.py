@@ -203,7 +203,6 @@ col4.markdown(
 )
 
 # Nueva fila para el Descuento Promedio %
-st.markdown("<h4>Descuento Promedio %</h4>", unsafe_allow_html=True)
 st.metric("Descuento Promedio %", f"{(filtered_df['Descuento del producto'].sum() / ventas_totales * 100):.2f}%".replace('.', ','))
 
 # Gráficos
