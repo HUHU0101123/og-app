@@ -102,27 +102,81 @@ margen = (beneficio_bruto / ventas_netas) * 100
 st.header("Resumen de Ventas")
 col1, col2, col3, col4 = st.columns(4)
 
-col1.metric("Ventas Totales", format_chilean_currency(ventas_totales))
-col1.markdown("<p style='font-size:10px;'>Ingresos totales antes de descuentos y ajustes.</p>", unsafe_allow_html=True)
+# Ventas Totales
+col1.markdown(
+    f"""
+    <div style="background-color: #D3D3D3; padding: 10px; border-radius: 5px; text-align: center;">
+        <strong style="color: black;">Ventas Totales</strong><br>
+        <span style="color: black;">{format_chilean_currency(ventas_totales)}</span>
+        <p style='font-size:10px;'>Ingresos totales antes de descuentos y ajustes.</p>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
-col2.metric("Descuentos Aplicados", format_chilean_currency(filtered_df['Descuento del producto'].sum()))
-col2.markdown("<p style='font-size:10px;'>Total de descuentos otorgados en ventas.</p>", unsafe_allow_html=True)
+# Descuentos Aplicados
+col2.markdown(
+    f"""
+    <div style="background-color: #D3D3D3; padding: 10px; border-radius: 5px; text-align: center;">
+        <strong style="color: black;">Descuentos Aplicados</strong><br>
+        <span style="color: black;">{format_chilean_currency(filtered_df['Descuento del producto'].sum())}</span>
+        <p style='font-size:10px;'>Total de descuentos otorgados en ventas.</p>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
-col3.metric("Ventas Netas", format_chilean_currency(ventas_netas))
-col3.markdown("<p style='font-size:10px;'>Ventas totales menos descuentos.</p>", unsafe_allow_html=True)
+# Ventas Netas
+col3.markdown(
+    f"""
+    <div style="background-color: #D3D3D3; padding: 10px; border-radius: 5px; text-align: center;">
+        <strong style="color: black;">Ventas Netas</strong><br>
+        <span style="color: black;">{format_chilean_currency(ventas_netas)}</span>
+        <p style='font-size:10px;'>Ventas totales menos descuentos.</p>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
-col4.metric("Ventas Netas Después de Impuestos", format_chilean_currency(ventas_netas_despues_impuestos))
-col4.markdown("<p style='font-size:10px;'>Ventas netas menos impuestos del 19%.</p>", unsafe_allow_html=True)
+# Ventas Netas Después de Impuestos
+col4.markdown(
+    f"""
+    <div style="background-color: #D3D3D3; padding: 10px; border-radius: 5px; text-align: center;">
+        <strong style="color: black;">Ventas Netas Después de Impuestos</strong><br>
+        <span style="color: black;">{format_chilean_currency(ventas_netas_despues_impuestos)}</span>
+        <p style='font-size:10px;'>Ventas netas menos impuestos del 19%.</p>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
 # Métricas Adicionales
 st.header("Métricas Adicionales")
 col1, col2, col3, col4 = st.columns(4)
 
-col1.metric("Cantidad de Órdenes", filtered_df['ID'].nunique())
-col1.markdown("<p style='font-size:10px;'>Total de órdenes procesadas.</p>", unsafe_allow_html=True)
+# Cantidad de Órdenes
+col1.markdown(
+    f"""
+    <div style="background-color: #D3D3D3; padding: 10px; border-radius: 5px; text-align: center;">
+        <strong style="color: black;">Cantidad de Órdenes</strong><br>
+        <span style="color: black;">{filtered_df['ID'].nunique()}</span>
+        <p style='font-size:10px;'>Total de órdenes procesadas.</p>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
-col2.metric("Ganancia Bruta", format_chilean_currency(beneficio_bruto))
-col2.markdown("<p style='font-size:10px;'>Ventas netas menos costos de adquisición del producto.</p>", unsafe_allow_html=True)
+# Ganancia Bruta
+col2.markdown(
+    f"""
+    <div style="background-color: #D3D3D3; padding: 10px; border-radius: 5px; text-align: center;">
+        <strong style="color: black;">Ganancia Bruta</strong><br>
+        <span style="color: black;">{format_chilean_currency(beneficio_bruto)}</span>
+        <p style='font-size:10px;'>Ventas netas menos costos de adquisición del producto.</p>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
 # Destacar Ganancia Neta
 col3.markdown(
