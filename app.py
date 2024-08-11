@@ -112,7 +112,7 @@ col2.metric("Descuento Promedio", f"{(filtered_df['Descuento del producto'].sum(
 col2.markdown("**Descuento Promedio:** Porcentaje promedio de descuento aplicado.")
 
 col3.metric("Beneficio Bruto", f"${beneficio_bruto:,.0f}")
-col3.markdown("**Beneficio Bruto:** Ingresos menos costo de bienes vendidos.")
+col3.markdown("**Beneficio Bruto:** Ventas netas menos costos de adquisición del producto.")
 
 col4.metric("Beneficio Bruto Después de Impuestos", f"${beneficio_bruto_despues_impuestos:,.0f}")
 col4.markdown("**Beneficio Bruto Después de Impuestos:** Beneficio bruto menos impuestos del 19%.")
