@@ -54,10 +54,7 @@ def preprocess_data(df_main, df_categorias):
     df.loc[mask, 'Precio del Producto'] -= 2990 / df.loc[mask].groupby('ID')['Cantidad de Productos'].transform('sum')
     
     # Calcular las ventas netas
-    df['Ventas Netas'] = df['Precio del Producto'] - df['Descuento del producto']
-    
-    # Calcular el costo del producto usando el margen
-    df['Costo del Producto'] = df['Precio del Producto'] * (1 - df['Margen del producto (%)'] / 100)
+    df['Ventas Netas'] = (df['Precio del Producto'] - df['Descuento del producto']) * df['Cantidad de Productos']
     
     return df
 
@@ -86,24 +83,24 @@ filtered_df = df[mask]
 filtered_df['Ajuste Envío'] = 0
 mask_envio = filtered_df['Nombre del método de envío'] == 'Despacho Santiago (RM) a domicilio'
 filtered_df.loc[mask_envio, 'Ajuste Envío'] = 2990 / filtered_df.loc[mask_envio].groupby('ID')['Cantidad de Productos'].transform('sum')
-ventas_totales = filtered_df['Precio del Producto'].sum() - filtered_df['Ajuste Envío'].sum()
+ventas_totales = (filtered_df['Precio del Producto'] * filtered_df['Cantidad de Productos']).sum() - filtered_df['Ajuste Envío'].sum()
 
 # Calcular ventas netas después de impuestos
-ventas_netas = ventas_totales - filtered_df['Descuento del producto'].sum()
+ventas_netas = filtered_df['Ventas Netas'].sum()
 ventas_netas_despues_impuestos = ventas_netas * (1 - 0.19)
 
+# Calcular el costo del producto
+filtered_df['Costo del Producto'] = filtered_df['Precio del Producto'] * (1 - filtered_df['Margen del producto (%)'] / 100)
+costo_total = (filtered_df['Costo del Producto'] * filtered_df['Cantidad de Productos']).sum()
+
 # Calcular el beneficio bruto
-filtered_df['Beneficio Bruto'] = (filtered_df['Precio del Producto'] - filtered_df['Costo del Producto']) * filtered_df['Cantidad de Productos']
-beneficio_bruto = filtered_df['Beneficio Bruto'].sum()
+beneficio_bruto = ventas_netas - costo_total
 
 # Calcular el beneficio bruto después de impuestos
 beneficio_bruto_despues_impuestos = beneficio_bruto * (1 - 0.19)
 
-# Calcular el margen bruto
-if ventas_netas > 0:
-    margen_bruto = ((beneficio_bruto / ventas_netas) * 100)
-else:
-    margen_bruto = 0
+# Calcular el margen
+margen_bruto = (beneficio_bruto / ventas_netas) * 100
 
 # Resumen de Ventas
 st.header("Resumen de Ventas")
@@ -185,7 +182,7 @@ col2.markdown(
     unsafe_allow_html=True
 )
 
-# Ganancia Neta
+# Destacar Ganancia Neta
 col3.markdown(
     f"""
     <div style="background-color: #FFCCCB; padding: 10px; border-radius: 5px; text-align: center;">
@@ -197,13 +194,13 @@ col3.markdown(
     unsafe_allow_html=True
 )
 
-# Margen
+# Destacar Margen
 col4.markdown(
     f"""
     <div style="background-color: #FFCCCB; padding: 10px; border-radius: 5px; text-align: center;">
         <strong style="color: black;">Margen</strong><br>
         <span style="color: black;">{format_chilean_currency(margen_bruto, is_percentage=True)}</span>
-        <p style="font-size:10px; color: black;">% que te queda de las ventas después de pagar el costo del producto.</p>
+        <p style="font-size:10px; color: black;">% que te queda de las ventas después de pagar la inversión e impuestos.</p>
     </div>
     """,
     unsafe_allow_html=True
