@@ -83,6 +83,9 @@ ventas_netas_despues_impuestos = ventas_netas * (1 - 0.19)
 # Calcular el beneficio bruto
 beneficio_bruto = filtered_df['Rentabilidad del producto'].sum()
 
+# Calcular el beneficio bruto después de impuestos
+beneficio_bruto_despues_impuestos = beneficio_bruto * (1 - 0.19)
+
 # Métricas principales
 st.header("Resumen de Ventas")
 col1, col2, col3, col4 = st.columns(4)
@@ -96,8 +99,8 @@ st.header("Métricas Adicionales")
 col1, col2, col3, col4 = st.columns(4)
 col1.metric("Número de Órdenes", filtered_df['ID'].nunique())
 col2.metric("Beneficio Bruto", f"${beneficio_bruto:,.0f}")
-col3.metric("Margen Promedio", f"{filtered_df['Margen del producto (%)'].mean():.2f}%")
-col4.metric("Descuento Promedio", f"{(filtered_df['Descuento del producto'].sum() / ventas_totales * 100):.2f}%")
+col3.metric("Beneficio Bruto Después de Impuestos", f"${beneficio_bruto_despues_impuestos:,.0f}")
+col4.metric("Margen Promedio", f"{filtered_df['Margen del producto (%)'].mean():.2f}%")
 
 # Gráficos
 col1, col2 = st.columns(2)
