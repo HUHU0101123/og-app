@@ -208,6 +208,7 @@ st.markdown(
     <div style="background-color: #D3D3D3; padding: 10px; border-radius: 5px; text-align: center;">
         <strong style="color: black;">Descuento Promedio %</strong><br>
         <span style="color: black;">{(filtered_df['Descuento del producto'].sum() / ventas_totales * 100):.2f}%</span>
+        <p style='font-size:10px; color: black;'>Porcentaje promedio de descuento aplicado.</p>
     </div>
     """,
     unsafe_allow_html=True
