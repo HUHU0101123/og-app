@@ -3,88 +3,92 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 
-# Load the CSV files
-url_main = "https://raw.githubusercontent.com/HUHU0101123/og-app/main/datasource.csv"
-url_categorias = "https://raw.githubusercontent.com/HUHU0101123/og-app/main/categorias.csv"
+# Cargar los archivos CSV desde GitHub
+@st.cache_data
+def load_data():
+    url_main = "https://raw.githubusercontent.com/HUHU0101123/og-app/main/datasource.csv"
+    df_main = pd.read_csv(url_main)
+    url_categorias = "https://raw.githubusercontent.com/HUHU0101123/og-app/main/categorias.csv"
+    df_categorias = pd.read_csv(url_categorias)
+    return df_main, df_categorias
 
-df_main = pd.read_csv(url_main)
-df_categorias = pd.read_csv(url_categorias)
+df_main, df_categorias = load_data()
 
-# Data Preprocessing
+# Preprocesamiento de datos
 def preprocess_data(df_main, df_categorias):
-    # Fill missing values and handle date conversion
-    df_main = df_main.fillna('')
-    df_main['Fecha'] = pd.to_datetime(df_main['Fecha'], errors='coerce').dt.date
-
-    # Merge with categories
-    df = df_main.merge(df_categorias, on='SKU del Producto', how='left')
+    # Convertir la columna 'Fecha' a datetime
+    df_main['Fecha'] = pd.to_datetime(df_main['Fecha']).dt.date
     
-    # Convert 'Precio del Producto' from string to float
-    df['Precio del Producto'] = df['Precio del Producto'].str.replace(',', '.').astype(float)
+    # Unir los dataframes para agregar las categorías
+    df = pd.merge(df_main, df_categorias, on='SKU del Producto', how='left')
     
-    # Calculate total sales for each row
-    df['Total de Venta'] = df['Cantidad de Productos'].astype(float) * df['Precio del Producto']
+    # Llenar los valores NaN en las columnas relevantes
+    columns_to_fill = ['Estado del Pago', 'Fecha', 'Moneda', 'Región de Envío', 'Nombre del método de envío', 'Cupones']
+    df[columns_to_fill] = df.groupby('ID')[columns_to_fill].fillna(method='ffill')
     
-    # Aggregate data by order ID
-    aggregated = df.groupby('ID').agg(
-        Fecha=('Fecha', 'first'),
-        Total_Venta=('Total de Venta', 'sum'),
-        Cantidad_Total=('Cantidad de Productos', 'sum'),
-        Region=('Región de Envío', 'first'),
-        Metodo_de_Envio=('Nombre del método de envío', 'first'),
-        Cupones=('Cupones', 'first')
-    ).reset_index()
+    # Convertir columnas numéricas
+    numeric_columns = ['Cantidad de Productos', 'Precio del Producto', 'Rentabilidad del producto', 'Margen del producto (%)', 'Descuento del producto']
+    for col in numeric_columns:
+        df[col] = df[col].str.replace(',', '.').astype(float)
     
-    # Determine Tipo_de_Venta
-    aggregated['Tipo_de_Venta'] = np.where(aggregated['Cantidad_Total'] >= 6, 'Mayorista', 'Detalle')
+    # Calcular el total de productos por compra
+    df['Total Productos'] = df.groupby('ID')['Cantidad de Productos'].transform('sum')
     
-    # Adjust total sales based on shipping method
-    aggregated['Total_Ajustado'] = aggregated.apply(
-        lambda row: row['Total_Venta'] - 2990 if row['Metodo_de_Envio'] == 'Despacho Santiago (RM) a domicilio' else row['Total_Venta'],
-        axis=1
-    )
+    # Clasificar el tipo de venta
+    df['Tipo de Venta'] = df['Total Productos'].apply(lambda x: 'Mayorista' if x >= 6 else 'Detalle')
     
-    return aggregated
+    # Ajustar el precio para envíos a domicilio en Santiago
+    df.loc[df['Nombre del método de envío'] == 'Despacho Santiago (RM) a domicilio', 'Precio del Producto'] -= 2990 / df.groupby('ID')['Cantidad de Productos'].transform('sum')
+    
+    return df
 
 df = preprocess_data(df_main, df_categorias)
 
-# Streamlit App
-st.title("Sales Dashboard")
+# Configuración de la página
+st.set_page_config(page_title="Dashboard de Ventas", layout="wide")
+st.title("Dashboard de Ventas")
 
-# Date Selector
-dates = df['Fecha'].dropna().unique()
-dates.sort()
-selected_date = st.sidebar.selectbox('Select Date', dates)
+# Filtros en la barra lateral
+st.sidebar.header("Filtros")
+date_range = st.sidebar.date_input("Rango de fechas", [df['Fecha'].min(), df['Fecha'].max()])
+categories = st.sidebar.multiselect("Categorías", options=df['Categoria'].unique())
+sale_type = st.sidebar.multiselect("Tipo de Venta", options=df['Tipo de Venta'].unique())
 
-# Filter data based on selected date
-filtered_data = df[df['Fecha'] == selected_date]
+# Aplicar filtros
+mask = (df['Fecha'] >= date_range[0]) & (df['Fecha'] <= date_range[1])
+if categories:
+    mask &= df['Categoria'].isin(categories)
+if sale_type:
+    mask &= df['Tipo de Venta'].isin(sale_type)
+filtered_df = df[mask]
 
-# Check if there's any data for the selected date
-if not filtered_data.empty:
-    # Sales by Region
-    sales_by_region = filtered_data.groupby('Region')['Total_Ajustado'].sum().reset_index()
+# Métricas principales
+col1, col2, col3, col4 = st.columns(4)
+col1.metric("Total Ventas", f"${filtered_df['Precio del Producto'].sum():,.0f}")
+col2.metric("Número de Órdenes", filtered_df['ID'].nunique())
+col3.metric("Rentabilidad Total", f"${filtered_df['Rentabilidad del producto'].sum():,.0f}")
+col4.metric("Margen Promedio", f"{filtered_df['Margen del producto (%)'].mean():.2f}%")
 
-    # Sales by Product Category
-    sales_by_category = filtered_data.groupby('Categoria')['Total_Ajustado'].sum().reset_index()
+# Gráficos
+col1, col2 = st.columns(2)
 
-    # Total Sales
-    total_sales = filtered_data['Total_Ajustado'].sum()
+with col1:
+    # Ventas por categoría
+    sales_by_category = filtered_df.groupby('Categoria')['Precio del Producto'].sum().sort_values(ascending=False)
+    fig = px.bar(sales_by_category, x=sales_by_category.index, y=sales_by_category.values, title="Ventas por Categoría")
+    st.plotly_chart(fig, use_container_width=True)
 
-    # Display Total Sales
-    st.subheader(f"Total Sales for {selected_date}")
-    st.write(f"${total_sales:,.2f}")
+with col2:
+    # Ventas diarias
+    daily_sales = filtered_df.groupby('Fecha')['Precio del Producto'].sum().reset_index()
+    fig = px.line(daily_sales, x='Fecha', y='Precio del Producto', title="Ventas Diarias")
+    st.plotly_chart(fig, use_container_width=True)
 
-    # Sales by Region Chart
-    st.subheader("Sales by Region")
-    st.bar_chart(sales_by_region.set_index('Region'))
+# Top productos vendidos
+top_products = filtered_df.groupby('SKU del Producto')['Cantidad de Productos'].sum().sort_values(ascending=False).head(10)
+fig = px.bar(top_products, x=top_products.index, y=top_products.values, title="Top 10 Productos Más Vendidos")
+st.plotly_chart(fig, use_container_width=True)
 
-    # Sales by Category Chart
-    st.subheader("Sales by Product Category")
-    st.bar_chart(sales_by_category.set_index('Categoria'))
-
-    # Optional: Display raw data
-    if st.checkbox('Show Raw Data'):
-        st.subheader("Raw Data")
-        st.write(filtered_data)
-else:
-    st.write("No data available for the selected date.")
+# Tabla de datos
+st.subheader("Datos Detallados")
+st.dataframe(filtered_df)
