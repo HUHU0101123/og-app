@@ -121,36 +121,30 @@ col1, col2, col3, col4 = st.columns(4)
 col1.metric("Cantidad de Órdenes", filtered_df['ID'].nunique())
 col1.markdown("<p style='font-size:10px;'>Total de órdenes procesadas.</p>", unsafe_allow_html=True)
 
-col2.metric("Ganancia Bruta", format_chilean_currency(beneficio_bruto))
-col2.markdown("<p style='font-size:10px;'>Ventas netas menos costos de adquisición del producto.</p>", unsafe_allow_html=True)
-
 # Destacar Ganancia Neta
-col3.markdown(
+col2.markdown(
     f"""
     <div style="background-color: #FFCCCB; padding: 10px; border-radius: 5px; text-align: center;">
-        <strong>Ganancia Neta</strong><br>
-        {format_chilean_currency(beneficio_bruto_despues_impuestos)}
+        <strong style="color: black;">Ganancia Neta</strong><br>
+        <span style="color: black;">{format_chilean_currency(beneficio_bruto_despues_impuestos)}</span>
     </div>
     """,
     unsafe_allow_html=True
 )
 
 # Destacar Margen
-col4.markdown(
+col3.markdown(
     f"""
     <div style="background-color: #FFCCCB; padding: 10px; border-radius: 5px; text-align: center;">
-        <strong>Margen</strong><br>
-        {format_chilean_currency(margen, is_percentage=True)}
+        <strong style="color: black;">Margen</strong><br>
+        <span style="color: black;">{format_chilean_currency(margen, is_percentage=True)}</span>
     </div>
     """,
     unsafe_allow_html=True
 )
 
-# Nueva fila para el Descuento Promedio
-col5, = st.columns(1)
-
-col5.metric("Descuento Promedio %", f"{(filtered_df['Descuento del producto'].sum() / ventas_totales * 100):.2f}%".replace('.', ','))
-col5.markdown("<p style='font-size:10px;'>Porcentaje promedio de descuento aplicado.</p>", unsafe_allow_html=True)
+col4.metric("Descuento Promedio %", f"{(filtered_df['Descuento del producto'].sum() / ventas_totales * 100):.2f}%".replace('.', ','))
+col4.markdown("<p style='font-size:10px;'>Porcentaje promedio de descuento aplicado.</p>", unsafe_allow_html=True)
 
 # Gráficos
 col1, col2 = st.columns(2)
