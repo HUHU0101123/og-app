@@ -96,15 +96,15 @@ col1, col2 = st.columns(2)
 
 with col1:
     # Ventas por categoría con colores diferentes y SKU en leyenda
-    sales_by_category_sku = filtered_df.groupby(['Categoria', 'SKU del Producto'])['Precio del Producto'].sum().reset_index()
+    sales_by_category_sku = filtered_df.groupby(['Categoria', 'SKU del Producto'])['Cantidad de Productos'].sum().reset_index()
     fig = px.bar(
         sales_by_category_sku,
         x='Categoria',
-        y='Precio del Producto',
+        y='Cantidad de Productos',
         color='SKU del Producto',
         title="Ventas por Categoría con SKU en Leyenda",
-        labels={'SKU del Producto': 'SKU'},
-        hover_data={'SKU del Producto': True, 'Precio del Producto': True}  # Mostrar SKU y cantidad en el hover
+        labels={'Cantidad de Productos': 'Cantidad Vendida'},
+        hover_data={'SKU del Producto': True, 'Cantidad de Productos': True}  # Mostrar SKU y cantidad en el hover
     )
     fig.update_layout(barmode='stack')  # Apila las barras por SKU
     st.plotly_chart(fig, use_container_width=True)
