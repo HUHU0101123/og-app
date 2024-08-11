@@ -4,42 +4,72 @@ import plotly.express as px
 import plotly.graph_objects as go
 
 # Cargar el archivo CSV principal desde GitHub
-url = "https://raw.githubusercontent.com/HUHU0101123/og-app/main/datasource.csv"
-df = pd.read_csv(url)
+url_main = "https://raw.githubusercontent.com/HUHU0101123/og-app/main/datasource.csv"
+df_main = pd.read_csv(url_main)
+
+# Cargar el archivo CSV de categorías desde GitHub
+url_categorias = "https://raw.githubusercontent.com/HUHU0101123/og-app/main/categorias.csv"
+df_categorias = pd.read_csv(url_categorias)
 
 # Limpiar nombres de columnas
-df.columns = df.columns.str.strip()
+df_main.columns = df_main.columns.str.strip()
+df_categorias.columns = df_categorias.columns.str.strip()
 
 # Convertir la columna 'Fecha' a tipo datetime
-df['Fecha'] = pd.to_datetime(df['Fecha'], errors='coerce')
+df_main['Fecha'] = pd.to_datetime(df_main['Fecha'], errors='coerce')
 
 # Convertir columnas a tipo numérico (si es necesario)
-df['Precio del Producto'] = df['Precio del Producto'].str.replace(',', '.').astype(float)
-df['Cantidad de Productos'] = pd.to_numeric(df['Cantidad de Productos'], errors='coerce')
-df['Descuento del producto'] = df['Descuento del producto'].str.replace(',', '.').astype(float)
-df['Rentabilidad del producto'] = pd.to_numeric(df['Rentabilidad del producto'], errors='coerce')
+df_main['Precio del Producto'] = df_main['Precio del Producto'].str.replace(',', '.').astype(float)
+df_main['Cantidad de Productos'] = pd.to_numeric(df_main['Cantidad de Productos'], errors='coerce')
+df_main['Descuento del producto'] = df_main['Descuento del producto'].str.replace(',', '.').astype(float)
+df_main['Rentabilidad del producto'] = pd.to_numeric(df_main['Rentabilidad del producto'], errors='coerce')
+
+# Mostrar los datos iniciales para diagnóstico
+st.write("Primeras filas del DataFrame Principal:")
+st.write(df_main.head())
+
+st.write("Columnas del DataFrame Principal:")
+st.write(df_main.columns)
+
+st.write("Tipos de datos del DataFrame Principal:")
+st.write(df_main.dtypes)
+
+st.write("Fechas mínimas y máximas en el DataFrame Principal:")
+st.write(df_main['Fecha'].min(), df_main['Fecha'].max())
+
+# Mostrar los datos iniciales para diagnóstico de categorias.csv
+st.write("Primeras filas del DataFrame de Categorías:")
+st.write(df_categorias.head())
+
+st.write("Columnas del DataFrame de Categorías:")
+st.write(df_categorias.columns)
+
+st.write("Tipos de datos del DataFrame de Categorías:")
+st.write(df_categorias.dtypes)
+
+# Supongamos que la columna de clave para unir es 'SKU del Producto'
+df_merged = pd.merge(df_main, df_categorias, how='left', left_on='SKU del Producto', right_on='SKU del Producto')
 
 # Agrupar las filas de cada pedido
-# Para ello, primero necesitamos llenar los datos generales en las filas que contienen productos
-df['Precio del Producto'] = df.groupby('ID')['Precio del Producto'].transform(lambda x: x.ffill())
-df['Rentabilidad del producto'] = df.groupby('ID')['Rentabilidad del producto'].transform(lambda x: x.ffill())
-df['Descuento del producto'] = df.groupby('ID')['Descuento del producto'].transform(lambda x: x.ffill())
-df['Nombre del método de envío'] = df.groupby('ID')['Nombre del método de envío'].transform(lambda x: x.ffill())
+df_merged['Precio del Producto'] = df_merged.groupby('ID')['Precio del Producto'].transform(lambda x: x.ffill())
+df_merged['Rentabilidad del producto'] = df_merged.groupby('ID')['Rentabilidad del producto'].transform(lambda x: x.ffill())
+df_merged['Descuento del producto'] = df_merged.groupby('ID')['Descuento del producto'].transform(lambda x: x.ffill())
+df_merged['Nombre del método de envío'] = df_merged.groupby('ID')['Nombre del método de envío'].transform(lambda x: x.ffill())
 
 # Crear una nueva columna 'Total' calculada
-df['Total'] = df['Cantidad de Productos'] * df['Precio del Producto']
+df_merged['Total'] = df_merged['Cantidad de Productos'] * df_merged['Precio del Producto']
 
 # Crear una nueva columna 'Total Final' considerando el descuento y el costo de envío
-df['Total Final'] = df['Total'] - df['Descuento del producto']
+df_merged['Total Final'] = df_merged['Total'] - df_merged['Descuento del producto']
 
 # Restar el costo de envío si el método de entrega es "Despacho Santiago (RM) a domicilio"
-df['Total Final'] = df.apply(
+df_merged['Total Final'] = df_merged.apply(
     lambda row: row['Total Final'] - 2990 if row['Nombre del método de envío'] == "Despacho Santiago (RM) a domicilio" else row['Total Final'],
     axis=1
 )
 
 # Agregar los detalles de las órdenes (sumar los totales por ID)
-order_summary = df.groupby('ID').agg({
+order_summary = df_merged.groupby('ID').agg({
     'Total Final': 'sum',
     'Rentabilidad del producto': 'mean',
     'Cantidad de Productos': 'sum',
@@ -65,9 +95,9 @@ def format_percentage(percentage):
 st.sidebar.subheader('Filtros Interactivos')
 
 # Selector de fecha de inicio
-start_date = st.sidebar.date_input('Fecha de Inicio', df['Fecha'].min().date())
+start_date = st.sidebar.date_input('Fecha de Inicio', df_main['Fecha'].min().date())
 # Selector de fecha final
-end_date = st.sidebar.date_input('Fecha de Fin', df['Fecha'].max().date())
+end_date = st.sidebar.date_input('Fecha de Fin', df_main['Fecha'].max().date())
 
 # Convertir las fechas seleccionadas a tipo datetime para comparación
 start_date = pd.to_datetime(start_date)
@@ -80,10 +110,18 @@ else:
     # Filtro por tipo de venta
     tipo_venta = st.sidebar.selectbox('Tipo de Venta', ['Todo', 'Venta al Detalle', 'Venta Mayorista'])
 
-    # Filtrar el DataFrame según las selecciones
-    filtered_df = order_summary[(df['Fecha'] >= start_date) & (df['Fecha'] <= end_date)]
+    # Mostrar el DataFrame filtrado sin filtros aplicados para diagnóstico
+    st.write("Datos sin filtros:")
+    st.write(order_summary)
+
+    # Filtrar por fecha y tipo de venta
+    filtered_df = order_summary[(order_summary['ID'].isin(df_main[(df_main['Fecha'] >= start_date) & (df_main['Fecha'] <= end_date)]['ID']))]
     if tipo_venta != 'Todo':
         filtered_df = filtered_df[filtered_df['Tipo de Venta'] == tipo_venta]
+
+    # Mostrar datos filtrados para diagnóstico
+    st.write("Datos filtrados:")
+    st.write(filtered_df)
 
     # Verificar si el DataFrame filtrado está vacío
     if filtered_df.empty:
@@ -125,146 +163,59 @@ else:
 
         # Métrica adicional para ganancia después de impuestos
         st.subheader('Después de Impuestos')
-        st.metric("Ganancias Después de Impuestos (19%)", f"{format_chilean_number(total_profit_after_tax, 0)} CLP")
-        st.metric("Margen Después de Impuestos", format_percentage(overall_margin_after_tax))
+        col1, col2, col3, col4, col5 = st.columns(5)
+        col1.metric(label="Ganancia Después de Impuestos", value=f"{format_chilean_number(total_profit_after_tax, 0)} CLP")
+        col2.metric(label="Margen Después de Impuestos", value=format_percentage(overall_margin_after_tax))
 
-        # Espacio antes de la sección de Ventas
-        st.write("")
-        st.write("")
-        st.write("")
-        st.write("")  # Añadido para más espacio
+        # Visualización de tendencias de ventas
+        st.subheader('Tendencias de Ventas y Ganancias')
 
-        # Tendencias de Ventas
-        st.subheader('Ventas')
+        # Agrupar datos por mes
+        sales_trends = filtered_df.groupby(filtered_df['Fecha'].dt.to_period('M')).agg({
+            'Total Final': 'sum',
+            'Ganancia': 'sum'
+        }).reset_index()
 
-        # Agregación de datos para tendencias
-        sales_trends = filtered_df.resample('M', on='Fecha').agg({'Total Final': 'sum', 'Ganancia': 'sum', 'Ganancia Después de Impuestos': 'sum'}).reset_index()
-        sales_trends['Month'] = sales_trends['Fecha'].dt.to_period('M').astype(str)
+        # Convertir periodos a fechas
+        sales_trends['Month'] = sales_trends['Fecha'].dt.to_timestamp()
 
-        if not sales_trends.empty:
-            # Gráfico de líneas para tendencias de ventas
-            fig_sales_trends = px.line(sales_trends, x='Month', y='Total Final', title='Tendencias de Ventas',
-                                      labels={'Month': 'Mes', 'Total Final': 'Ventas Totales'},
-                                      template='plotly_dark')
-            fig_sales_trends.update_layout(xaxis_title='Mes', yaxis_title='Ventas Totales')
-            fig_sales_trends.add_trace(
-                go.Scatter(
-                    x=sales_trends['Month'],
-                    y=sales_trends['Ganancia'],
-                    mode='lines+markers',
-                    name='Ganancia',
-                    marker=dict(color='rgb(255, 0, 0)')
-                )
-            )
-            fig_sales_trends.add_trace(
-                go.Scatter(
-                    x=sales_trends['Month'],
-                    y=sales_trends['Ganancia Después de Impuestos'],
-                    mode='lines+markers',
-                    name='Ganancia Después de Impuestos',
-                    marker=dict(color='rgb(0, 255, 0)')
-                )
-            )
+        # Crear gráficos de tendencias
+        fig_sales_trends = px.line(sales_trends, x='Month', y=['Total Final', 'Ganancia'], labels={'Month': 'Fecha'}, title='Ventas y Ganancias Después de Impuestos por Mes')
+
+        if len(sales_trends) > 1:
+            mid_index = len(sales_trends) // 2
+            mid_x = sales_trends['Month'].iloc[mid_index]
+
             fig_sales_trends.update_layout(
-                annotations=[
+                xaxis=dict(
+                    tickvals=sales_trends['Month'].tolist(),
+                    ticktext=sales_trends['Month'].tolist(),
+                    title='Fecha',
+                    showgrid=True,
+                    zeroline=False
+                ),
+                yaxis=dict(
+                    title='Monto',
+                    showgrid=True,
+                    zeroline=False
+                ),
+                title={
+                    'text': 'Ventas y Ganancias Después de Impuestos por Mes',
+                    'x': 0.5
+                },
+                shapes=[
                     dict(
-                        x=sales_trends['Month'].iloc[-1],
-                        y=sales_trends['Total Final'].iloc[-1],
-                        text=f"Ventas Totales: {format_chilean_number(sales_trends['Total Final'].iloc[-1], 0)} CLP",
-                        showarrow=True,
-                        arrowhead=2,
-                        ax=0,
-                        ay=-40
-                    ),
-                    dict(
-                        x=sales_trends['Month'].iloc[-1],
-                        y=sales_trends['Ganancia'].iloc[-1],
-                        text=f"Ganancia: {format_chilean_number(sales_trends['Ganancia'].iloc[-1], 0)} CLP",
-                        showarrow=True,
-                        arrowhead=2,
-                        ax=0,
-                        ay=-40
-                    ),
-                    dict(
-                        x=sales_trends['Month'].iloc[-1],
-                        y=sales_trends['Ganancia Después de Impuestos'].iloc[-1],
-                        text=f"Ganancia Después de Impuestos: {format_chilean_number(sales_trends['Ganancia Después de Impuestos'].iloc[-1], 0)} CLP",
-                        showarrow=True,
-                        arrowhead=2,
-                        ax=0,
-                        ay=-40
+                        type='line',
+                        x0=mid_x,
+                        x1=mid_x,
+                        y0=0,
+                        y1=1,
+                        yref='paper',
+                        line=dict(color='red', width=2, dash='dash')
                     )
                 ]
             )
+
             st.plotly_chart(fig_sales_trends)
         else:
             st.write("No hay datos suficientes para mostrar tendencias de ventas.")
-
-        # Desempeño de Productos
-        st.subheader('Desempeño de Productos')
-
-        try:
-            product_performance = filtered_df.groupby('SKU del Producto').agg({
-                'Total Final': 'sum',
-                'Ganancia': 'sum',
-                'Cantidad de Productos': 'sum'
-            }).reset_index()
-
-            product_performance = product_performance.sort_values(by='Ganancia', ascending=False)
-
-            # Tabla de desempeño de productos
-            st.dataframe(product_performance)
-
-            # Gráfico de barras para desempeño de productos
-            fig_product_performance = px.bar(product_performance, x='SKU del Producto', y='Ganancia',
-                                             labels={'SKU del Producto': 'SKU', 'Ganancia': 'Ganancia'},
-                                             title='Desempeño de Productos',
-                                             template='plotly_dark')
-            fig_product_performance.update_layout(xaxis_title='SKU del Producto', yaxis_title='Ganancia')
-            st.plotly_chart(fig_product_performance)
-        except Exception as e:
-            st.error(f"Error al calcular el desempeño de productos: {e}")
-
-        # Desempeño por Región
-        st.subheader('Desempeño por Región')
-
-        try:
-            region_performance = filtered_df.groupby('Región de Envío').agg({
-                'Total Final': 'sum',
-                'Ganancia': 'sum',
-                'Cantidad de Productos': 'sum'
-            }).reset_index()
-
-            region_performance = region_performance.sort_values(by='Ganancia', ascending=False)
-
-            # Tabla de desempeño por región
-            st.dataframe(region_performance)
-
-            # Gráfico de barras para desempeño por región
-            fig_region_performance = px.bar(region_performance, x='Región de Envío', y='Ganancia',
-                                            labels={'Región de Envío': 'Región', 'Ganancia': 'Ganancia'},
-                                            title='Desempeño por Región',
-                                            template='plotly_dark')
-            fig_region_performance.update_layout(xaxis_title='Región de Envío', yaxis_title='Ganancia')
-            st.plotly_chart(fig_region_performance)
-        except Exception as e:
-            st.error(f"Error al calcular el desempeño por región: {e}")
-
-        # Análisis Detallado por Producto
-        st.subheader('Análisis Detallado por Producto')
-        producto_seleccionado = st.selectbox('Selecciona un Producto:', filtered_df['SKU del Producto'].unique())
-        producto_df = filtered_df[filtered_df['SKU del Producto'] == producto_seleccionado]
-
-        if not producto_df.empty:
-            col1, col2, col3 = st.columns(3)
-            col1.metric("Total Vendido", f"{format_chilean_number(producto_df['Total Final'].sum(), 0)} CLP")
-            col2.metric("Cantidad Vendida", f"{format_chilean_number(producto_df['Cantidad de Productos'].sum(), 0)}")
-            col3.metric("Beneficio Total", f"{format_chilean_number(producto_df['Ganancia'].sum(), 0)} CLP")
-
-            # Gráfico: Ventas del Producto Seleccionado a lo Largo del Tiempo
-            fig_producto = px.line(producto_df, x='Fecha', y='Total Final',
-                                  title=f'Ventas de {producto_seleccionado} a lo Largo del Tiempo',
-                                  template='plotly_dark')
-            st.plotly_chart(fig_producto)
-        else:
-            st.write("No hay datos disponibles para el producto seleccionado.")
