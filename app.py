@@ -102,8 +102,12 @@ col3.markdown("<p style='font-size:10px;'>Ventas totales menos descuentos.</p>",
 col4.metric("Ventas Netas Después de Impuestos", f"${ventas_netas_despues_impuestos:,.0f}")
 col4.markdown("<p style='font-size:10px;'>Ventas netas menos impuestos del 19%.</p>", unsafe_allow_html=True)
 
+# Calcular el margen
+margen = (beneficio_bruto / ventas_netas) * 100
+
+# Métricas adicionales
 st.header("Métricas Adicionales")
-col1, col2, col3, col4 = st.columns(4)
+col1, col2, col3, col4, col5 = st.columns(5)
 
 col1.metric("Cantidad de Órdenes", filtered_df['ID'].nunique())
 col1.markdown("<p style='font-size:10px;'>Total de órdenes procesadas.</p>", unsafe_allow_html=True)
@@ -116,6 +120,9 @@ col3.markdown("<p style='font-size:10px;'>Ventas netas menos costos de adquisici
 
 col4.metric("Beneficio Bruto Después de Impuestos", f"${beneficio_bruto_despues_impuestos:,.0f}")
 col4.markdown("<p style='font-size:10px;'>Beneficio bruto menos impuestos del 19%.</p>", unsafe_allow_html=True)
+
+col5.metric("Margen", f"{margen:.2f}%")
+col5.markdown("<p style='font-size:10px;'>Margen de beneficio sobre las ventas netas.</p>", unsafe_allow_html=True)
 
 # Gráficos
 col1, col2 = st.columns(2)
