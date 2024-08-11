@@ -45,6 +45,9 @@ def preprocess_data(df_main, df_categorias):
     mask = df['Nombre del método de envío'] == 'Despacho Santiago (RM) a domicilio'
     df.loc[mask, 'Precio del Producto'] -= 2990 / df.loc[mask].groupby('ID')['Cantidad de Productos'].transform('sum')
     
+    # Calcular el precio antes de descuentos
+    df['Precio Antes de Descuento'] = df['Precio del Producto'] + df['Descuento del producto']
+    
     return df
 
 # Cargar y preprocesar los datos
@@ -69,12 +72,22 @@ if sale_type:
 filtered_df = df[mask]
 
 # Métricas principales
-col1, col2, col3, col4, col5 = st.columns(5)
-col1.metric("Total Ventas", f"${filtered_df['Precio del Producto'].sum():,.0f}")
-col2.metric("Número de Órdenes", filtered_df['ID'].nunique())
-col3.metric("Rentabilidad Total", f"${filtered_df['Rentabilidad del producto'].sum():,.0f}")
-col4.metric("Margen Promedio", f"{filtered_df['Margen del producto (%)'].mean():.2f}%")
-col5.metric("Total Descuentos", f"${filtered_df['Descuento del producto'].sum():,.0f}")
+st.header("Resumen de Ventas")
+col1, col2, col3 = st.columns(3)
+ventas_totales = filtered_df['Precio Antes de Descuento'].sum()
+descuentos_totales = filtered_df['Descuento del producto'].sum()
+ventas_netas = filtered_df['Precio del Producto'].sum()
+
+col1.metric("Ventas Totales Antes de Descuentos", f"${ventas_totales:,.0f}")
+col2.metric("Descuentos Aplicados", f"${descuentos_totales:,.0f}")
+col3.metric("Ventas Netas Después de Descuentos", f"${ventas_netas:,.0f}")
+
+st.header("Métricas Adicionales")
+col1, col2, col3, col4 = st.columns(4)
+col1.metric("Número de Órdenes", filtered_df['ID'].nunique())
+col2.metric("Rentabilidad Total", f"${filtered_df['Rentabilidad del producto'].sum():,.0f}")
+col3.metric("Margen Promedio", f"{filtered_df['Margen del producto (%)'].mean():.2f}%")
+col4.metric("Descuento Promedio", f"{(descuentos_totales / ventas_totales * 100):.2f}%")
 
 # Gráficos
 col1, col2 = st.columns(2)
