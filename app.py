@@ -73,7 +73,7 @@ st.header("Resumen de Ventas")
 col1, col2, col3 = st.columns(3)
 ventas_totales = filtered_df['Precio del Producto'].sum()
 descuentos_totales = filtered_df['Descuento del producto'].sum()
-ventas_netas = ventas_totales  # Las ventas netas son iguales a las ventas totales en este caso
+ventas_netas = ventas_totales - descuentos_totales  # Ajustar el cálculo de ventas netas
 
 col1.metric("Ventas Totales", f"${ventas_totales:,.0f}")
 col2.metric("Descuentos Aplicados", f"${descuentos_totales:,.0f}")
