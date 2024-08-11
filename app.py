@@ -184,7 +184,7 @@ col3.markdown(
     <div style="background-color: #FFCCCB; padding: 10px; border-radius: 5px; text-align: center;">
         <strong style="color: black;">Ganancia Neta</strong><br>
         <span style="color: black;">{format_chilean_currency(beneficio_bruto_despues_impuestos)}</span>
-        <p style="font-size:10px; color: black;">Es el dinero que realmente ganaste. Es tuyo.</p>
+        <p style="font-size:10px; color: black;">Es el dinero que realmente ganaste y puedes guardar o reinvertir en tu negocio.</p>
     </div>
     """,
     unsafe_allow_html=True
@@ -196,14 +196,22 @@ col4.markdown(
     <div style="background-color: #FFCCCB; padding: 10px; border-radius: 5px; text-align: center;">
         <strong style="color: black;">Margen</strong><br>
         <span style="color: black;">{format_chilean_currency(margen, is_percentage=True)}</span>
-        <p style="font-size:10px; color: black;">% que te queda de las ventas después de pagar la inversión e impuestos.</p>
+        <p style="font-size:10px; color: black;">Es el porcentaje del dinero que te queda de las ventas netas después de impuestos, después de pagar por los productos y los impuestos.</p>
     </div>
     """,
     unsafe_allow_html=True
 )
 
 # Nueva fila para el Descuento Promedio %
-st.metric("Descuento Promedio %", f"{(filtered_df['Descuento del producto'].sum() / ventas_totales * 100):.2f}%".replace('.', ','))
+st.markdown(
+    f"""
+    <div style="background-color: #D3D3D3; padding: 10px; border-radius: 5px; text-align: center;">
+        <strong style="color: black;">Descuento Promedio %</strong><br>
+        <span style="color: black;">{(filtered_df['Descuento del producto'].sum() / ventas_totales * 100):.2f}%</span>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
 # Gráficos
 col1, col2 = st.columns(2)
