@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-from datetime import datetime
 
 # Configuración de la página (debe ser la primera llamada a Streamlit)
 st.set_page_config(page_title="Dashboard de Ventas", layout="wide")
@@ -95,27 +94,30 @@ col4.metric("Descuento Promedio", f"{(descuentos_totales / ventas_totales * 100)
 col1, col2 = st.columns(2)
 
 with col1:
-    # Ventas por categoría con SKU en hover data
+    # Ventas por categoría
     sales_by_category = filtered_df.groupby('Categoria')['Precio del Producto'].sum().reset_index()
-    sales_by_category_sku = filtered_df.groupby(['Categoria', 'SKU del Producto'])['Cantidad de Productos'].sum().reset_index()
     
+    # Calcular la cantidad de ventas por SKU y categoría
+    quantity_per_sku = filtered_df.groupby(['Categoria', 'SKU del Producto'])['Cantidad de Productos'].sum().reset_index()
+    
+    # Crear un gráfico de barras para ventas totales por categoría
     fig = px.bar(
         sales_by_category,
         x='Categoria',
         y='Precio del Producto',
         title="Ventas por Categoría",
         labels={'Precio del Producto': 'Ventas Totales por Categoría'},
-        hover_data={'Categoria': False, 'Precio del Producto': True}  # Muestra las ventas totales en el hover
+        text='Precio del Producto',  # Añadir el texto de ventas totales en las barras
+        hover_data={'Categoria': True, 'Precio del Producto': True}  # Mostrar ventas totales en el hover
     )
-
-    fig.add_scatter(
-        x=sales_by_category_sku['Categoria'],
-        y=sales_by_category_sku['Cantidad de Productos'],
-        mode='markers',
-        marker=dict(color='rgba(255,0,0,0.5)', size=10),
-        text=sales_by_category_sku['SKU del Producto'],
-        name='Cantidad por SKU',
-        hoverinfo='text+y'
+    
+    # Añadir texto de SKU y cantidad vendida en el hover
+    fig.update_traces(
+        hovertemplate="<b>Categoria:</b> %{x}<br>" +
+                      "<b>Ventas Totales:</b> %{y:,.2f}<br>" +
+                      "<b>SKU y Cantidad:</b><br>" +
+                      "%{customdata}<br>",
+        customdata=quantity_per_sku.apply(lambda row: f"{row['SKU del Producto']}: {row['Cantidad de Productos']}", axis=1)
     )
     
     st.plotly_chart(fig, use_container_width=True)
