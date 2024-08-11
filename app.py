@@ -99,8 +99,11 @@ beneficio_bruto = filtered_df['Beneficio Bruto'].sum()
 # Calcular el beneficio bruto después de impuestos
 beneficio_bruto_despues_impuestos = beneficio_bruto * (1 - 0.19)
 
-# Calcular el margen
-margen = (beneficio_bruto / ventas_netas) * 100
+# Calcular el margen bruto
+if ventas_netas > 0:
+    margen_bruto = ((beneficio_bruto / ventas_netas) * 100)
+else:
+    margen_bruto = 0
 
 # Resumen de Ventas
 st.header("Resumen de Ventas")
@@ -182,7 +185,7 @@ col2.markdown(
     unsafe_allow_html=True
 )
 
-# Destacar Ganancia Neta
+# Ganancia Neta
 col3.markdown(
     f"""
     <div style="background-color: #FFCCCB; padding: 10px; border-radius: 5px; text-align: center;">
@@ -194,13 +197,13 @@ col3.markdown(
     unsafe_allow_html=True
 )
 
-# Destacar Margen
+# Margen
 col4.markdown(
     f"""
     <div style="background-color: #FFCCCB; padding: 10px; border-radius: 5px; text-align: center;">
         <strong style="color: black;">Margen</strong><br>
-        <span style="color: black;">{format_chilean_currency(margen, is_percentage=True)}</span>
-        <p style="font-size:10px; color: black;">% que te queda de las ventas después de pagar la inversión e impuestos.</p>
+        <span style="color: black;">{format_chilean_currency(margen_bruto, is_percentage=True)}</span>
+        <p style="font-size:10px; color: black;">% que te queda de las ventas después de pagar el costo del producto.</p>
     </div>
     """,
     unsafe_allow_html=True
@@ -267,9 +270,6 @@ discounts_by_category = filtered_df.groupby('Categoria')['Descuento del producto
 fig = px.bar(discounts_by_category, x=discounts_by_category.index, y=discounts_by_category.values, title="Descuentos por Categoría")
 st.plotly_chart(fig, use_container_width=True)
 
-# Tabla de datos
-st.subheader("Datos Detallados")
-st.dataframe(filtered_df)
 # Tabla de datos
 st.subheader("Datos Detallados")
 st.dataframe(filtered_df)
