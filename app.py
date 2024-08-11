@@ -12,33 +12,37 @@ df_categorias = pd.read_csv(url_categorias)
 
 # Data Preprocessing
 def preprocess_data(df_main, df_categorias):
-    # Fill missing values for product details and merge with categories
+    # Fill missing values and handle date conversion
     df_main = df_main.fillna('')
     df_main['Fecha'] = pd.to_datetime(df_main['Fecha'], errors='coerce').dt.date
     
     # Merge with categories
     df = df_main.merge(df_categorias, on='SKU del Producto', how='left')
     
-    # Calculate total quantity per ID and categorize as Mayorista or Detalle
-    total_quantity_per_id = df.groupby('ID')['Cantidad de Productos'].sum()
-    df['Tipo de Venta'] = df['ID'].map(lambda x: 'Mayorista' if total_quantity_per_id[x] >= 6 else 'Detalle')
-    
     # Convert 'Precio del Producto' from string to float
     df['Precio del Producto'] = df['Precio del Producto'].str.replace(',', '.').astype(float)
     
-    # Calculate total sales per ID
-    df['Total de Venta'] = df.groupby('ID')['Precio del Producto'].transform('sum')
+    # Calculate total quantity and total sales for each order
+    df['Total de Venta'] = df['Cantidad de Productos'].astype(float) * df['Precio del Producto']
+    
+    # Aggregate data by order ID
+    aggregated = df.groupby('ID').agg(
+        Fecha=('Fecha', 'first'),
+        Total_Venta=('Total de Venta', 'sum'),
+        Tipo_de_Venta=('Cantidad de Productos', lambda x: 'Mayorista' if x.sum() >= 6 else 'Detalle'),
+        Region=('Región de Envío', 'first'),
+        Categoria=('Categoria', 'first'),
+        Metodo_de_Envio=('Nombre del método de envío', 'first'),
+        Cupones=('Cupones', 'first')
+    ).reset_index()
     
     # Adjust total sales based on shipping method
-    if 'Despacho Santiago (RM) a domicilio' in df['Nombre del método de envío'].unique():
-        df['Total Ajustado'] = df.apply(
-            lambda row: row['Total de Venta'] - 2990 if row['Nombre del método de envío'] == 'Despacho Santiago (RM) a domicilio' else row['Total de Venta'],
-            axis=1
-        )
-    else:
-        df['Total Ajustado'] = df['Total de Venta']
+    aggregated['Total_Ajustado'] = aggregated.apply(
+        lambda row: row['Total_Venta'] - 2990 if row['Metodo_de_Envio'] == 'Despacho Santiago (RM) a domicilio' else row['Total_Venta'],
+        axis=1
+    )
     
-    return df
+    return aggregated
 
 df = preprocess_data(df_main, df_categorias)
 
@@ -56,13 +60,13 @@ filtered_data = df[df['Fecha'] == selected_date]
 # Check if there's any data for the selected date
 if not filtered_data.empty:
     # Sales by Region
-    sales_by_region = filtered_data.groupby('Región de Envío')['Total Ajustado'].sum().reset_index()
+    sales_by_region = filtered_data.groupby('Region')['Total_Ajustado'].sum().reset_index()
 
     # Sales by Product Category
-    sales_by_category = filtered_data.groupby('Categoria')['Total Ajustado'].sum().reset_index()
+    sales_by_category = filtered_data.groupby('Categoria')['Total_Ajustado'].sum().reset_index()
 
     # Total Sales
-    total_sales = filtered_data['Total Ajustado'].sum()
+    total_sales = filtered_data['Total_Ajustado'].sum()
 
     # Display Total Sales
     st.subheader(f"Total Sales for {selected_date}")
@@ -70,7 +74,7 @@ if not filtered_data.empty:
 
     # Sales by Region Chart
     st.subheader("Sales by Region")
-    st.bar_chart(sales_by_region.set_index('Región de Envío'))
+    st.bar_chart(sales_by_region.set_index('Region'))
 
     # Sales by Category Chart
     st.subheader("Sales by Product Category")
