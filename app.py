@@ -68,10 +68,15 @@ if sale_type:
     mask &= df['Tipo de Venta'].isin(sale_type)
 filtered_df = df[mask]
 
+# Ajustar el cálculo de ventas totales para envíos a domicilio en Santiago
+filtered_df['Ajuste Envío'] = 0
+mask_envio = filtered_df['Nombre del método de envío'] == 'Despacho Santiago (RM) a domicilio'
+filtered_df.loc[mask_envio, 'Ajuste Envío'] = 2990 / filtered_df.loc[mask_envio].groupby('ID')['Cantidad de Productos'].transform('sum')
+ventas_totales = filtered_df['Precio del Producto'].sum() - filtered_df['Ajuste Envío'].sum()
+
 # Métricas principales
 st.header("Resumen de Ventas")
 col1, col2, col3 = st.columns(3)
-ventas_totales = filtered_df['Precio del Producto'].sum()
 descuentos_totales = filtered_df['Descuento del producto'].sum()
 ventas_netas = ventas_totales - descuentos_totales  # Ajustar el cálculo de ventas netas
 
@@ -110,10 +115,6 @@ st.plotly_chart(fig, use_container_width=True)
 discounts_by_category = filtered_df.groupby('Categoria')['Descuento del producto'].sum().sort_values(ascending=False)
 fig = px.bar(discounts_by_category, x=discounts_by_category.index, y=discounts_by_category.values, title="Descuentos por Categoría")
 st.plotly_chart(fig, use_container_width=True)
-
-# Tabla de datos
-st.subheader("Datos Detallados")
-st.dataframe(filtered_df)
 
 # Tabla de datos
 st.subheader("Datos Detallados")
