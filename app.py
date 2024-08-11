@@ -12,17 +12,17 @@ df_categorias = pd.read_csv(url_categorias)
 
 # Data Preprocessing
 def preprocess_data(df_main, df_categorias):
-    # Fill missing values and handle date conversion
+    # Fill missing values
     df_main = df_main.fillna('')
     df_main['Fecha'] = pd.to_datetime(df_main['Fecha'], errors='coerce').dt.date
-    
+
     # Merge with categories
     df = df_main.merge(df_categorias, on='SKU del Producto', how='left')
     
     # Convert 'Precio del Producto' from string to float
     df['Precio del Producto'] = df['Precio del Producto'].str.replace(',', '.').astype(float)
     
-    # Calculate total quantity and total sales for each order
+    # Calculate total sales for each row
     df['Total de Venta'] = df['Cantidad de Productos'].astype(float) * df['Precio del Producto']
     
     # Aggregate data by order ID
@@ -31,7 +31,6 @@ def preprocess_data(df_main, df_categorias):
         Total_Venta=('Total de Venta', 'sum'),
         Tipo_de_Venta=('Cantidad de Productos', lambda x: 'Mayorista' if x.sum() >= 6 else 'Detalle'),
         Region=('Región de Envío', 'first'),
-        Categoria=('Categoria', 'first'),
         Metodo_de_Envio=('Nombre del método de envío', 'first'),
         Cupones=('Cupones', 'first')
     ).reset_index()
