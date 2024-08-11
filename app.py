@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+from datetime import datetime
 
 # Configuración de la página (debe ser la primera llamada a Streamlit)
 st.set_page_config(page_title="Dashboard de Ventas", layout="wide")
@@ -14,12 +15,13 @@ def format_chilean_currency(value, is_percentage=False):
     else:
         return f"${value:,.0f}".replace(',', 'X').replace('.', ',').replace('X', '.')
 
-# Cargar los archivos CSV desde GitHub
-@st.cache_data
+# Cargar los archivos CSV desde GitHub sin caché
 def load_data():
-    url_main = "https://raw.githubusercontent.com/HUHU0101123/og-app/main/datasource.csv"
+    # Añadir un parámetro de versión basado en la fecha actual para evitar caché
+    version = datetime.now().strftime("%Y%m%d%H%M%S")
+    url_main = f"https://raw.githubusercontent.com/HUHU0101123/og-app/main/datasource.csv?v={version}"
     df_main = pd.read_csv(url_main)
-    url_categorias = "https://raw.githubusercontent.com/HUHU0101123/og-app/main/categorias.csv"
+    url_categorias = f"https://raw.githubusercontent.com/HUHU0101123/og-app/main/categorias.csv?v={version}"
     df_categorias = pd.read_csv(url_categorias)
     return df_main, df_categorias
 
