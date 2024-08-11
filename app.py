@@ -107,9 +107,6 @@ beneficio_bruto_despues_impuestos = beneficio_bruto * (1 - 0.19)
 # Calcular el margen
 margen_bruto = (beneficio_bruto / ventas_netas) * 100
 
-# Sumar unidades vendidas
-total_unidades_vendidas = filtered_df['Cantidad de Productos'].sum()
-
 # Resumen de Ventas
 st.header("Resumen de Ventas")
 col1, col2, col3, col4 = st.columns(4)
@@ -164,7 +161,7 @@ col4.markdown(
 
 # Métricas Adicionales
 st.header("Métricas Adicionales")
-col1, col2, col3 = st.columns(3)  # Ajustar a 3 columnas
+col1, col2, col3, col4 = st.columns(4)
 
 # Cantidad de Órdenes
 col1.markdown(
@@ -172,26 +169,55 @@ col1.markdown(
     <div style="background-color: #D3D3D3; padding: 10px; border-radius: 5px; text-align: center;">
         <strong style="color: black;">Cantidad de Órdenes</strong><br>
         <span style="color: black;">{filtered_df['ID'].nunique()}</span>
-        <p style='font-size:10px; color: black;'>Número de órdenes realizadas.</p>
+        <p style='font-size:10px; color: black;'>Total de órdenes procesadas.</p>
     </div>
     """,
     unsafe_allow_html=True
 )
 
-# Unidades Vendidas
+# Ganancia Bruta
 col2.markdown(
     f"""
-    <div style="background-color: #D3D3D3; padding: 10px; border-radius: 5px; text-align: center;">
-        <strong style="color: black;">Unidades Vendidas</strong><br>
-        <span style="color: black;">{total_unidades_vendidas}</span>
-        <p style='font-size:10px; color: black;'>Total de productos vendidos.</p>
+    <div style="background-color: #FFCCCB; padding: 10px; border-radius: 5px; text-align: center;">
+        <strong style="color: black;">Ganancia Bruta</strong><br>
+        <span style="color: black;">{format_chilean_currency(beneficio_bruto)}</span>
+        <p style='font-size:10px; color: black;'>Ventas netas menos costos de adquisición del producto.</p>
     </div>
     """,
     unsafe_allow_html=True
 )
 
-# Descuento Promedio %
+# Ganancia Neta
 col3.markdown(
+    f"""
+    <div style="background-color: #FFCCCB; padding: 10px; border-radius: 5px; text-align: center;">
+        <strong style="color: black;">Ganancia Neta</strong><br>
+        <span style="color: black;">{format_chilean_currency(beneficio_bruto_despues_impuestos)}</span>
+        <p style="font-size:10px; color: black;">Es el dinero que realmente ganaste. Es tuyo.</p>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
+# Margen
+col4.markdown(
+    f"""
+    <div style="background-color: #FFCCCB; padding: 10px; border-radius: 5px; text-align: center;">
+        <strong style="color: black;">Margen</strong><br>
+        <span style="color: black;">{format_chilean_currency(margen_bruto, is_percentage=True)}</span>
+        <p style="font-size:10px; color: black;">% que te queda de las ventas después de pagar la inversión e impuestos.</p>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
+# Añadir un espacio antes de la nueva fila
+st.markdown("<br>", unsafe_allow_html=True)
+
+# Nueva fila para el Descuento Promedio %
+col1, col2, col3, col4 = st.columns(4)  # Definir 4 columnas para mantener el tamaño uniforme
+
+col1.markdown(
     f"""
     <div style="background-color: #D3D3D3; padding: 10px; border-radius: 5px; text-align: center;">
         <strong style="color: black;">Descuento Promedio %</strong><br>
@@ -201,6 +227,11 @@ col3.markdown(
     """,
     unsafe_allow_html=True
 )
+
+# Dejar las otras columnas vacías
+col2.markdown("")
+col3.markdown("")
+col4.markdown("")
 
 # Gráficos
 col1, col2 = st.columns(2)
