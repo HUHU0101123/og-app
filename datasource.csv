@@ -1,5 +1,5 @@
 ID,Estado del Pago,Fecha,Moneda,SKU del Producto,Cantidad de Productos,Precio del Producto,Rentabilidad del producto,Margen del producto (%),Descuento del producto,Región de Envío,Nombre del método de envío,Cupones
-1008,Pago Pendiente,2024-08-01 03:50,CLP,001MC_RJ_TU,1,"15000,00","10831,78",76.01,"750,22",Metropolitana,Despacho a domicilio con Starken (Regiones) POR PAGAR,"E74C2D,FS6,B13AD6"
+1008,Pago Pendiente,2024-08-02 03:50,CLP,001MC_RJ_TU,1,"15000,00","10831,78",76.01,"750,22",Metropolitana,Despacho a domicilio con Starken (Regiones) POR PAGAR,"E74C2D,FS6,B13AD6"
 1008,,,,003FALDA_SHORT_RJ_TU,1,"15000,00","3843,37",45.0,"6459,63",,,
 1008,,,,PJ_008_BE_S,1,"11000,00","4346,85",46.22,"1595,15",,,
 1007,Pago Pendiente,2024-08-11 03:11,CLP,001MC_N_TU,1,"15000,00","10832,00",76.01,"750,00",Metropolitana,Retiro en sucursal de Starken (Regiones) POR PAGAR,1221BE
