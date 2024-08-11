@@ -119,7 +119,7 @@ col3.metric("Ganancia Neta", f"${beneficio_bruto_despues_impuestos:,.0f}")
 col3.markdown("<p style='font-size:10px;'>Es el dinero que realmente ganaste y puedes guardar o reinvertir en tu negocio.</p>", unsafe_allow_html=True)
 
 col4.metric("Margen", f"{margen:.2f}%")
-col4.markdown("<p style='font-size:10px;'>Es el porcentaje del dinero que te queda de las ventas netas, después de pagar por los productos y los impuestos.</p>", unsafe_allow_html=True)
+col4.markdown("<p style='font-size:10px;'>Es el porcentaje del dinero que te queda de las ventas netas después de impuestos, después de pagar por los productos y los impuestos.</p>", unsafe_allow_html=True)
 
 # Nueva fila para el Descuento Promedio
 col5, = st.columns(1)  # Desempaqueta la lista de columnas
