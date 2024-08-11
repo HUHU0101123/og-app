@@ -7,43 +7,50 @@ import plotly.graph_objects as go
 url = "https://raw.githubusercontent.com/HUHU0101123/og-app/main/datasource.csv"
 df = pd.read_csv(url)
 
-# Cargar el archivo de categorías desde GitHub
-categorias_url = "https://raw.githubusercontent.com/HUHU0101123/og-app/main/categorias.csv"
-categorias_df = pd.read_csv(categorias_url)
-
 # Limpiar nombres de columnas
 df.columns = df.columns.str.strip()
-categorias_df.columns = categorias_df.columns.str.strip()
 
 # Convertir la columna 'Fecha' a tipo datetime
-df['Fecha'] = pd.to_datetime(df['Fecha'])
+df['Fecha'] = pd.to_datetime(df['Fecha'], errors='coerce')
 
-# Imprimir las primeras filas del DataFrame y los nombres de columnas para verificar
-st.write("Primeras filas del DataFrame:")
-st.write(df.head())
-st.write("Columnas del DataFrame:")
-st.write(df.columns)
+# Convertir columnas a tipo numérico (si es necesario)
+df['Precio del Producto'] = df['Precio del Producto'].str.replace(',', '.').astype(float)
+df['Cantidad de Productos'] = pd.to_numeric(df['Cantidad de Productos'], errors='coerce')
+df['Descuento del producto'] = df['Descuento del producto'].str.replace(',', '.').astype(float)
+df['Rentabilidad del producto'] = pd.to_numeric(df['Rentabilidad del producto'], errors='coerce')
 
-# Unir los DataFrames usando 'SKU del Producto'
-merged_df = pd.merge(df, categorias_df, on='SKU del Producto', how='left')
+# Agrupar las filas de cada pedido
+# Para ello, primero necesitamos llenar los datos generales en las filas que contienen productos
+df['Precio del Producto'] = df.groupby('ID')['Precio del Producto'].transform(lambda x: x.ffill())
+df['Rentabilidad del producto'] = df.groupby('ID')['Rentabilidad del producto'].transform(lambda x: x.ffill())
+df['Descuento del producto'] = df.groupby('ID')['Descuento del producto'].transform(lambda x: x.ffill())
+df['Nombre del método de envío'] = df.groupby('ID')['Nombre del método de envío'].transform(lambda x: x.ffill())
 
 # Crear una nueva columna 'Total' calculada
-merged_df['Total'] = merged_df['Cantidad de Productos'] * merged_df['Precio del Producto'].str.replace(',', '.').astype(float)
+df['Total'] = df['Cantidad de Productos'] * df['Precio del Producto']
 
 # Crear una nueva columna 'Total Final' considerando el descuento y el costo de envío
-merged_df['Total Final'] = merged_df['Total'] - merged_df['Descuento del producto'].str.replace(',', '.').astype(float)
+df['Total Final'] = df['Total'] - df['Descuento del producto']
 
 # Restar el costo de envío si el método de entrega es "Despacho Santiago (RM) a domicilio"
-merged_df['Total Final'] = merged_df.apply(
+df['Total Final'] = df.apply(
     lambda row: row['Total Final'] - 2990 if row['Nombre del método de envío'] == "Despacho Santiago (RM) a domicilio" else row['Total Final'],
     axis=1
 )
 
+# Agregar los detalles de las órdenes (sumar los totales por ID)
+order_summary = df.groupby('ID').agg({
+    'Total Final': 'sum',
+    'Rentabilidad del producto': 'mean',
+    'Cantidad de Productos': 'sum',
+    'Descuento del producto': 'sum'
+}).reset_index()
+
 # Crear una nueva columna 'Ganancia' calculada
-merged_df['Ganancia'] = (merged_df['Rentabilidad del producto'] / 100) * merged_df['Total Final']
+order_summary['Ganancia'] = (order_summary['Rentabilidad del producto'] / 100) * order_summary['Total Final']
 
 # Crear una nueva columna para diferenciar entre 'Venta al Detalle' y 'Venta Mayorista'
-merged_df['Tipo de Venta'] = merged_df['Cantidad de Productos'].apply(lambda x: 'Venta al Detalle' if x < 6 else 'Venta Mayorista')
+order_summary['Tipo de Venta'] = order_summary['Cantidad de Productos'].apply(lambda x: 'Venta al Detalle' if x < 6 else 'Venta Mayorista')
 
 # Función para formatear números con el formato chileno
 def format_chilean_number(number, decimal_places=0):
@@ -58,9 +65,9 @@ def format_percentage(percentage):
 st.sidebar.subheader('Filtros Interactivos')
 
 # Selector de fecha de inicio
-start_date = st.sidebar.date_input('Fecha de Inicio', merged_df['Fecha'].min().date())
+start_date = st.sidebar.date_input('Fecha de Inicio', df['Fecha'].min().date())
 # Selector de fecha final
-end_date = st.sidebar.date_input('Fecha de Fin', merged_df['Fecha'].max().date())
+end_date = st.sidebar.date_input('Fecha de Fin', df['Fecha'].max().date())
 
 # Convertir las fechas seleccionadas a tipo datetime para comparación
 start_date = pd.to_datetime(start_date)
@@ -74,35 +81,27 @@ else:
     tipo_venta = st.sidebar.selectbox('Tipo de Venta', ['Todo', 'Venta al Detalle', 'Venta Mayorista'])
 
     # Filtrar el DataFrame según las selecciones
-    filtered_df = merged_df[(merged_df['Fecha'] >= start_date) & (merged_df['Fecha'] <= end_date)]
+    filtered_df = order_summary[(df['Fecha'] >= start_date) & (df['Fecha'] <= end_date)]
     if tipo_venta != 'Todo':
         filtered_df = filtered_df[filtered_df['Tipo de Venta'] == tipo_venta]
 
-    # Agrupar por ID de la orden para evitar duplicados en las métricas
-    order_summary = filtered_df.groupby('ID').agg({
-        'Total Final': 'sum',
-        'Ganancia': 'sum',
-        'Cantidad de Productos': 'sum',
-        'Descuento del producto': 'sum'
-    }).reset_index()
-
     # Verificar si el DataFrame filtrado está vacío
-    if order_summary.empty:
+    if filtered_df.empty:
         st.error('No hay datos disponibles para los filtros seleccionados.')
     else:
         # Métricas de resumen
         st.subheader('Antes de Impuestos')
 
         # Calcular métricas
-        total_revenue = order_summary['Total Final'].sum()
-        total_profit = order_summary['Ganancia'].sum()
-        total_orders = order_summary['ID'].nunique()
+        total_revenue = filtered_df['Total Final'].sum()
+        total_profit = filtered_df['Ganancia'].sum()
+        total_orders = filtered_df['ID'].nunique()
         average_order_value = total_revenue / total_orders if total_orders > 0 else 0
         average_profit_per_order = total_profit / total_orders if total_orders > 0 else 0
         overall_profit_margin = (total_profit / total_revenue) * 100 if total_revenue > 0 else 0
 
         # Calcular descuentos totales
-        total_descuentos = order_summary['Descuento del producto'].sum()
+        total_descuentos = filtered_df['Descuento del producto'].sum()
 
         # Mostrar métricas en columnas
         col1, col2, col3, col4, col5, col6 = st.columns(6)
@@ -118,10 +117,10 @@ else:
 
         # Calcular ganancia después de impuestos
         tax_rate = 0.19
-        order_summary['Ganancia Después de Impuestos'] = order_summary['Ganancia'] * (1 - tax_rate)
+        filtered_df['Ganancia Después de Impuestos'] = filtered_df['Ganancia'] * (1 - tax_rate)
 
         # Calcular margen después de impuestos
-        total_profit_after_tax = order_summary['Ganancia Después de Impuestos'].sum()
+        total_profit_after_tax = filtered_df['Ganancia Después de Impuestos'].sum()
         overall_margin_after_tax = (total_profit_after_tax / total_revenue) * 100 if total_revenue > 0 else 0
 
         # Métrica adicional para ganancia después de impuestos
@@ -143,35 +142,53 @@ else:
         sales_trends['Month'] = sales_trends['Fecha'].dt.to_period('M').astype(str)
 
         if not sales_trends.empty:
-            # Gráfico de líneas para Ventas y Ganancia Después de Impuestos
-            fig_sales_trends = px.line(sales_trends, x='Month', y=['Total Final', 'Ganancia Después de Impuestos'],
-                                       labels={'value': 'Monto', 'Month': 'Fecha'},
-                                       title='Ventas vs Ganancias Después de Impuestos',
-                                       template='plotly_dark')
-            fig_sales_trends.for_each_trace(lambda t: t.update(name='Ventas' if t.name == 'Total Final' else 'Ganancias Después de Impuestos'))
-
-            # Calcular el punto medio en el eje x
-            num_points = len(sales_trends['Month'])
-            mid_index = num_points // 2
-            mid_month = sales_trends['Month'].iloc[mid_index]
-            
-            # Añadir anotaciones en el medio de las curvas
-            fig_sales_trends.update_layout(showlegend=False)
+            # Gráfico de líneas para tendencias de ventas
+            fig_sales_trends = px.line(sales_trends, x='Month', y='Total Final', title='Tendencias de Ventas',
+                                      labels={'Month': 'Mes', 'Total Final': 'Ventas Totales'},
+                                      template='plotly_dark')
+            fig_sales_trends.update_layout(xaxis_title='Mes', yaxis_title='Ventas Totales')
+            fig_sales_trends.add_trace(
+                go.Scatter(
+                    x=sales_trends['Month'],
+                    y=sales_trends['Ganancia'],
+                    mode='lines+markers',
+                    name='Ganancia',
+                    marker=dict(color='rgb(255, 0, 0)')
+                )
+            )
+            fig_sales_trends.add_trace(
+                go.Scatter(
+                    x=sales_trends['Month'],
+                    y=sales_trends['Ganancia Después de Impuestos'],
+                    mode='lines+markers',
+                    name='Ganancia Después de Impuestos',
+                    marker=dict(color='rgb(0, 255, 0)')
+                )
+            )
             fig_sales_trends.update_layout(
                 annotations=[
                     dict(
-                        x=mid_month,  # Posición X para la anotación
-                        y=sales_trends[sales_trends['Month'] == mid_month]['Total Final'].mean(),  # Posición Y para la anotación
-                        text='Ventas',
+                        x=sales_trends['Month'].iloc[-1],
+                        y=sales_trends['Total Final'].iloc[-1],
+                        text=f"Ventas Totales: {format_chilean_number(sales_trends['Total Final'].iloc[-1], 0)} CLP",
                         showarrow=True,
                         arrowhead=2,
                         ax=0,
                         ay=-40
                     ),
                     dict(
-                        x=mid_month,  # Posición X para la anotación
-                        y=sales_trends[sales_trends['Month'] == mid_month]['Ganancia Después de Impuestos'].mean(),  # Posición Y para la anotación
-                        text='Ganancias Después de Impuestos',
+                        x=sales_trends['Month'].iloc[-1],
+                        y=sales_trends['Ganancia'].iloc[-1],
+                        text=f"Ganancia: {format_chilean_number(sales_trends['Ganancia'].iloc[-1], 0)} CLP",
+                        showarrow=True,
+                        arrowhead=2,
+                        ax=0,
+                        ay=-40
+                    ),
+                    dict(
+                        x=sales_trends['Month'].iloc[-1],
+                        y=sales_trends['Ganancia Después de Impuestos'].iloc[-1],
+                        text=f"Ganancia Después de Impuestos: {format_chilean_number(sales_trends['Ganancia Después de Impuestos'].iloc[-1], 0)} CLP",
                         showarrow=True,
                         arrowhead=2,
                         ax=0,
@@ -235,8 +252,8 @@ else:
 
         # Análisis Detallado por Producto
         st.subheader('Análisis Detallado por Producto')
-        producto_seleccionado = st.selectbox('Selecciona un Producto:', filtered_df['Nombre del Producto'].unique())
-        producto_df = filtered_df[filtered_df['Nombre del Producto'] == producto_seleccionado]
+        producto_seleccionado = st.selectbox('Selecciona un Producto:', filtered_df['SKU del Producto'].unique())
+        producto_df = filtered_df[filtered_df['SKU del Producto'] == producto_seleccionado]
 
         if not producto_df.empty:
             col1, col2, col3 = st.columns(3)
