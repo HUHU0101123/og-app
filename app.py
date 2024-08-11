@@ -36,7 +36,7 @@ def preprocess_data(df_main, df_categorias):
     df[columns_to_fill] = df.groupby('ID')[columns_to_fill].fillna(method='ffill')
     
     # Convertir columnas numéricas
-    numeric_columns = ['Cantidad de Productos', 'Precio del Producto', 'Rentabilidad del producto', 'Margen del producto (%)', 'Descuento del producto']
+    numeric_columns = ['Cantidad de Productos', 'Precio del Producto', 'Margen del producto (%)', 'Descuento del producto']
     for col in numeric_columns:
         if df[col].dtype == 'object':
             df[col] = df[col].str.replace(',', '.').astype(float)
@@ -55,6 +55,9 @@ def preprocess_data(df_main, df_categorias):
     
     # Calcular las ventas netas
     df['Ventas Netas'] = df['Precio del Producto'] - df['Descuento del producto']
+    
+    # Calcular el costo del producto usando el margen
+    df['Costo del Producto'] = df['Precio del Producto'] * (1 - df['Margen del producto (%)'] / 100)
     
     return df
 
@@ -90,7 +93,8 @@ ventas_netas = ventas_totales - filtered_df['Descuento del producto'].sum()
 ventas_netas_despues_impuestos = ventas_netas * (1 - 0.19)
 
 # Calcular el beneficio bruto
-beneficio_bruto = filtered_df['Rentabilidad del producto'].sum()
+filtered_df['Beneficio Bruto'] = (filtered_df['Precio del Producto'] - filtered_df['Costo del Producto']) * filtered_df['Cantidad de Productos']
+beneficio_bruto = filtered_df['Beneficio Bruto'].sum()
 
 # Calcular el beneficio bruto después de impuestos
 beneficio_bruto_despues_impuestos = beneficio_bruto * (1 - 0.19)
@@ -263,6 +267,9 @@ discounts_by_category = filtered_df.groupby('Categoria')['Descuento del producto
 fig = px.bar(discounts_by_category, x=discounts_by_category.index, y=discounts_by_category.values, title="Descuentos por Categoría")
 st.plotly_chart(fig, use_container_width=True)
 
+# Tabla de datos
+st.subheader("Datos Detallados")
+st.dataframe(filtered_df)
 # Tabla de datos
 st.subheader("Datos Detallados")
 st.dataframe(filtered_df)
