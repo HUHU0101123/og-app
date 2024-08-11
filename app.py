@@ -111,8 +111,8 @@ col2.markdown("<p style='font-size:10px;'>Total de descuentos otorgados en venta
 col3.metric("Ventas Netas", format_chilean_currency(ventas_netas))
 col3.markdown("<p style='font-size:10px;'>Ventas totales menos descuentos.</p>", unsafe_allow_html=True)
 
-col4.metric("Ganancia Bruta", format_chilean_currency(beneficio_bruto))
-col4.markdown("<p style='font-size:10px;'>Ventas netas menos costos de adquisición del producto.</p>", unsafe_allow_html=True)
+col4.metric("Ventas Netas Después de Impuestos", format_chilean_currency(ventas_netas_despues_impuestos))
+col4.markdown("<p style='font-size:10px;'>Ventas netas menos impuestos del 19%.</p>", unsafe_allow_html=True)
 
 # Métricas Adicionales
 st.header("Métricas Adicionales")
@@ -121,8 +121,11 @@ col1, col2, col3, col4 = st.columns(4)
 col1.metric("Cantidad de Órdenes", filtered_df['ID'].nunique())
 col1.markdown("<p style='font-size:10px;'>Total de órdenes procesadas.</p>", unsafe_allow_html=True)
 
+col2.metric("Ganancia Bruta", format_chilean_currency(beneficio_bruto))
+col2.markdown("<p style='font-size:10px;'>Ventas netas menos costos de adquisición del producto.</p>", unsafe_allow_html=True)
+
 # Destacar Ganancia Neta
-col2.markdown(
+col3.markdown(
     f"""
     <div style="background-color: #FFCCCB; padding: 10px; border-radius: 5px; text-align: center;">
         <strong style="color: black;">Ganancia Neta</strong><br>
@@ -133,7 +136,7 @@ col2.markdown(
 )
 
 # Destacar Margen
-col3.markdown(
+col4.markdown(
     f"""
     <div style="background-color: #FFCCCB; padding: 10px; border-radius: 5px; text-align: center;">
         <strong style="color: black;">Margen</strong><br>
@@ -143,8 +146,9 @@ col3.markdown(
     unsafe_allow_html=True
 )
 
-col4.metric("Descuento Promedio %", f"{(filtered_df['Descuento del producto'].sum() / ventas_totales * 100):.2f}%".replace('.', ','))
-col4.markdown("<p style='font-size:10px;'>Porcentaje promedio de descuento aplicado.</p>", unsafe_allow_html=True)
+# Nueva fila para el Descuento Promedio %
+st.markdown("<h4>Descuento Promedio %</h4>", unsafe_allow_html=True)
+st.metric("Descuento Promedio %", f"{(filtered_df['Descuento del producto'].sum() / ventas_totales * 100):.2f}%".replace('.', ','))
 
 # Gráficos
 col1, col2 = st.columns(2)
