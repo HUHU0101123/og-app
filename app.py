@@ -232,6 +232,10 @@ fig.update_xaxes(
 
 st.plotly_chart(fig, use_container_width=True)
 
+
+
+
+
 # Tabla de datos
 st.subheader("Datos Detallados")
 st.dataframe(filtered_df)
