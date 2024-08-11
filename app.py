@@ -57,6 +57,13 @@ else:
     if tipo_venta != 'Todo':
         filtered_df = filtered_df[filtered_df['Tipo de Venta'] == tipo_venta]
 
+    # Verificar columnas disponibles
+    columns_needed = ['ID', 'Total', 'Ganancia', 'Cantidad de Productos', 'Descuento del producto']
+    for column in columns_needed:
+        if column not in filtered_df.columns:
+            st.error(f"Columna faltante: {column}")
+            st.stop()
+
     # Agrupar por ID de la orden para evitar duplicados en las métricas
     order_summary = filtered_df.groupby('ID').agg({
         'Total': 'sum',
