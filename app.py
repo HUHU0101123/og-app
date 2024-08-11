@@ -108,7 +108,7 @@ col1.markdown(
     <div style="background-color: #D3D3D3; padding: 10px; border-radius: 5px; text-align: center;">
         <strong style="color: black;">Ventas Totales</strong><br>
         <span style="color: black;">{format_chilean_currency(ventas_totales)}</span>
-        <p style='font-size:10px;'>Ingresos totales antes de descuentos y ajustes.</p>
+        <p style='font-size:10px; color: black;'>Ingresos totales antes de descuentos y ajustes.</p>
     </div>
     """,
     unsafe_allow_html=True
@@ -120,7 +120,7 @@ col2.markdown(
     <div style="background-color: #D3D3D3; padding: 10px; border-radius: 5px; text-align: center;">
         <strong style="color: black;">Descuentos Aplicados</strong><br>
         <span style="color: black;">{format_chilean_currency(filtered_df['Descuento del producto'].sum())}</span>
-        <p style='font-size:10px;'>Total de descuentos otorgados en ventas.</p>
+        <p style='font-size:10px; color: black;'>Total de descuentos otorgados en ventas.</p>
     </div>
     """,
     unsafe_allow_html=True
@@ -132,7 +132,7 @@ col3.markdown(
     <div style="background-color: #D3D3D3; padding: 10px; border-radius: 5px; text-align: center;">
         <strong style="color: black;">Ventas Netas</strong><br>
         <span style="color: black;">{format_chilean_currency(ventas_netas)}</span>
-        <p style='font-size:10px;'>Ventas totales menos descuentos.</p>
+        <p style='font-size:10px; color: black;'>Ventas totales menos descuentos.</p>
     </div>
     """,
     unsafe_allow_html=True
@@ -144,7 +144,7 @@ col4.markdown(
     <div style="background-color: #D3D3D3; padding: 10px; border-radius: 5px; text-align: center;">
         <strong style="color: black;">Ventas Netas Después de Impuestos</strong><br>
         <span style="color: black;">{format_chilean_currency(ventas_netas_despues_impuestos)}</span>
-        <p style='font-size:10px;'>Ventas netas menos impuestos del 19%.</p>
+        <p style='font-size:10px; color: black;'>Ventas netas menos impuestos del 19%.</p>
     </div>
     """,
     unsafe_allow_html=True
@@ -160,7 +160,7 @@ col1.markdown(
     <div style="background-color: #D3D3D3; padding: 10px; border-radius: 5px; text-align: center;">
         <strong style="color: black;">Cantidad de Órdenes</strong><br>
         <span style="color: black;">{filtered_df['ID'].nunique()}</span>
-        <p style='font-size:10px;'>Total de órdenes procesadas.</p>
+        <p style='font-size:10px; color: black;'>Total de órdenes procesadas.</p>
     </div>
     """,
     unsafe_allow_html=True
@@ -172,7 +172,7 @@ col2.markdown(
     <div style="background-color: #D3D3D3; padding: 10px; border-radius: 5px; text-align: center;">
         <strong style="color: black;">Ganancia Bruta</strong><br>
         <span style="color: black;">{format_chilean_currency(beneficio_bruto)}</span>
-        <p style='font-size:10px;'>Ventas netas menos costos de adquisición del producto.</p>
+        <p style='font-size:10px; color: black;'>Ventas netas menos costos de adquisición del producto.</p>
     </div>
     """,
     unsafe_allow_html=True
