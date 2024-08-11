@@ -196,7 +196,7 @@ col4.markdown(
     <div style="background-color: #FFCCCB; padding: 10px; border-radius: 5px; text-align: center;">
         <strong style="color: black;">Margen</strong><br>
         <span style="color: black;">{format_chilean_currency(margen, is_percentage=True)}</span>
-        <p style="font-size:10px; color: black;">% del dinero que te queda de las ventas después de pagar por los productos e impuestos.</p>
+        <p style="font-size:10px; color: black;">% que te queda de las ventas después de pagar por los productos e impuestos.</p>
     </div>
     """,
     unsafe_allow_html=True
