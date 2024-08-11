@@ -3,11 +3,10 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 
-# Cargar el archivo CSV principal desde GitHub
+# Cargar los archivos CSV desde GitHub
 url_main = "https://raw.githubusercontent.com/HUHU0101123/og-app/main/datasource.csv"
 df_main = pd.read_csv(url_main)
 
-# Cargar el archivo CSV de categorías desde GitHub
 url_categorias = "https://raw.githubusercontent.com/HUHU0101123/og-app/main/categorias.csv"
 df_categorias = pd.read_csv(url_categorias)
 
@@ -16,7 +15,7 @@ df_main.columns = df_main.columns.str.strip()
 df_categorias.columns = df_categorias.columns.str.strip()
 
 # Convertir la columna 'Fecha' a tipo datetime
-df_main['Fecha'] = pd.to_datetime(df_main['Fecha'], errors='coerce')
+df_main['Fecha'] = pd.to_datetime(df_main['Fecha'], format='%Y-%m-%d %H:%M', errors='coerce')
 
 # Convertir columnas a tipo numérico (si es necesario)
 df_main['Precio del Producto'] = df_main['Precio del Producto'].str.replace(',', '.').astype(float)
@@ -37,7 +36,6 @@ st.write(df_main.dtypes)
 st.write("Fechas mínimas y máximas en el DataFrame Principal:")
 st.write(df_main['Fecha'].min(), df_main['Fecha'].max())
 
-# Mostrar los datos iniciales para diagnóstico de categorias.csv
 st.write("Primeras filas del DataFrame de Categorías:")
 st.write(df_categorias.head())
 
@@ -161,9 +159,9 @@ else:
         total_profit_after_tax = filtered_df['Ganancia Después de Impuestos'].sum()
         overall_margin_after_tax = (total_profit_after_tax / total_revenue) * 100 if total_revenue > 0 else 0
 
-        # Métrica adicional para ganancia después de impuestos
+        # Mostrar métricas después de impuestos
         st.subheader('Después de Impuestos')
-        col1, col2, col3, col4, col5 = st.columns(5)
+        col1, col2 = st.columns(2)
         col1.metric(label="Ganancia Después de Impuestos", value=f"{format_chilean_number(total_profit_after_tax, 0)} CLP")
         col2.metric(label="Margen Después de Impuestos", value=format_percentage(overall_margin_after_tax))
 
