@@ -255,18 +255,24 @@ with col2:
     # Calcular la Ganancia Neta diaria
     daily_sales['Ganancia_Neta'] = daily_sales['Ventas_Netas'] - (daily_sales['Ventas_Netas'] * 0.19)
 
-    # Duplicar el punto si solo hay un día
-    if len(daily_sales) == 1:
-        daily_sales = pd.concat([daily_sales, daily_sales])
-
-    # Crear un gráfico de dispersión para Ventas Totales, Ventas Netas y Ganancia Neta
-    fig = px.scatter(
-        daily_sales,
-        x='Fecha',
-        y=['Ventas_Totales', 'Ventas_Netas', 'Ganancia_Neta'],
-        labels={'value': 'Monto', 'variable': 'Métrica'},
-        title="Desarrollo Diario de Ventas Totales, Ventas Netas y Ganancia Neta"
-    )
+    if len(daily_sales) > 1:
+        # Crear un gráfico de líneas para múltiples días
+        fig = px.line(
+            daily_sales,
+            x='Fecha',
+            y=['Ventas_Totales', 'Ventas_Netas', 'Ganancia_Neta'],
+            labels={'value': 'Monto', 'variable': 'Métrica'},
+            title="Desarrollo Diario de Ventas Totales, Ventas Netas y Ganancia Neta"
+        )
+    else:
+        # Crear un gráfico de dispersión para un solo día
+        fig = px.scatter(
+            daily_sales,
+            x='Fecha',
+            y=['Ventas_Totales', 'Ventas_Netas', 'Ganancia_Neta'],
+            labels={'value': 'Monto', 'variable': 'Métrica'},
+            title="Desarrollo Diario de Ventas Totales, Ventas Netas y Ganancia Neta"
+        )
 
     # Configurar el formato de fecha en el eje X
     fig.update_xaxes(
