@@ -12,7 +12,7 @@ df_categorias = pd.read_csv(url_categorias)
 
 # Data Preprocessing
 def preprocess_data(df_main, df_categorias):
-    # Fill missing values
+    # Fill missing values and handle date conversion
     df_main = df_main.fillna('')
     df_main['Fecha'] = pd.to_datetime(df_main['Fecha'], errors='coerce').dt.date
 
@@ -31,6 +31,7 @@ def preprocess_data(df_main, df_categorias):
         Total_Venta=('Total de Venta', 'sum'),
         Tipo_de_Venta=('Cantidad de Productos', lambda x: 'Mayorista' if x.sum() >= 6 else 'Detalle'),
         Region=('Región de Envío', 'first'),
+        Categoria=('Categoria', 'first'),
         Metodo_de_Envio=('Nombre del método de envío', 'first'),
         Cupones=('Cupones', 'first')
     ).reset_index()
@@ -58,26 +59,29 @@ filtered_data = df[df['Fecha'] == selected_date]
 
 # Check if there's any data for the selected date
 if not filtered_data.empty:
+    st.write("Filtered Data Columns:", filtered_data.columns.tolist())
+    st.write("Filtered Data Preview:", filtered_data.head())
+
     # Sales by Region
-    sales_by_region = filtered_data.groupby('Region')['Total_Ajustado'].sum().reset_index()
+    if 'Region' in filtered_data.columns and 'Total_Ajustado' in filtered_data.columns:
+        sales_by_region = filtered_data.groupby('Region')['Total_Ajustado'].sum().reset_index()
+        st.subheader("Sales by Region")
+        st.bar_chart(sales_by_region.set_index('Region'))
+    else:
+        st.write("Columns for 'Region' or 'Total_Ajustado' are missing in the filtered data.")
 
     # Sales by Product Category
-    sales_by_category = filtered_data.groupby('Categoria')['Total_Ajustado'].sum().reset_index()
+    if 'Categoria' in filtered_data.columns and 'Total_Ajustado' in filtered_data.columns:
+        sales_by_category = filtered_data.groupby('Categoria')['Total_Ajustado'].sum().reset_index()
+        st.subheader("Sales by Product Category")
+        st.bar_chart(sales_by_category.set_index('Categoria'))
+    else:
+        st.write("Columns for 'Categoria' or 'Total_Ajustado' are missing in the filtered data.")
 
     # Total Sales
     total_sales = filtered_data['Total_Ajustado'].sum()
-
-    # Display Total Sales
     st.subheader(f"Total Sales for {selected_date}")
     st.write(f"${total_sales:,.2f}")
-
-    # Sales by Region Chart
-    st.subheader("Sales by Region")
-    st.bar_chart(sales_by_region.set_index('Region'))
-
-    # Sales by Category Chart
-    st.subheader("Sales by Product Category")
-    st.bar_chart(sales_by_category.set_index('Categoria'))
 
     # Optional: Display raw data
     if st.checkbox('Show Raw Data'):
