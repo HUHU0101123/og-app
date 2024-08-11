@@ -164,7 +164,7 @@ col4.markdown(
 
 # Métricas Adicionales
 st.header("Métricas Adicionales")
-col1, col2, col3, col4 = st.columns(4)
+col1, col2, col3 = st.columns(3)  # Ajustar a 3 columnas
 
 # Cantidad de Órdenes
 col1.markdown(
@@ -178,9 +178,7 @@ col1.markdown(
     unsafe_allow_html=True
 )
 
-# Unidades Vendidas y Descuento Promedio %
-col2, col3, col4 = st.columns(4)  # Definir 4 columnas para mantener el tamaño uniforme
-
+# Unidades Vendidas
 col2.markdown(
     f"""
     <div style="background-color: #D3D3D3; padding: 10px; border-radius: 5px; text-align: center;">
@@ -192,6 +190,7 @@ col2.markdown(
     unsafe_allow_html=True
 )
 
+# Descuento Promedio %
 col3.markdown(
     f"""
     <div style="background-color: #D3D3D3; padding: 10px; border-radius: 5px; text-align: center;">
@@ -245,3 +244,4 @@ st.plotly_chart(fig, use_container_width=True)
 # Tabla de datos
 st.subheader("Datos Detallados")
 st.dataframe(filtered_df)
+
