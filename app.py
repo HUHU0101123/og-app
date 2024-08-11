@@ -91,31 +91,31 @@ st.header("Resumen de Ventas")
 col1, col2, col3, col4 = st.columns(4)
 
 col1.metric("Ventas Totales", f"${ventas_totales:,.0f}")
-col1.markdown("<small>Ingresos totales antes de descuentos y ajustes.</small>", unsafe_allow_html=True)
+col1.markdown("<p style='font-size:10px;'>Ingresos totales antes de descuentos y ajustes.</p>", unsafe_allow_html=True)
 
 col2.metric("Descuentos Aplicados", f"${filtered_df['Descuento del producto'].sum():,.0f}")
-col2.markdown("<small>Total de descuentos otorgados en ventas.</small>", unsafe_allow_html=True)
+col2.markdown("<p style='font-size:10px;'>Total de descuentos otorgados en ventas.</p>", unsafe_allow_html=True)
 
 col3.metric("Ventas Netas", f"${ventas_netas:,.0f}")
-col3.markdown("<small>Ventas totales menos descuentos.</small>", unsafe_allow_html=True)
+col3.markdown("<p style='font-size:10px;'>Ventas totales menos descuentos.</p>", unsafe_allow_html=True)
 
 col4.metric("Ventas Netas Después de Impuestos", f"${ventas_netas_despues_impuestos:,.0f}")
-col4.markdown("<small>Ventas netas menos impuestos del 19%.</small>", unsafe_allow_html=True)
+col4.markdown("<p style='font-size:10px;'>Ventas netas menos impuestos del 19%.</p>", unsafe_allow_html=True)
 
 st.header("Métricas Adicionales")
 col1, col2, col3, col4 = st.columns(4)
 
 col1.metric("Cantidad de Órdenes", filtered_df['ID'].nunique())
-col1.markdown("<small>Total de órdenes procesadas.</small>", unsafe_allow_html=True)
+col1.markdown("<p style='font-size:10px;'>Total de órdenes procesadas.</p>", unsafe_allow_html=True)
 
 col2.metric("Descuento Promedio", f"{(filtered_df['Descuento del producto'].sum() / ventas_totales * 100):.2f}%")
-col2.markdown("<small>Porcentaje promedio de descuento aplicado.</small>", unsafe_allow_html=True)
+col2.markdown("<p style='font-size:10px;'>Porcentaje promedio de descuento aplicado.</p>", unsafe_allow_html=True)
 
 col3.metric("Beneficio Bruto", f"${beneficio_bruto:,.0f}")
-col3.markdown("<small>Ventas netas menos costos de adquisición del producto.</small>", unsafe_allow_html=True)
+col3.markdown("<p style='font-size:10px;'>Ventas netas menos costos de adquisición del producto.</p>", unsafe_allow_html=True)
 
 col4.metric("Beneficio Bruto Después de Impuestos", f"${beneficio_bruto_despues_impuestos:,.0f}")
-col4.markdown("<small>Beneficio bruto menos impuestos del 19%.</small>", unsafe_allow_html=True)
+col4.markdown("<p style='font-size:10px;'>Beneficio bruto menos impuestos del 19%.</p>", unsafe_allow_html=True)
 
 # Gráficos
 col1, col2 = st.columns(2)
