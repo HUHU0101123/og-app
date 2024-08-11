@@ -18,8 +18,8 @@ categorias_df.columns = categorias_df.columns.str.strip()
 # Convertir la columna 'Fecha' a tipo datetime
 df['Fecha'] = pd.to_datetime(df['Fecha'])
 
-# Unir los DataFrames usando 'Nombre del Producto'
-merged_df = pd.merge(df, categorias_df, on='Nombre del Producto', how='left')
+# Unir los DataFrames usando 'SKU del Producto'
+merged_df = pd.merge(df, categorias_df, on='SKU del Producto', how='left')
 
 # Crear una nueva columna para diferenciar entre 'Venta al Detalle' y 'Venta Mayorista'
 merged_df['Tipo de Venta'] = merged_df['Cantidad de Productos'].apply(lambda x: 'Venta al Detalle' if x < 6 else 'Venta Mayorista')
@@ -57,23 +57,31 @@ else:
     if tipo_venta != 'Todo':
         filtered_df = filtered_df[filtered_df['Tipo de Venta'] == tipo_venta]
 
+    # Agrupar por ID de la orden para evitar duplicados en las métricas
+    order_summary = filtered_df.groupby('ID').agg({
+        'Total': 'sum',
+        'Ganancia': 'sum',
+        'Cantidad de Productos': 'sum',
+        'Descuento del producto': 'sum'
+    }).reset_index()
+
     # Verificar si el DataFrame filtrado está vacío
-    if filtered_df.empty:
+    if order_summary.empty:
         st.error('No hay datos disponibles para los filtros seleccionados.')
     else:
         # Métricas de resumen
         st.subheader('Antes de Impuestos')
 
         # Calcular métricas
-        total_revenue = filtered_df['Total'].sum()
-        total_profit = filtered_df['Ganancia'].sum()
-        total_orders = filtered_df['ID'].nunique()
+        total_revenue = order_summary['Total'].sum()
+        total_profit = order_summary['Ganancia'].sum()
+        total_orders = order_summary['ID'].nunique()
         average_order_value = total_revenue / total_orders if total_orders > 0 else 0
         average_profit_per_order = total_profit / total_orders if total_orders > 0 else 0
         overall_profit_margin = (total_profit / total_revenue) * 100 if total_revenue > 0 else 0
 
         # Calcular descuentos totales
-        total_descuentos = filtered_df['Descuento'].sum()
+        total_descuentos = order_summary['Descuento del producto'].sum()
 
         # Mostrar métricas en columnas
         col1, col2, col3, col4, col5, col6 = st.columns(6)
@@ -89,10 +97,10 @@ else:
 
         # Calcular ganancia después de impuestos
         tax_rate = 0.19
-        filtered_df['Ganancia Después de Impuestos'] = filtered_df['Ganancia'] * (1 - tax_rate)
+        order_summary['Ganancia Después de Impuestos'] = order_summary['Ganancia'] * (1 - tax_rate)
 
         # Calcular margen después de impuestos
-        total_profit_after_tax = filtered_df['Ganancia Después de Impuestos'].sum()
+        total_profit_after_tax = order_summary['Ganancia Después de Impuestos'].sum()
         overall_margin_after_tax = (total_profit_after_tax / total_revenue) * 100 if total_revenue > 0 else 0
 
         # Métrica adicional para ganancia después de impuestos
@@ -158,7 +166,7 @@ else:
         st.subheader('Desempeño de Productos')
 
         try:
-            product_performance = filtered_df.groupby(['Nombre del Producto', 'SKU del Producto', 'Categoria']).agg({
+            product_performance = filtered_df.groupby(['SKU del Producto', 'Categoria']).agg({
                 'Cantidad de Productos': 'sum',
                 'Total': 'sum',
                 'Ganancia': 'sum'
@@ -194,8 +202,8 @@ else:
                                                        x='Precio Promedio',
                                                        y='Rentabilidad (%)',
                                                        size='Total',
-                                                       color='Nombre del Producto',
-                                                       hover_name='Nombre del Producto',
+                                                       color='SKU del Producto',
+                                                       hover_name='SKU del Producto',
                                                        title='Rentabilidad de Productos',
                                                        template='plotly_dark')
                 fig_product_profitability.update_layout(xaxis_title='Precio Promedio', yaxis_title='Rentabilidad (%)')
@@ -207,8 +215,8 @@ else:
 
         # Análisis Detallado por Producto
         st.subheader('Análisis Detallado por Producto')
-        producto_seleccionado = st.selectbox('Selecciona un Producto:', filtered_df['Nombre del Producto'].unique())
-        producto_df = filtered_df[filtered_df['Nombre del Producto'] == producto_seleccionado]
+        producto_seleccionado = st.selectbox('Selecciona un Producto:', filtered_df['SKU del Producto'].unique())
+        producto_df = filtered_df[filtered_df['SKU del Producto'] == producto_seleccionado]
 
         if not producto_df.empty:
             col1, col2, col3 = st.columns(3)
