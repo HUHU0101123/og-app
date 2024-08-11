@@ -269,23 +269,30 @@ with col1:
     st.plotly_chart(fig, use_container_width=True)
 
 with col2:
-    # Ventas diarias
+    # Ventas diarias: Ventas Totales, Ventas Netas y Ganancia Neta
     daily_sales = filtered_df.groupby('Fecha').agg(
         Ventas_Totales=('Precio del Producto', 'sum'),
-        Ventas_Netas=('Ventas Netas', 'sum'),
-        Ganancia_Neta=('Ventas Netas', lambda x: x.sum() - (filtered_df['Costo del Producto'] * filtered_df['Cantidad de Productos']).sum())
+        Ventas_Netas=('Ventas Netas', 'sum')
     ).reset_index()
 
-    # Crear un gráfico de líneas con múltiples series
+    # Calcular la Ganancia Neta diaria
+    daily_sales['Ganancia_Neta'] = daily_sales['Ventas_Netas'] - (daily_sales['Ventas_Netas'] * 0.19)  # Aplicar impuestos del 19%
+
+    # Crear un gráfico de líneas para Ventas Totales, Ventas Netas y Ganancia Neta
     fig = px.line(
         daily_sales,
         x='Fecha',
         y=['Ventas_Totales', 'Ventas_Netas', 'Ganancia_Neta'],
         labels={'value': 'Monto', 'variable': 'Métrica'},
-        title="Desarrollo Diario de Ventas Totales, Ventas Netas y Ganancia Neta",
-        markers=True
+        title="Desarrollo Diario de Ventas Totales, Ventas Netas y Ganancia Neta"
     )
-    
+
+    # Configurar el formato de fecha en el eje X
+    fig.update_xaxes(
+        tickformat="%d-%m-%Y",  # Formato de fecha: día-mes-año
+        title="Fecha"
+    )
+
     st.plotly_chart(fig, use_container_width=True)
 
 # Top productos vendidos
@@ -301,4 +308,3 @@ st.plotly_chart(fig, use_container_width=True)
 # Tabla de datos
 st.subheader("Datos Detallados")
 st.dataframe(filtered_df)
-
