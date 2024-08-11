@@ -122,13 +122,12 @@ col4.metric("Margen", f"{margen:.2f}%")
 col4.markdown("<p style='font-size:10px;'>Es el porcentaje del dinero que te queda de las ventas netas, después de pagar por los productos y los impuestos.</p>", unsafe_allow_html=True)
 
 # Nueva fila para el Descuento Promedio
-col5, col6 = st.columns(2)
+col5 = st.columns(1)
 
 col5.metric("Descuento Promedio %", f"{(filtered_df['Descuento del producto'].sum() / ventas_totales * 100):.2f}%")
 col5.markdown("<p style='font-size:10px;'>Porcentaje promedio de descuento aplicado.</p>", unsafe_allow_html=True)
 
-col6.metric("Descuento Promedio (Valor)", f"${average_discount:.2f}")
-col6.markdown("<p style='font-size:10px;'>Valor promedio del descuento aplicado por producto.</p>", unsafe_allow_html=True)
+
 # Gráficos
 col1, col2 = st.columns(2)
 
