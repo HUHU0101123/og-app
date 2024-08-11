@@ -122,7 +122,7 @@ col4.metric("Beneficio Bruto Después de Impuestos", f"${beneficio_bruto_despues
 col4.markdown("<p style='font-size:10px;'>Beneficio bruto menos impuestos del 19%.</p>", unsafe_allow_html=True)
 
 col5.metric("Margen", f"{margen:.2f}%")
-col5.markdown("<p style='font-size:10px;'>Margen de beneficio sobre las ventas netas.</p>", unsafe_allow_html=True)
+col5.markdown("<p style='font-size:10px;'>Es el porcentaje del dinero que te queda de las ventas netas, después de pagar por los productos y los impuestos.</p>", unsafe_allow_html=True)
 
 # Gráficos
 col1, col2 = st.columns(2)
