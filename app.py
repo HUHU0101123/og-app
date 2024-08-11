@@ -108,11 +108,30 @@ col2.markdown("<p style='font-size:10px;'>Total de descuentos otorgados en venta
 col3.metric("Ventas Netas", format_chilean_currency(ventas_netas))
 col3.markdown("<p style='font-size:10px;'>Ventas totales menos descuentos.</p>", unsafe_allow_html=True)
 
-col4.metric("Ventas Netas Después de Impuestos", format_chilean_currency(ventas_netas_despues_impuestos))
-col4.markdown("<p style='font-size:10px;'>Ventas netas menos impuestos del 19%.</p>", unsafe_allow_html=True)
+# Destacar Ganancia Neta y Margen
+st.markdown(
+    """
+    <div style="background-color: #FFCCCB; padding: 10px; border-radius: 5px;">
+        <h2 style="color: black;">Ganancia Neta</h2>
+        <h3 style="color: black;">{}</h3>
+    </div>
+    """.format(format_chilean_currency(beneficio_bruto_despues_impuestos)),
+    unsafe_allow_html=True
+)
 
 # Calcular el margen
 margen = (beneficio_bruto / ventas_netas) * 100
+
+# Destacar Margen
+st.markdown(
+    """
+    <div style="background-color: #FFCCCB; padding: 10px; border-radius: 5px;">
+        <h2 style="color: black;">Margen</h2>
+        <h3 style="color: black;">{}</h3>
+    </div>
+    """.format(format_chilean_currency(margen, is_percentage=True)),
+    unsafe_allow_html=True
+)
 
 # Métricas adicionales
 st.header("Métricas Adicionales")
