@@ -202,6 +202,9 @@ col4.markdown(
     unsafe_allow_html=True
 )
 
+# Añadir un espacio antes de la nueva fila
+st.markdown("<br>", unsafe_allow_html=True)
+
 # Nueva fila para el Descuento Promedio %
 col1, col2, col3, col4 = st.columns(4)  # Definir 4 columnas para mantener el tamaño uniforme
 
