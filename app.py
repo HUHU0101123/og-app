@@ -51,10 +51,6 @@ def preprocess_data(df_main, df_categorias):
     # Clasificar el tipo de venta
     df['Tipo de Venta'] = df['Total Productos'].apply(lambda x: 'Mayorista' if x >= 6 else 'Detalle')
     
-    # Ajustar el precio para envíos a domicilio en Santiago
-    mask = df['Nombre del método de envío'] == 'Despacho Santiago (RM) a domicilio'
-    df.loc[mask, 'Precio del Producto'] -= 2990 / df.loc[mask].groupby('ID')['Cantidad de Productos'].transform('sum')
-    
     # Calcular las ventas netas
     df['Ventas Netas'] = (df['Precio del Producto'] - df['Descuento del producto']) * df['Cantidad de Productos']
     
@@ -85,11 +81,8 @@ if order_ids:
     mask &= df['ID'].isin(order_id_list)
 filtered_df = df[mask]
 
-# Ajustar el cálculo de ventas totales para envíos a domicilio en Santiago
-filtered_df['Ajuste Envío'] = 0
-mask_envio = filtered_df['Nombre del método de envío'] == 'Despacho Santiago (RM) a domicilio'
-filtered_df.loc[mask_envio, 'Ajuste Envío'] = 2990 / filtered_df.loc[mask_envio].groupby('ID')['Cantidad de Productos'].transform('sum')
-ventas_totales = (filtered_df['Precio del Producto'] * filtered_df['Cantidad de Productos']).sum() - filtered_df['Ajuste Envío'].sum()
+# Ventas Totales
+ventas_totales = (filtered_df['Precio del Producto'] * filtered_df['Cantidad de Productos']).sum()
 
 # Calcular ventas netas después de impuestos
 ventas_netas = filtered_df['Ventas Netas'].sum()
@@ -119,7 +112,7 @@ col1.markdown(
     <div style="background-color: #D3D3D3; padding: 10px; border-radius: 5px; text-align: center;">
         <strong style="color: black;">Ventas Totales</strong><br>
         <span style="color: black;">{format_chilean_currency(ventas_totales)}</span>
-        <p style='font-size:10px; color: black;'>Ingresos totales antes de descuentos y ajustes.</p>
+        <p style='font-size:10px; color: black;'>Ingresos totales antes de descuentos.</p>
     </div>
     """,
     unsafe_allow_html=True
@@ -183,128 +176,60 @@ col2.markdown(
     <div style="background-color: #D3D3D3; padding: 10px; border-radius: 5px; text-align: center;">
         <strong style="color: black;">Ganancia Bruta</strong><br>
         <span style="color: black;">{format_chilean_currency(beneficio_bruto)}</span>
-        <p style='font-size:10px; color: black;'>Ventas netas menos costos de adquisición del producto.</p>
+        <p style='font-size:10px; color: black;'>Ganancia antes de impuestos.</p>
     </div>
     """,
     unsafe_allow_html=True
 )
 
-# Ganancia Neta
+# Ganancia Bruta Después de Impuestos
 col3.markdown(
     f"""
-    <div style="background-color: #FFCCCB; padding: 10px; border-radius: 5px; text-align: center;">
-        <strong style="color: black;">Ganancia Neta</strong><br>
+    <div style="background-color: #D3D3D3; padding: 10px; border-radius: 5px; text-align: center;">
+        <strong style="color: black;">Ganancia Bruta Después de Impuestos</strong><br>
         <span style="color: black;">{format_chilean_currency(beneficio_bruto_despues_impuestos)}</span>
-        <p style="font-size:10px; color: black;">Es el dinero que realmente ganaste. Es tuyo.</p>
+        <p style='font-size:10px; color: black;'>Ganancia bruta menos impuestos del 19%.</p>
     </div>
     """,
     unsafe_allow_html=True
 )
 
-# Margen
+# Margen Bruto
 col4.markdown(
     f"""
-    <div style="background-color: #FFCCCB; padding: 10px; border-radius: 5px; text-align: center;">
-        <strong style="color: black;">Margen</strong><br>
+    <div style="background-color: #D3D3D3; padding: 10px; border-radius: 5px; text-align: center;">
+        <strong style="color: black;">Margen Bruto</strong><br>
         <span style="color: black;">{format_chilean_currency(margen_bruto, is_percentage=True)}</span>
-        <p style="font-size:10px; color: black;">% que te queda de las ventas después de pagar la inversión e impuestos.</p>
+        <p style='font-size:10px; color: black;'>Porcentaje de ganancia bruta respecto a ventas netas.</p>
     </div>
     """,
     unsafe_allow_html=True
 )
 
-# Añadir un espacio antes de la nueva fila
-st.markdown("<br>", unsafe_allow_html=True)
+# Gráfico de líneas para Ventas Totales, Ventas Netas y Ganancia Neta
+daily_sales = filtered_df.groupby('Fecha').agg(
+    Ventas_Totales=('Precio del Producto', 'sum'),
+    Ventas_Netas=('Ventas Netas', 'sum')
+).reset_index()
 
-# Nueva fila para la Cantidad Total de Productos y Descuento Promedio %
-col1, col2, col3, col4 = st.columns(4)  # Definir 4 columnas para mantener el tamaño uniforme
+# Calcular la Ganancia Neta diaria
+daily_sales['Ganancia_Neta'] = daily_sales['Ventas_Netas'] - (daily_sales['Ventas_Netas'] * 0.19)  # Aplicar impuestos del 19%
 
-# Cantidad Total de Productos
-col1.markdown(
-    f"""
-    <div style="background-color: #D3D3D3; padding: 10px; border-radius: 5px; text-align: center;">
-        <strong style="color: black;">Cantidad Total de Productos</strong><br>
-        <span style="color: black;">{int(filtered_df['Cantidad de Productos'].sum())}</span>
-        <p style='font-size:10px; color: black;'>Total de productos vendidos.</p>
-    </div>
-    """,
-    unsafe_allow_html=True
+# Crear un gráfico de líneas para Ventas Totales, Ventas Netas y Ganancia Neta
+fig = px.line(
+    daily_sales,
+    x='Fecha',
+    y=['Ventas_Totales', 'Ventas_Netas', 'Ganancia_Neta'],
+    labels={'value': 'Monto', 'variable': 'Métrica'},
+    title="Desarrollo Diario de Ventas Totales, Ventas Netas y Ganancia Neta"
 )
 
-# Descuento Promedio %
-col2.markdown(
-    f"""
-    <div style="background-color: #D3D3D3; padding: 10px; border-radius: 5px; text-align: center;">
-        <strong style="color: black;">Descuento Promedio %</strong><br>
-        <span style="color: black;">{(filtered_df['Descuento del producto'].sum() / ventas_totales * 100):.2f}%</span>
-        <p style='font-size:10px; color: black;'>Porcentaje promedio de descuento aplicado.</p>
-    </div>
-    """,
-    unsafe_allow_html=True
+# Configurar el formato de fecha en el eje X
+fig.update_xaxes(
+    tickformat="%d-%m-%Y",  # Formato de fecha: día-mes-año
+    title="Fecha"
 )
 
-# Dejar las otras columnas vacías
-col3.markdown("")
-col4.markdown("")
-
-# Gráficos
-col1, col2 = st.columns(2)
-
-with col1:
-    # Calcular las ventas netas y cantidad de productos por SKU y categoría
-    sales_data = filtered_df.groupby(['Categoria', 'SKU del Producto']).agg(
-        Ventas_Netas=('Ventas Netas', 'sum'),
-        Cantidad_Productos=('Cantidad de Productos', 'sum')
-    ).reset_index()
-    
-    # Crear un gráfico de barras para ventas netas por categoría y SKU
-    fig = px.bar(
-        sales_data,
-        x='Categoria',
-        y='Ventas_Netas',
-        color='SKU del Producto',
-        title="Ventas Netas por Categoría y SKU",
-        labels={'Ventas_Netas': 'Ventas Netas'},
-        hover_data={'SKU del Producto': True, 'Cantidad_Productos': True}
-    )
-    
-    st.plotly_chart(fig, use_container_width=True)
-
-with col2:
-    # Ventas diarias: Ventas Totales, Ventas Netas y Ganancia Neta
-    daily_sales = filtered_df.groupby('Fecha').agg(
-        Ventas_Totales=('Precio del Producto', 'sum'),
-        Ventas_Netas=('Ventas Netas', 'sum')
-    ).reset_index()
-
-    # Calcular la Ganancia Neta diaria
-    daily_sales['Ganancia_Neta'] = daily_sales['Ventas_Netas'] - (daily_sales['Ventas_Netas'] * 0.19)  # Aplicar impuestos del 19%
-
-    # Crear un gráfico de líneas para Ventas Totales, Ventas Netas y Ganancia Neta
-    fig = px.line(
-        daily_sales,
-        x='Fecha',
-        y=['Ventas_Totales', 'Ventas_Netas', 'Ganancia_Neta'],
-        labels={'value': 'Monto', 'variable': 'Métrica'},
-        title="Desarrollo Diario de Ventas Totales, Ventas Netas y Ganancia Neta"
-    )
-
-    # Configurar el formato de fecha en el eje X
-    fig.update_xaxes(
-        tickformat="%d-%m-%Y",  # Formato de fecha: día-mes-año
-        title="Fecha"
-    )
-
-    st.plotly_chart(fig, use_container_width=True)
-
-# Top productos vendidos
-top_products = filtered_df.groupby('SKU del Producto')['Cantidad de Productos'].sum().sort_values(ascending=False).head(10)
-fig = px.bar(top_products, x=top_products.index, y=top_products.values, title="Top 10 Productos Más Vendidos")
-st.plotly_chart(fig, use_container_width=True)
-
-# Descuentos por categoría
-discounts_by_category = filtered_df.groupby('Categoria')['Descuento del producto'].sum().sort_values(ascending=False)
-fig = px.bar(discounts_by_category, x=discounts_by_category.index, y=discounts_by_category.values, title="Descuentos por Categoría")
 st.plotly_chart(fig, use_container_width=True)
 
 # Tabla de datos
