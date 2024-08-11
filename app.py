@@ -203,7 +203,9 @@ col4.markdown(
 )
 
 # Nueva fila para el Descuento Promedio %
-st.markdown(
+col1, col2, col3, col4 = st.columns(4)  # Definir 4 columnas para mantener el tamaño uniforme
+
+col1.markdown(
     f"""
     <div style="background-color: #D3D3D3; padding: 10px; border-radius: 5px; text-align: center;">
         <strong style="color: black;">Descuento Promedio %</strong><br>
@@ -213,6 +215,11 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
+
+# Dejar las otras columnas vacías
+col2.markdown("")
+col3.markdown("")
+col4.markdown("")
 
 # Gráficos
 col1, col2 = st.columns(2)
