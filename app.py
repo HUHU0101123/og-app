@@ -244,6 +244,7 @@ col2.markdown(
 # Dejar las otras columnas vacías
 col3.markdown("")
 col4.markdown("")
+
 # Gráficos
 col1, col2 = st.columns(2)
 
@@ -269,8 +270,22 @@ with col1:
 
 with col2:
     # Ventas diarias
-    daily_sales = filtered_df.groupby('Fecha')['Precio del Producto'].sum().reset_index()
-    fig = px.line(daily_sales, x='Fecha', y='Precio del Producto', title="Ventas Diarias")
+    daily_sales = filtered_df.groupby('Fecha').agg(
+        Ventas_Totales=('Precio del Producto', 'sum'),
+        Ventas_Netas=('Ventas Netas', 'sum'),
+        Ganancia_Neta=('Ventas Netas', lambda x: x.sum() - (filtered_df['Costo del Producto'] * filtered_df['Cantidad de Productos']).sum())
+    ).reset_index()
+
+    # Crear un gráfico de líneas con múltiples series
+    fig = px.line(
+        daily_sales,
+        x='Fecha',
+        y=['Ventas_Totales', 'Ventas_Netas', 'Ganancia_Neta'],
+        labels={'value': 'Monto', 'variable': 'Métrica'},
+        title="Desarrollo Diario de Ventas Totales, Ventas Netas y Ganancia Neta",
+        markers=True
+    )
+    
     st.plotly_chart(fig, use_container_width=True)
 
 # Top productos vendidos
