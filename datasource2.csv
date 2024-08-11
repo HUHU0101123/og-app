@@ -1,0 +1,5 @@
+ID,Estado del Pago,Fecha,Moneda,SKU del Producto,Cantidad de Productos,Precio del Producto,Rentabilidad del producto,Margen del producto (%),Descuento del producto,Región de Envío,Nombre del método de envío,Cupones
+1007,Pago Pendiente,2024-08-11 03:11,CLP,001MC_N_TU,1,"15000,00","10832,00",76.01,"750,00",Metropolitana,Retiro en sucursal de Starken (Regiones) POR PAGAR,1221BE
+1007,,,,DI_015ML_BL_TU,1,"15000,00","9553,00",67.04,"750,00",,,
+1007,,,,002FALDA_SHORT_RJ_TU,2,"15000,00","20434,00",71.7,"750,00",,,
+1007,,,,CROP_PEDRERIA1_PL_TU,1,"16000,00","7096,00",46.68,"800,00",,,
