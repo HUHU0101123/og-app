@@ -1,7 +1,10 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-import plotly.graph_objects as go
+from datetime import datetime
+
+# Configuración de la página (debe ser la primera llamada a Streamlit)
+st.set_page_config(page_title="Dashboard de Ventas", layout="wide")
 
 # Cargar los archivos CSV desde GitHub
 @st.cache_data
@@ -12,8 +15,7 @@ def load_data():
     df_categorias = pd.read_csv(url_categorias)
     return df_main, df_categorias
 
-df_main, df_categorias = load_data()
-
+# Preprocesamiento de datos
 def preprocess_data(df_main, df_categorias):
     # Convertir la columna 'Fecha' a datetime
     df_main['Fecha'] = pd.to_datetime(df_main['Fecha']).dt.date
@@ -45,10 +47,11 @@ def preprocess_data(df_main, df_categorias):
     
     return df
 
+# Cargar y preprocesar los datos
+df_main, df_categorias = load_data()
 df = preprocess_data(df_main, df_categorias)
 
-# Configuración de la página
-st.set_page_config(page_title="Dashboard de Ventas", layout="wide")
+# Título de la aplicación
 st.title("Dashboard de Ventas")
 
 # Filtros en la barra lateral
