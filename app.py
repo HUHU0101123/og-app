@@ -70,6 +70,7 @@ st.sidebar.header("Filtros")
 date_range = st.sidebar.date_input("Rango de fechas", [df['Fecha'].min(), df['Fecha'].max()])
 categories = st.sidebar.multiselect("Categorías", options=df['Categoria'].unique())
 sale_type = st.sidebar.multiselect("Tipo de Venta", options=df['Tipo de Venta'].unique())
+order_ids = st.sidebar.text_input("IDs de Orden de Compra (separados por coma)", "")
 
 # Aplicar filtros
 mask = (df['Fecha'] >= date_range[0]) & (df['Fecha'] <= date_range[1])
@@ -77,6 +78,9 @@ if categories:
     mask &= df['Categoria'].isin(categories)
 if sale_type:
     mask &= df['Tipo de Venta'].isin(sale_type)
+if order_ids:
+    order_id_list = [int(id.strip()) for id in order_ids.split(',')]
+    mask &= df['ID'].isin(order_id_list)
 filtered_df = df[mask]
 
 # Ajustar el cálculo de ventas totales para envíos a domicilio en Santiago
@@ -173,7 +177,7 @@ col1.markdown(
 # Ganancia Bruta
 col2.markdown(
     f"""
-    <div style="background-color: #D3D3D3; padding: 10px; border-radius: 5px; text-align: center;">
+    <div style="background-color: #FFCCCB; padding: 10px; border-radius: 5px; text-align: center;">
         <strong style="color: black;">Ganancia Bruta</strong><br>
         <span style="color: black;">{format_chilean_currency(beneficio_bruto)}</span>
         <p style='font-size:10px; color: black;'>Ventas netas menos costos de adquisición del producto.</p>
@@ -182,7 +186,7 @@ col2.markdown(
     unsafe_allow_html=True
 )
 
-# Destacar Ganancia Neta
+# Ganancia Neta
 col3.markdown(
     f"""
     <div style="background-color: #FFCCCB; padding: 10px; border-radius: 5px; text-align: center;">
@@ -194,7 +198,7 @@ col3.markdown(
     unsafe_allow_html=True
 )
 
-# Destacar Margen
+# Margen
 col4.markdown(
     f"""
     <div style="background-color: #FFCCCB; padding: 10px; border-radius: 5px; text-align: center;">
