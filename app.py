@@ -255,8 +255,12 @@ with col2:
     # Calcular la Ganancia Neta diaria
     daily_sales['Ganancia_Neta'] = daily_sales['Ventas_Netas'] - (daily_sales['Ventas_Netas'] * 0.19)
 
-    # Crear un gráfico de líneas para Ventas Totales, Ventas Netas y Ganancia Neta
-    fig = px.line(
+    # Duplicar el punto si solo hay un día
+    if len(daily_sales) == 1:
+        daily_sales = pd.concat([daily_sales, daily_sales])
+
+    # Crear un gráfico de dispersión para Ventas Totales, Ventas Netas y Ganancia Neta
+    fig = px.scatter(
         daily_sales,
         x='Fecha',
         y=['Ventas_Totales', 'Ventas_Netas', 'Ganancia_Neta'],
