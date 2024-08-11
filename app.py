@@ -94,7 +94,8 @@ ventas_netas = filtered_df['Ventas Netas'].sum()
 ventas_netas_despues_impuestos = ventas_netas * (1 - 0.19)
 
 # Calcular el costo del producto
-filtered_df['Costo del Producto'] = filtered_df['Precio del Producto'] * (1 - filtered_df['Margen del producto (%)'] / 100)
+filtered_df['Precio Neto del Producto'] = filtered_df['Precio del Producto'] - filtered_df['Descuento del producto']
+filtered_df['Costo del Producto'] = filtered_df['Precio Neto del Producto'] * (1 - filtered_df['Margen del producto (%)'] / 100)
 costo_total = (filtered_df['Costo del Producto'] * filtered_df['Cantidad de Productos']).sum()
 
 # Calcular el beneficio bruto
