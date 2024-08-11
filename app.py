@@ -94,30 +94,18 @@ col4.metric("Descuento Promedio", f"{(descuentos_totales / ventas_totales * 100)
 col1, col2 = st.columns(2)
 
 with col1:
-    # Ventas por categoría
-    sales_by_category = filtered_df.groupby('Categoria')['Precio del Producto'].sum().reset_index()
-    
     # Calcular la cantidad de ventas por SKU y categoría
     quantity_per_sku = filtered_df.groupby(['Categoria', 'SKU del Producto'])['Cantidad de Productos'].sum().reset_index()
     
-    # Crear un gráfico de barras para ventas totales por categoría
+    # Crear un gráfico de barras para ventas por categoría y SKU
     fig = px.bar(
-        sales_by_category,
+        quantity_per_sku,
         x='Categoria',
-        y='Precio del Producto',
-        title="Ventas por Categoría",
-        labels={'Precio del Producto': 'Ventas Totales por Categoría'},
-        text='Precio del Producto',  # Añadir el texto de ventas totales en las barras
-        hover_data={'Categoria': True, 'Precio del Producto': True}  # Mostrar ventas totales en el hover
-    )
-    
-    # Añadir texto de SKU y cantidad vendida en el hover
-    fig.update_traces(
-        hovertemplate="<b>Categoria:</b> %{x}<br>" +
-                      "<b>Ventas Totales:</b> %{y:,.2f}<br>" +
-                      "<b>SKU y Cantidad:</b><br>" +
-                      "%{customdata}<br>",
-        customdata=quantity_per_sku.apply(lambda row: f"{row['SKU del Producto']}: {row['Cantidad de Productos']}", axis=1)
+        y='Cantidad de Productos',
+        color='SKU del Producto',
+        title="Ventas por Categoría y SKU",
+        labels={'Cantidad de Productos': 'Cantidad Vendida'},
+        hover_data={'SKU del Producto': True, 'Cantidad de Productos': True}
     )
     
     st.plotly_chart(fig, use_container_width=True)
