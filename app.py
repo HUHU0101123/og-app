@@ -76,22 +76,25 @@ mask_envio = filtered_df['Nombre del método de envío'] == 'Despacho Santiago (
 filtered_df.loc[mask_envio, 'Ajuste Envío'] = 2990 / filtered_df.loc[mask_envio].groupby('ID')['Cantidad de Productos'].transform('sum')
 ventas_totales = filtered_df['Precio del Producto'].sum() - filtered_df['Ajuste Envío'].sum()
 
+# Calcular ventas netas después de impuestos
+ventas_netas = ventas_totales - filtered_df['Descuento del producto'].sum()
+ventas_netas_despues_impuestos = ventas_netas * (1 - 0.19)
+
 # Métricas principales
 st.header("Resumen de Ventas")
-col1, col2, col3 = st.columns(3)
-descuentos_totales = filtered_df['Descuento del producto'].sum()
-ventas_netas = ventas_totales - descuentos_totales  # Ajustar el cálculo de ventas netas
+col1, col2, col3, col4 = st.columns(4)
 
 col1.metric("Ventas Totales", f"${ventas_totales:,.0f}")
-col2.metric("Descuentos Aplicados", f"${descuentos_totales:,.0f}")
+col2.metric("Descuentos Aplicados", f"${filtered_df['Descuento del producto'].sum():,.0f}")
 col3.metric("Ventas Netas", f"${ventas_netas:,.0f}")
+col4.metric("Ventas Netas Después de Impuestos", f"${ventas_netas_despues_impuestos:,.0f}")
 
 st.header("Métricas Adicionales")
 col1, col2, col3, col4 = st.columns(4)
 col1.metric("Número de Órdenes", filtered_df['ID'].nunique())
 col2.metric("Rentabilidad Total", f"${filtered_df['Rentabilidad del producto'].sum():,.0f}")
 col3.metric("Margen Promedio", f"{filtered_df['Margen del producto (%)'].mean():.2f}%")
-col4.metric("Descuento Promedio", f"{(descuentos_totales / ventas_totales * 100):.2f}%")
+col4.metric("Descuento Promedio", f"{(filtered_df['Descuento del producto'].sum() / ventas_totales * 100):.2f}%")
 
 # Gráficos
 col1, col2 = st.columns(2)
