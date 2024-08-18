@@ -300,48 +300,69 @@ st.plotly_chart(fig, use_container_width=True)
 st.subheader("Datos Detallados")
 st.dataframe(filtered_df)
 
+
+
+
 @st.cache_data
 def load_importaciones():
     version = datetime.now().strftime("%Y%m%d%H%M%S")
     url_importaciones = f"https://raw.githubusercontent.com/HUHU0101123/og-app/main/importaciones.csv?v={version}"
     df_importaciones = pd.read_csv(url_importaciones)
+    
+    # Limpiar los nombres de las columnas
+    df_importaciones.columns = df_importaciones.columns.str.strip().str.upper().str.replace(' ', '_')
+    
+    # Renombrar las columnas para que coincidan con nuestras expectativas
+    df_importaciones = df_importaciones.rename(columns={
+        'FECHA_IMPORTACION': 'fecha_importacion',
+        'CATEGORIA': 'Categoria',
+        'STOCK_INICIAL': 'cantidad'
+    })
+    
+    # Convertir la fecha de importación a datetime
     df_importaciones['fecha_importacion'] = pd.to_datetime(df_importaciones['fecha_importacion']).dt.date
+    
     return df_importaciones
 
+# Cargar los datos de importaciones
 df_importaciones = load_importaciones()
 
-# Mostrar la tabla de importaciones
-st.subheader("Resumen de Importaciones")
+# Verificar si df_importaciones tiene datos
+if df_importaciones.empty:
+    st.warning("No se pudieron cargar datos de importaciones.")
+else:
+    # Mostrar la tabla de importaciones
+    st.subheader("Resumen de Importaciones")
 
-# Agrupar por fecha de importación y categoría
-importaciones_agrupadas = df_importaciones.groupby(['fecha_importacion', 'Categoria'])['cantidad'].sum().reset_index()
+    # Agrupar por fecha de importación y categoría
+    importaciones_agrupadas = df_importaciones.groupby(['fecha_importacion', 'Categoria'])['cantidad'].sum().reset_index()
 
-# Crear un diccionario para almacenar los datos formateados
-importaciones_formateadas = {}
+    # Crear un diccionario para almacenar los datos formateados
+    importaciones_formateadas = {}
 
-for fecha, grupo in importaciones_agrupadas.groupby('fecha_importacion'):
-    total_prendas = grupo['cantidad'].sum()
-    categorias = grupo.set_index('Categoria')['cantidad'].to_dict()
-    importaciones_formateadas[fecha] = {
-        "Total Prendas": total_prendas,
-        "Categorías": categorias
-    }
+    for fecha, grupo in importaciones_agrupadas.groupby('fecha_importacion'):
+        total_prendas = grupo['cantidad'].sum()
+        categorias = grupo.set_index('Categoria')['cantidad'].to_dict()
+        importaciones_formateadas[fecha] = {
+            "Total Prendas": total_prendas,
+            "Categorías": categorias
+        }
 
-# Mostrar los datos formateados
-for fecha, datos in importaciones_formateadas.items():
-    with st.expander(f"Fecha: {fecha} - Total Prendas: {datos['Total Prendas']}"):
-        for categoria, cantidad in datos['Categorías'].items():
-            st.write(f"- {categoria}: {cantidad}")
+    # Mostrar los datos formateados
+    for fecha, datos in importaciones_formateadas.items():
+        with st.expander(f"Fecha: {fecha} - Total Prendas: {datos['Total Prendas']}"):
+            for categoria, cantidad in datos['Categorías'].items():
+                st.write(f"- {categoria}: {cantidad}")
 
-# Visualización gráfica de importaciones
-st.subheader("Gráfico de Importaciones por Fecha y Categoría")
+    # Visualización gráfica de importaciones
+    st.subheader("Gráfico de Importaciones por Fecha y Categoría")
 
-fig = px.bar(importaciones_agrupadas, 
-             x='fecha_importacion', 
-             y='cantidad', 
-             color='Categoria',
-             title="Importaciones por Fecha y Categoría",
-             labels={'fecha_importacion': 'Fecha de Importación', 'cantidad': 'Cantidad de Prendas'})
+    fig = px.bar(importaciones_agrupadas, 
+                 x='fecha_importacion', 
+                 y='cantidad', 
+                 color='Categoria',
+                 title="Importaciones por Fecha y Categoría",
+                 labels={'fecha_importacion': 'Fecha de Importación', 'cantidad': 'Cantidad de Prendas'})
 
-st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, use_container_width=True)
 
