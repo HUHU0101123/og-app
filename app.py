@@ -319,7 +319,7 @@ def load_importaciones():
         'STOCK_INICIAL': 'cantidad'
     })
     
-    # Convertir la fecha de importación a datetime
+    # Asegurarse de que la fecha_importacion sea de tipo date
     df_importaciones['fecha_importacion'] = pd.to_datetime(df_importaciones['fecha_importacion']).dt.date
     
     return df_importaciones
@@ -355,14 +355,21 @@ else:
                 st.write(f"- {categoria}: {cantidad}")
 
     # Visualización gráfica de importaciones
-    st.subheader("Gráfico de Importaciones por Fecha y Categoría")
+st.subheader("Gráfico de Importaciones por Fecha y Categoría")
 
-    fig = px.bar(importaciones_agrupadas, 
-                 x='fecha_importacion', 
-                 y='cantidad', 
-                 color='Categoria',
-                 title="Importaciones por Fecha y Categoría",
-                 labels={'fecha_importacion': 'Fecha de Importación', 'cantidad': 'Cantidad de Prendas'})
+fig = px.bar(importaciones_agrupadas, 
+             x='fecha_importacion', 
+             y='cantidad', 
+             color='Categoria',
+             title="Importaciones por Fecha y Categoría",
+             labels={'fecha_importacion': 'Fecha de Importación', 'cantidad': 'Cantidad de Prendas'})
 
-    st.plotly_chart(fig, use_container_width=True)
+# Ajustar el formato de fecha en el eje x
+fig.update_xaxes(
+    tickformat="%Y-%m-%d",
+    tickangle=0,
+    title_text="Fecha de Importación"
+)
+
+st.plotly_chart(fig, use_container_width=True)
 
