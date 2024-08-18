@@ -303,6 +303,8 @@ st.dataframe(filtered_df)
 
 
 
+
+
 @st.cache_data
 def load_importaciones():
     version = datetime.now().strftime("%Y%m%d%H%M%S")
@@ -312,7 +314,7 @@ def load_importaciones():
     # Limpiar los nombres de las columnas
     df_importaciones.columns = df_importaciones.columns.str.strip().str.upper().str.replace(' ', '_')
     
-    # Renombrar las columnas para que coincidan con nuestras expectativas
+    # Renombrar las columnas
     df_importaciones = df_importaciones.rename(columns={
         'FECHA_IMPORTACION': 'fecha_importacion',
         'CATEGORIA': 'Categoria',
@@ -337,39 +339,22 @@ else:
     # Agrupar por fecha de importación y categoría
     importaciones_agrupadas = df_importaciones.groupby(['fecha_importacion', 'Categoria'])['cantidad'].sum().reset_index()
 
-    # Crear un diccionario para almacenar los datos formateados
-    importaciones_formateadas = {}
+    # Obtener la única fecha de importación
+    fecha_unica = importaciones_agrupadas['fecha_importacion'].unique()[0]
 
-    for fecha, grupo in importaciones_agrupadas.groupby('fecha_importacion'):
-        total_prendas = grupo['cantidad'].sum()
-        categorias = grupo.set_index('Categoria')['cantidad'].to_dict()
-        importaciones_formateadas[fecha] = {
-            "Total Prendas": total_prendas,
-            "Categorías": categorias
-        }
+    # Crear un gráfico de barras para la fecha única
+    fig = px.bar(importaciones_agrupadas[importaciones_agrupadas['fecha_importacion'] == fecha_unica], 
+                 x='Categoria', 
+                 y='cantidad',
+                 title=f"Importaciones por Categoría (Fecha: {fecha_unica})",
+                 labels={'cantidad': 'Cantidad de Prendas'})
 
-    # Mostrar los datos formateados
-    for fecha, datos in importaciones_formateadas.items():
-        with st.expander(f"Fecha: {fecha} - Total Prendas: {datos['Total Prendas']}"):
-            for categoria, cantidad in datos['Categorías'].items():
-                st.write(f"- {categoria}: {cantidad}")
+    fig.update_layout(xaxis_title="Categoría", yaxis_title="Cantidad de Prendas")
 
-    # Visualización gráfica de importaciones
-st.subheader("Gráfico de Importaciones por Fecha y Categoría")
+    st.plotly_chart(fig, use_container_width=True)
 
-fig = px.bar(importaciones_agrupadas, 
-             x='fecha_importacion', 
-             y='cantidad', 
-             color='Categoria',
-             title="Importaciones por Fecha y Categoría",
-             labels={'fecha_importacion': 'Fecha de Importación', 'cantidad': 'Cantidad de Prendas'})
-
-# Ajustar el formato de fecha en el eje x
-fig.update_xaxes(
-    tickformat="%Y-%m-%d",
-    tickangle=0,
-    title_text="Fecha de Importación"
-)
-
-st.plotly_chart(fig, use_container_width=True)
+    # Mostrar resumen detallado
+    st.subheader(f"Detalle de Importaciones (Fecha: {fecha_unica})")
+    for _, row in importaciones_agrupadas[importaciones_agrupadas['fecha_importacion'] == fecha_unica].iterrows():
+        st.write(f"- {row['Categoria']}: {row['cantidad']} prendas")
 
