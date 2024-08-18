@@ -339,27 +339,29 @@ else:
     # Agrupar por fecha de importación y categoría
     importaciones_agrupadas = df_importaciones.groupby(['fecha_importacion', 'Categoria'])['cantidad'].sum().reset_index()
 
-    # Obtener la única fecha de importación
-    fecha_unica = importaciones_agrupadas['fecha_importacion'].unique()[0]
-
-    # Crear un gráfico de barras apiladas para la fecha única
-    fig = px.bar(importaciones_agrupadas[importaciones_agrupadas['fecha_importacion'] == fecha_unica], 
-                 x='Categoria', 
+    # Crear un gráfico de barras apiladas
+    fig = px.bar(importaciones_agrupadas, 
+                 x='fecha_importacion', 
                  y='cantidad',
                  color='Categoria',
-                 title=f"Importaciones por Categoría (Fecha: {fecha_unica})",
-                 labels={'cantidad': 'Cantidad de Prendas', 'Categoria': 'Categoría'})
+                 title="Importaciones por Fecha y Categoría",
+                 labels={'cantidad': 'Cantidad de Prendas', 'fecha_importacion': 'Fecha de Importación', 'Categoria': 'Categoría'})
 
     fig.update_layout(
-        xaxis_title="Categoría",
+        xaxis_title="Fecha de Importación",
         yaxis_title="Cantidad de Prendas",
+        barmode='stack'
     )
 
     st.plotly_chart(fig, use_container_width=True)
 
     # Mostrar resumen detallado
-    st.subheader(f"Detalle de Importaciones (Fecha: {fecha_unica})")
-    total_prendas = importaciones_agrupadas[importaciones_agrupadas['fecha_importacion'] == fecha_unica]['cantidad'].sum()
-    st.write(f"Total de prendas importadas: {total_prendas}")
-    for _, row in importaciones_agrupadas[importaciones_agrupadas['fecha_importacion'] == fecha_unica].iterrows():
-        st.write(f"- {row['Categoria']}: {row['cantidad']} prendas")
+    st.subheader("Detalle de Importaciones por Fecha")
+    for fecha in importaciones_agrupadas['fecha_importacion'].unique():
+        st.write(f"Fecha: {fecha}")
+        datos_fecha = importaciones_agrupadas[importaciones_agrupadas['fecha_importacion'] == fecha]
+        total_prendas = datos_fecha['cantidad'].sum()
+        st.write(f"Total de prendas importadas: {total_prendas}")
+        for _, row in datos_fecha.iterrows():
+            st.write(f"- {row['Categoria']}: {row['cantidad']} prendas")
+        st.write("---")
