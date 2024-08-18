@@ -344,20 +344,16 @@ else:
 
     # Crear un gráfico de barras apiladas para la fecha única
     fig = px.bar(importaciones_agrupadas[importaciones_agrupadas['fecha_importacion'] == fecha_unica], 
-                 x='fecha_importacion', 
+                 x='Categoria', 
                  y='cantidad',
                  color='Categoria',
                  title=f"Importaciones por Categoría (Fecha: {fecha_unica})",
-                 labels={'cantidad': 'Cantidad de Prendas'})
+                 labels={'cantidad': 'Cantidad de Prendas', 'Categoria': 'Categoría'})
 
     fig.update_layout(
-        xaxis_title="Fecha de Importación",
+        xaxis_title="Categoría",
         yaxis_title="Cantidad de Prendas",
-        barmode='stack'
     )
-
-    # Ajustar el formato de fecha en el eje x
-    fig.update_xaxes(tickformat="%Y-%m-%d")
 
     st.plotly_chart(fig, use_container_width=True)
 
@@ -367,4 +363,3 @@ else:
     st.write(f"Total de prendas importadas: {total_prendas}")
     for _, row in importaciones_agrupadas[importaciones_agrupadas['fecha_importacion'] == fecha_unica].iterrows():
         st.write(f"- {row['Categoria']}: {row['cantidad']} prendas")
-
