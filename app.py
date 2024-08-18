@@ -299,3 +299,49 @@ st.plotly_chart(fig, use_container_width=True)
 # Tabla de datos
 st.subheader("Datos Detallados")
 st.dataframe(filtered_df)
+
+@st.cache_data
+def load_importaciones():
+    version = datetime.now().strftime("%Y%m%d%H%M%S")
+    url_importaciones = f"https://raw.githubusercontent.com/HUHU0101123/og-app/main/importaciones.csv?v={version}"
+    df_importaciones = pd.read_csv(url_importaciones)
+    df_importaciones['fecha_importacion'] = pd.to_datetime(df_importaciones['fecha_importacion']).dt.date
+    return df_importaciones
+
+df_importaciones = load_importaciones()
+
+# Mostrar la tabla de importaciones
+st.subheader("Resumen de Importaciones")
+
+# Agrupar por fecha de importación y categoría
+importaciones_agrupadas = df_importaciones.groupby(['fecha_importacion', 'Categoria'])['cantidad'].sum().reset_index()
+
+# Crear un diccionario para almacenar los datos formateados
+importaciones_formateadas = {}
+
+for fecha, grupo in importaciones_agrupadas.groupby('fecha_importacion'):
+    total_prendas = grupo['cantidad'].sum()
+    categorias = grupo.set_index('Categoria')['cantidad'].to_dict()
+    importaciones_formateadas[fecha] = {
+        "Total Prendas": total_prendas,
+        "Categorías": categorias
+    }
+
+# Mostrar los datos formateados
+for fecha, datos in importaciones_formateadas.items():
+    with st.expander(f"Fecha: {fecha} - Total Prendas: {datos['Total Prendas']}"):
+        for categoria, cantidad in datos['Categorías'].items():
+            st.write(f"- {categoria}: {cantidad}")
+
+# Visualización gráfica de importaciones
+st.subheader("Gráfico de Importaciones por Fecha y Categoría")
+
+fig = px.bar(importaciones_agrupadas, 
+             x='fecha_importacion', 
+             y='cantidad', 
+             color='Categoria',
+             title="Importaciones por Fecha y Categoría",
+             labels={'fecha_importacion': 'Fecha de Importación', 'cantidad': 'Cantidad de Prendas'})
+
+st.plotly_chart(fig, use_container_width=True)
+
