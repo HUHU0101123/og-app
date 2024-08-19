@@ -461,5 +461,60 @@ st.markdown("___")
 
 
 #SEGUNDO GRAFICO
+# Cargar los datos
+df_importaciones = pd.read_csv('importaciones.csv')
 
+# Crear un filtro para SKU del Producto
+skus = df_importaciones['SKU'].unique()
+selected_sku = st.selectbox("Seleccione SKU del Producto", skus)
+
+# Filtrar el dataframe basado en el SKU seleccionado
+df_filtered = df_importaciones[df_importaciones['SKU'] == selected_sku]
+
+# Mostrar la tabla con la información requerida
+st.markdown("**Información del Producto**")
+info_table = df_filtered[['CATEGORIA', 'PRODUCTO', 'STOCK_INICIAL']].drop_duplicates()
+st.dataframe(info_table, use_container_width=True)
+
+def create_nested_data(df):
+    nested_data = []
+    for fecha in df['fecha_importacion'].unique():
+        fecha_data = df[df['fecha_importacion'] == fecha]
+        total_fecha = fecha_data['cantidad'].sum()
+        
+        # Agrupar por categoría y sumar las cantidades
+        grouped_data = fecha_data.groupby('CATEGORIA').agg({'cantidad': 'sum'}).reset_index()
+        nested_data.append({
+            "Fecha": fecha,
+            "Total": total_fecha,
+            "Detalles": grouped_data
+        })
+    
+    return nested_data
+
+nested_data = create_nested_data(df_filtered)
+
+st.markdown("**Detalle de Importaciones por Fecha**")
+# Mostrar los datos de manera expandible y ordenada
+for item in nested_data:
+    with st.expander(f"Fecha: {item['Fecha']}  |  **Total: {item['Total']}** unidades"):
+        st.markdown(f"**Fecha de Importación:** `{item['Fecha']}`")
+        st.markdown(f"**Total de Unidades Importadas:** `{item['Total']}`")
+        # Mostrar detalles en una tabla
+        st.markdown("**Desglose por Categoría:**")
+        detalles_df = item["Detalles"].reset_index(drop=True)
+        detalles_df.columns = ["Categoría", "Cantidad"]
+        # Aplicar estilo al dataframe de detalles
+        styled_table = detalles_df.style.set_properties(**{
+            'background-color': '#f5f5f5',
+            'color': '#333',
+            'border-color': '#ffffff',
+            'border-width': '1px',
+            'border-style': 'solid',
+            'font-size': '14px',
+            'text-align': 'left'
+        })
+        st.dataframe(styled_table, use_container_width=True)
+
+st.markdown("___")
 
