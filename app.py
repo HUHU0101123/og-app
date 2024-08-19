@@ -446,7 +446,18 @@ else:
                 y=-0.5,  # Position annotation below the chart
                 xref='x',
                 yref='paper',
-                text="La línea roja representa la 'Cantidad Vendida' al 0% para cada categoría.",
+                text="La línea roja indica la 'Cantidad Vendida' al 0% para cada categoría.",
+                showarrow=False,
+                font=dict(size=12, color="black"),
+                align="center",
+                bgcolor="rgba(255, 255, 255, 0.7)"
+            ),
+            dict(
+                x=1,
+                y=-0.5,  # Position annotation below the chart
+                xref='x',
+                yref='paper',
+                text="Nota: La línea roja representa la 'Cantidad Vendida' (0%).",
                 showarrow=False,
                 font=dict(size=12, color="black"),
                 align="center",
