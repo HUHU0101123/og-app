@@ -3,25 +3,34 @@ import pandas as pd
 import plotly.express as px
 from datetime import datetime
 
-# Configuración de la página (debe estar al inicio del archivo)
-st.set_page_config(page_title="Dashboard de Ventas", layout="wide")
+def pagina_ventas():
+    st.title("Dashboard de Ventas")
 
-# Función para formatear números al estilo chileno
-def format_chilean_currency(value, is_percentage=False):
-    if is_percentage:
-        return f"{value:.2f}%".replace('.', ',')
-    else:
-        return f"${value:,.0f}".replace(',', 'X').replace('.', ',').replace('X', '.')
+    # Función para formatear números al estilo chileno
+    def format_chilean_currency(value, is_percentage=False):
+        if is_percentage:
+            return f"{value:.2f}%".replace('.', ',')
+        else:
+            return f"${value:,.0f}".replace(',', 'X').replace('.', ',').replace('X', '.')
 
-# Función para cargar los datos
-@st.cache_data
-def load_data():
-    version = datetime.now().strftime("%Y%m%d%H%M%S")
-    url_main = f"https://raw.githubusercontent.com/HUHU0101123/og-app/main/datasource.csv?v={version}"
-    df_main = pd.read_csv(url_main)
-    url_categorias = f"https://raw.githubusercontent.com/HUHU0101123/og-app/main/categorias.csv?v={version}"
-    df_categorias = pd.read_csv(url_categorias)
-    return df_main, df_categorias
+    # Función para cargar los datos
+    @st.cache_data
+    def load_data():
+        version = datetime.now().strftime("%Y%m%d%H%M%S")
+        url_main = f"https://raw.githubusercontent.com/HUHU0101123/og-app/main/datasource.csv?v={version}"
+        df_main = pd.read_csv(url_main)
+        url_categorias = f"https://raw.githubusercontent.com/HUHU0101123/og-app/main/categorias.csv?v={version}"
+        df_categorias = pd.read_csv(url_categorias)
+        return df_main, df_categorias
+
+    # Cargar los datos
+    df_main, df_categorias = load_data()
+
+    # Aquí continúa el resto de tu código para la página de ventas
+    # Por ejemplo:
+    st.write("Datos cargados correctamente.")
+    st.write(f"Número de registros en df_main: {len(df_main)}")
+    st.write(f"Número de registros en df_categorias: {len(df_categorias)}")
 
 # Función para preprocesar los datos
 def preprocess_data(df_main, df_categorias):
