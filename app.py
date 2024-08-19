@@ -383,40 +383,79 @@ else:
 
 
 
+from st_aggrid import AgGrid, GridOptionsBuilder
 def create_nested_table(df):
-    # Agrupar por fecha y categoría
-    grouped = df.groupby(['fecha_importacion', 'Categoria'])['cantidad'].sum().reset_index()
-    
-    # Crear una lista para almacenar las filas de la tabla
-    table_data = []
-    
-    for fecha in grouped['fecha_importacion'].unique():
-        fecha_data = grouped[grouped['fecha_importacion'] == fecha]
-        total_fecha = fecha_data['cantidad'].sum()
-        
-        # Añadir fila de fecha
-        table_data.append({
-            'Fecha': fecha,
-            'Categoría': 'Total',
-            'Cantidad': total_fecha
-        })
-        
-        # Añadir filas de categorías
-        for _, row in fecha_data.iterrows():
-            table_data.append({
-                'Fecha': '',
-                'Categoría': f"  • {row['Categoria']}",
-                'Cantidad': row['cantidad']
-            })
-    
-    # Crear el DataFrame final
-    table = pd.DataFrame(table_data)
-    return table
+    # (Mantén la lógica de creación de tabla como en el ejemplo anterior)
+    ...
 
-# Asumiendo que ya tienes df_importaciones cargado y procesado
-# Crear la tabla anidada
 nested_table = create_nested_table(df_importaciones)
 
-# Mostrar la tabla en Streamlit
 st.subheader("Detalle de Importaciones por Fecha")
-st.dataframe(nested_table, width=700, height=400)
+
+gb = GridOptionsBuilder.from_dataframe(nested_table)
+gb.configure_default_column(groupable=True, value=True, enableRowGroup=True, aggFunc='sum', editable=True)
+gb.configure_column("Fecha", pinned="left")
+gb.configure_column("Cantidad", type=["numericColumn", "numberColumnFilter", "customNumericFormat"], precision=0)
+gridOptions = gb.build()
+
+AgGrid(nested_table, 
+       gridOptions=gridOptions, 
+       enable_enterprise_modules=True, 
+       allow_unsafe_jscode=True, 
+       update_mode='model')
+
+
+
+from streamlit_expandable_table import table
+
+def create_nested_data(df):
+    nested_data = []
+    for fecha in df['fecha_importacion'].unique():
+        fecha_data = df[df['fecha_importacion'] == fecha]
+        total_fecha = fecha_data['cantidad'].sum()
+        
+        fecha_row = {
+            "Fecha": fecha,
+            "Total": total_fecha,
+            "children": []
+        }
+        
+        for _, row in fecha_data.iterrows():
+            fecha_row["children"].append({
+                "Categoría": row['Categoria'],
+                "Cantidad": row['cantidad']
+            })
+        
+        nested_data.append(fecha_row)
+    
+    return nested_data
+
+nested_data = create_nested_data(df_importaciones)
+
+st.subheader("Detalle de Importaciones por Fecha")
+table(nested_data)
+
+
+
+
+def prepare_data_for_treemap(df):
+    # Agregar una columna de "Total" para el nivel superior
+    df_total = df.groupby('fecha_importacion')['cantidad'].sum().reset_index()
+    df_total['Categoria'] = 'Total'
+    
+    # Combinar los datos totales con los datos detallados
+    df_combined = pd.concat([df_total, df])
+    
+    return df_combined
+
+df_treemap = prepare_data_for_treemap(df_importaciones)
+
+fig = px.treemap(df_treemap, 
+                 path=['fecha_importacion', 'Categoria'], 
+                 values='cantidad',
+                 color='cantidad',
+                 color_continuous_scale='RdBu',
+                 title='Importaciones por Fecha y Categoría')
+
+st.plotly_chart(fig, use_container_width=True)
+
