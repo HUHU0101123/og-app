@@ -307,6 +307,7 @@ st.dataframe(filtered_df)
 
 
 #SEGUNDO GRAFICO
+
 @st.cache_data
 def load_importaciones():
     # ... (el resto del código de la función permanece igual)
