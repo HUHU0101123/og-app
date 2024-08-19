@@ -312,7 +312,7 @@ def load_importaciones():
     version = datetime.now().strftime("%Y%m%d%H%M%S")
     url_importaciones = f"https://raw.githubusercontent.com/HUHU0101123/og-app/main/importaciones.csv?v={version}"
     df_importaciones = pd.read_csv(url_importaciones)
-
+    
     # Clean and rename columns
     df_importaciones.columns = df_importaciones.columns.str.strip().str.upper().str.replace(' ', '_')
     df_importaciones = df_importaciones.rename(columns={
@@ -320,10 +320,10 @@ def load_importaciones():
         'CATEGORIA': 'Categoria',
         'STOCK_INICIAL': 'cantidad'
     })
-
+    
     # Ensure fecha_importacion is of type date
     df_importaciones['fecha_importacion'] = pd.to_datetime(df_importaciones['fecha_importacion']).dt.date
-
+    
     return df_importaciones
 
 # Load importaciones data
@@ -350,38 +350,37 @@ else:
     # Create the bar chart
     fig = go.Figure()
 
-    # Add bars for each category with no hover information
+    # Add bars for each category
     for _, row in importaciones_agrupadas.iterrows():
         fig.add_trace(go.Bar(
             x=[row['cantidad']],
             y=[row['Categoria']],
             name=row['Categoria'],
-            orientation='h',
-            hovertemplate=''  # Elimina información al pasar el ratón
+            orientation='h'
         ))
 
-        # Add the 'cantidad vendida' line with no hover information
+        # Add the 'cantidad vendida' line at x=0
         fig.add_trace(go.Scatter(
             x=[0],
             y=[row['Categoria']],
             mode='lines+text',
-            line=dict(color='white', dash='dash'),
-            name='Cantidad Vendida (0%)',
-            text=['0%'],
+            line=dict(color='red', dash='dash'),
+            name=f'Cantidad vendida - {row["Categoria"]}',
+            text=['0%'],  # Label to show the value
             textposition='top right',
-            hovertemplate=None  # Elimina información al pasar el ratón
+            showlegend=False
         ))
 
-    # Update layout with annotation
+    # Update layout
     fig.update_layout(
-        title=f"Importaciones por Categoría y % Vendido",
+        title=f"Importaciones por Categoría para la Fecha: {fecha_seleccionada}",
         xaxis_title="Cantidad de Prendas",
         yaxis_title="Categoría",
         yaxis=dict(type='category'),
         xaxis=dict(
             range=[-10, importaciones_agrupadas['cantidad'].max() * 1.1]
         ),
-        barmode='group'
+        barmode='group',
     )
 
     st.plotly_chart(fig, use_container_width=True)
