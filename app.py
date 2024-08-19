@@ -356,7 +356,8 @@ else:
             x=[row['cantidad']],
             y=[row['Categoria']],
             name=row['Categoria'],
-            orientation='h'
+            orientation='h',
+            hoverinfo='skip'  # Desactiva las tooltips para las barras
         ))
 
         # Add the 'cantidad vendida' line at x=0
@@ -368,7 +369,8 @@ else:
             name='Cantidad Vendida (0%)',
             text=['0%'],  # Text to display on the line
             textposition='top right',
-            showlegend=False
+            showlegend=False,
+            hoverinfo='skip'  # Desactiva las tooltips para la línea
         ))
 
     # Update layout with annotation
