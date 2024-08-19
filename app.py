@@ -387,6 +387,11 @@ else:
 
 #Segundo Grafico
 
+import pandas as pd
+import plotly.graph_objects as go
+import streamlit as st
+from datetime import datetime
+
 @st.cache_data
 def load_importaciones():
     version = datetime.now().strftime("%Y%m%d%H%M%S")
@@ -445,13 +450,13 @@ else:
             y=[row['Categoria']],
             mode='lines+text',
             line=dict(color='red', dash='dash'),
-            name=f'Cantidad vendida - {row["Categoria"]}',
+            name='Cantidad Vendida (0%)',
             text=['0%'],  # Label to show the value
             textposition='top right',
             showlegend=False
         ))
 
-    # Update layout
+    # Update layout with annotation
     fig.update_layout(
         title=f"Importaciones por Categoría para la Fecha: {fecha_seleccionada}",
         xaxis_title="Cantidad de Prendas",
@@ -461,6 +466,19 @@ else:
             range=[-10, importaciones_agrupadas['cantidad'].max() * 1.1]
         ),
         barmode='group',
+        annotations=[
+            dict(
+                x=0,
+                y=-0.5,  # Position annotation below the chart
+                xref='x',
+                yref='paper',
+                text="La línea roja indica la 'Cantidad Vendida' (0%) para cada categoría.",
+                showarrow=False,
+                font=dict(size=12, color="black"),
+                align="center",
+                bgcolor="rgba(255, 255, 255, 0.7)"
+            )
+        ]
     )
 
     st.plotly_chart(fig, use_container_width=True)
