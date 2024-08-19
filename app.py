@@ -462,28 +462,37 @@ st.markdown("___")
 
 #SEGUNDO GRAFICO
 # Cargar los datos
-df_importaciones = pd.read_csv('importaciones.csv')
+Entiendo. Gracias por proporcionar las columnas exactas de su archivo CSV. Vamos a ajustar el código para que coincida con estas columnas. Aquí está una versión actualizada del código que utiliza los nombres de columnas correctos:
+pythonCopyimport pandas as pd
+import streamlit as st
+
+# Cargar los datos
+try:
+    df_importaciones = pd.read_csv('importaciones.csv')
+except FileNotFoundError:
+    st.error("No se pudo encontrar el archivo 'importaciones.csv'. Por favor, asegúrese de que el archivo existe en el directorio correcto.")
+    st.stop()
 
 # Crear un filtro para SKU del Producto
-skus = df_importaciones['SKU'].unique()
+skus = df_importaciones['SKU del Producto'].unique()
 selected_sku = st.selectbox("Seleccione SKU del Producto", skus)
 
 # Filtrar el dataframe basado en el SKU seleccionado
-df_filtered = df_importaciones[df_importaciones['SKU'] == selected_sku]
+df_filtered = df_importaciones[df_importaciones['SKU del Producto'] == selected_sku]
 
 # Mostrar la tabla con la información requerida
 st.markdown("**Información del Producto**")
-info_table = df_filtered[['CATEGORIA', 'PRODUCTO', 'STOCK_INICIAL']].drop_duplicates()
+info_table = df_filtered[['CATEGORIA', 'PRODUCTO', 'STOCK INICIAL']].drop_duplicates()
 st.dataframe(info_table, use_container_width=True)
 
 def create_nested_data(df):
     nested_data = []
-    for fecha in df['fecha_importacion'].unique():
-        fecha_data = df[df['fecha_importacion'] == fecha]
-        total_fecha = fecha_data['cantidad'].sum()
+    for fecha in df['Fecha_Importacion'].unique():
+        fecha_data = df[df['Fecha_Importacion'] == fecha]
+        total_fecha = len(fecha_data)  # Contamos el número de filas como cantidad
         
-        # Agrupar por categoría y sumar las cantidades
-        grouped_data = fecha_data.groupby('CATEGORIA').agg({'cantidad': 'sum'}).reset_index()
+        # Agrupar por categoría y contar las filas
+        grouped_data = fecha_data.groupby('CATEGORIA').size().reset_index(name='cantidad')
         nested_data.append({
             "Fecha": fecha,
             "Total": total_fecha,
@@ -502,7 +511,7 @@ for item in nested_data:
         st.markdown(f"**Total de Unidades Importadas:** `{item['Total']}`")
         # Mostrar detalles en una tabla
         st.markdown("**Desglose por Categoría:**")
-        detalles_df = item["Detalles"].reset_index(drop=True)
+        detalles_df = item["Detalles"]
         detalles_df.columns = ["Categoría", "Cantidad"]
         # Aplicar estilo al dataframe de detalles
         styled_table = detalles_df.style.set_properties(**{
@@ -517,4 +526,3 @@ for item in nested_data:
         st.dataframe(styled_table, use_container_width=True)
 
 st.markdown("___")
-
