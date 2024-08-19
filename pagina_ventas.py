@@ -44,7 +44,7 @@ def pagina_ventas():
     df = preprocess_data(df_main, df_categorias)
     
     # Título de la aplicación
-    st.title("Dashboard de Ventas")
+    #st.title("Dashboard de Ventas")
     
     # Filtros en la barra lateral
     st.sidebar.header("Filtros")
