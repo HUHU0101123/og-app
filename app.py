@@ -6,7 +6,7 @@ from pagina_ventas import pagina_ventas
 st.set_page_config(page_title="Dashboard de Ventas", layout="wide")
 
 # Título de la aplicación
-st.title("Mi Dashboard")
+#st.title("Mi Dashboard")
 
 # Menú de navegación lateral
 page = st.sidebar.selectbox("Selecciona una página", ["Importaciones", "Ventas"])
