@@ -356,7 +356,9 @@ else:
             x=[row['cantidad']],
             y=[row['Categoria']],
             name=row['Categoria'],
-            orientation='h'
+            orientation='h',
+            text=[row['cantidad']],  # Display the quantity directly on the bar
+            textposition='inside'  # Display the text inside the bars
         ))
 
         # Add the 'cantidad vendida' line at x=0
