@@ -348,20 +348,14 @@ else:
     # Create the bar chart
     fig = go.Figure()
 
-    # Define the category to be colored in pink
-    categoria_pink = 'Categoría_Ejemplo'  # Cambia esto por la categoría que deseas en rosa
-
     # Add bars for each category
     for _, row in importaciones_agrupadas.iterrows():
-        bar_color = 'pink' if row['Categoria'] == categoria_pink else 'rgba(0, 0, 255, 0.5)'  # Color rosa para una categoría específica, color predeterminado para otras
-
         fig.add_trace(go.Bar(
             x=[row['cantidad']],
             y=[row['Categoria']],
             name=row['Categoria'],
             orientation='h',
-            hovertemplate=f'Total Importado: {row["cantidad"]}<br>Total Vendido %: 0%<extra></extra>',
-            marker=dict(color=bar_color)  # Color de la barra basado en la categoría
+            hovertemplate=f'Total Importado: {row["cantidad"]}<br>Total Vendido %: 0%<extra></extra>'
         ))
 
         # Add the 'cantidad vendida' line at x=0
