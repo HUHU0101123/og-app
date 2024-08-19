@@ -3,5 +3,4 @@ pandas
 plotly
 requests
 openpyxl
-streamlit-aggrid==0.3.4
 streamlit-expandable-table
