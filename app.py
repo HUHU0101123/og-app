@@ -344,22 +344,40 @@ else:
     importaciones_agrupadas = df_importaciones.groupby(['fecha_importacion', 'Categoria'])['cantidad'].sum().reset_index()
 
     # Crear un gráfico de barras apiladas (MODIFICADO)
-    fig = px.bar(importaciones_agrupadas, 
-                 y='fecha_importacion', 
-                 x='cantidad',
-                 color='Categoria',
-                 title="Importaciones por Fecha y Categoría",
-                 labels={'cantidad': 'Cantidad de Prendas', 'fecha_importacion': 'Fecha de Importación', 'Categoria': 'Categoría'},
-                 orientation='h')
+fig = px.bar(importaciones_agrupadas, 
+             y='fecha_importacion', 
+             x='cantidad',
+             color='Categoria',
+             title="Importaciones por Fecha y Categoría",
+             labels={'cantidad': 'Cantidad de Prendas', 'fecha_importacion': 'Fecha de Importación', 'Categoria': 'Categoría'},
+             orientation='h')
 
-    fig.update_layout(
-        yaxis_title="Fecha de Importación",
-        xaxis_title="Cantidad de Prendas",
-        barmode='stack',
-        yaxis={'type': 'category'}  # Esto fuerza a tratar las fechas como categorías discretas
-    )
+# Añadir una línea vertical en x=0 para representar la cantidad vendida
+fig.add_vline(x=0, line_width=2, line_dash="dash", line_color="red")
 
-    st.plotly_chart(fig, use_container_width=True)
+# Añadir una anotación para el texto "Cantidad vendida 0%"
+fig.add_annotation(
+    x=0,
+    y=1.02,  # Posición ligeramente por encima del gráfico
+    xref="x",
+    yref="paper",
+    text="Cantidad vendida 0%",
+    showarrow=False,
+    font=dict(size=12, color="red"),
+    align="center",
+)
+
+fig.update_layout(
+    yaxis_title="Fecha de Importación",
+    xaxis_title="Cantidad de Prendas",
+    barmode='stack',
+    yaxis={'type': 'category'},  # Esto fuerza a tratar las fechas como categorías discretas
+    xaxis=dict(
+        range=[min(importaciones_agrupadas['cantidad'].min() * 1.1, -10), importaciones_agrupadas['cantidad'].max() * 1.1]
+    )  # Ajusta el rango del eje x para que la línea sea visible
+)
+
+st.plotly_chart(fig, use_container_width=True)
 
     # Mostrar resumen detallado
     st.subheader("Detalle de Importaciones por Fecha")
