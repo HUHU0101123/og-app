@@ -340,11 +340,11 @@ else:
     # Agrupar por fecha de importación y categoría
     importaciones_agrupadas = df_importaciones.groupby(['fecha_importacion', 'Categoria'])['cantidad'].sum().reset_index()
 
+    # Obtener todas las fechas únicas
+    fechas_unicas = importaciones_agrupadas['fecha_importacion'].unique()
+
     # Crear el gráfico
     fig = go.Figure()
-
-    # Obtener fechas únicas
-    fechas_unicas = importaciones_agrupadas['fecha_importacion'].unique()
 
     for fecha in fechas_unicas:
         datos_fecha = importaciones_agrupadas[importaciones_agrupadas['fecha_importacion'] == fecha]
@@ -382,8 +382,8 @@ else:
         xaxis_title="Cantidad de Prendas",
         yaxis_title="Fecha de Importación",
         barmode='stack',
-        height=500,
-        showlegend=True
+        height=100 + (len(fechas_unicas) * 50),  # Ajustar altura según número de fechas
+        showlegend=False
     )
 
     st.plotly_chart(fig, use_container_width=True)
