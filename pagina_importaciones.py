@@ -1,5 +1,8 @@
 import streamlit as st
 
-def show():
-    st.title("Página de Importaciones")
-    st.write("Contenido de la página de importaciones...")
+def pagina_importaciones():
+    st.header("Página de Importaciones")
+    # Aquí va el contenido específico de la página de importaciones
+    # Por ejemplo:
+    st.write("Esta es la página de importaciones.")
+    # Más código de Streamlit para esta página...
