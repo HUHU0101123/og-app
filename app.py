@@ -1,17 +1,18 @@
 import streamlit as st
 
-# Configuración del título de la aplicación principal
-st.set_page_config(page_title="Dashboard de Ventas e Importaciones")
+# Import the pages
+import pagina_ventas
+import pagina_importaciones
 
-# Título de la aplicación principal
-st.title("Dashboard de Ventas e Importaciones")
+# Set up page configuration
+st.set_page_config(page_title="Dashboard", layout="wide")
 
-# Selección de página
-page = st.sidebar.selectbox("Seleccione la página:", ["Ventas", "Importaciones"])
+# Sidebar for navigation
+st.sidebar.title("Navegación")
+page = st.sidebar.radio("Ir a", ["Ventas", "Importaciones"])
 
+# Display the selected page
 if page == "Ventas":
-    st.write("## Página de Ventas")
-    exec(open("pagina_ventas.py").read())
+    pagina_ventas.show()  # Call the function that runs the sales dashboard
 elif page == "Importaciones":
-    st.write("## Página de Importaciones")
-    exec(open("pagina_importaciones.py").read())
+    pagina_importaciones.show()  # Call the function that runs the importations summary
