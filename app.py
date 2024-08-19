@@ -382,35 +382,38 @@ else:
 
 
 
-# Crear una tabla anidada
+
 def create_nested_table(df):
     # Agrupar por fecha y categoría
     grouped = df.groupby(['fecha_importacion', 'Categoria'])['cantidad'].sum().reset_index()
     
-    # Crear un DataFrame con estructura multinivel
-    table = pd.DataFrame(columns=['Fecha', 'Categoría', 'Cantidad'])
+    # Crear una lista para almacenar las filas de la tabla
+    table_data = []
     
     for fecha in grouped['fecha_importacion'].unique():
         fecha_data = grouped[grouped['fecha_importacion'] == fecha]
         total_fecha = fecha_data['cantidad'].sum()
         
         # Añadir fila de fecha
-        table = table.append({
+        table_data.append({
             'Fecha': fecha,
             'Categoría': 'Total',
             'Cantidad': total_fecha
-        }, ignore_index=True)
+        })
         
         # Añadir filas de categorías
         for _, row in fecha_data.iterrows():
-            table = table.append({
+            table_data.append({
                 'Fecha': '',
                 'Categoría': f"  • {row['Categoria']}",
                 'Cantidad': row['cantidad']
-            }, ignore_index=True)
+            })
     
+    # Crear el DataFrame final
+    table = pd.DataFrame(table_data)
     return table
 
+# Asumiendo que ya tienes df_importaciones cargado y procesado
 # Crear la tabla anidada
 nested_table = create_nested_table(df_importaciones)
 
