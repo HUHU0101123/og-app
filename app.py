@@ -460,9 +460,72 @@ st.markdown("___")
 
 
 
+#SEGUNDO GRAFICO
 
+# Función para crear datos anidados
+def create_nested_data(df):
+    nested_data = []
+    for fecha in df['fecha_importacion'].unique():
+        fecha_data = df[df['fecha_importacion'] == fecha]
+        total_fecha = fecha_data['cantidad'].sum()
+        
+        # Agrupar por categoría y producto, luego sumar las cantidades
+        grouped_data = fecha_data.groupby(['Categoria', 'Producto']).agg({'cantidad': 'sum'}).reset_index()
+        grouped_data.rename(columns={'cantidad': 'Stock Inicial'}, inplace=True)
 
+        nested_data.append({
+            "Fecha": fecha,
+            "Total": total_fecha,
+            "Detalles": grouped_data
+        })
+    
+    return nested_data
 
+# Suponiendo que df_importaciones es tu DataFrame de importaciones
+# df_importaciones = pd.read_csv('ruta_a_tu_archivo.csv')  # Ejemplo de carga de datos
+df_importaciones = pd.DataFrame({
+    'fecha_importacion': ['2024-08-01', '2024-08-01', '2024-08-02'],
+    'Categoria': ['Electrónica', 'Electrónica', 'Ropa'],
+    'Producto': ['Smartphone', 'Tablet', 'Camisa'],
+    'cantidad': [10, 5, 20]
+})
+
+# Crear un filtro de selección de SKU
+unique_skus = df_importaciones['Producto'].unique()
+selected_skus = st.sidebar.multiselect('Selecciona los Productos', unique_skus, default=unique_skus)
+
+# Filtrar el DataFrame basado en los SKU seleccionados
+df_filtered = df_importaciones[df_importaciones['Producto'].isin(selected_skus)]
+
+# Actualizar los datos anidados con el DataFrame filtrado
+nested_data_filtered = create_nested_data(df_filtered)
+
+st.markdown("**Detalle de Importaciones por Fecha**")
+
+# Mostrar los datos de manera expandible y ordenada
+for item in nested_data_filtered:
+    with st.expander(f"Fecha: {item['Fecha']}  |  **Total: {item['Total']}** unidades"):
+        st.markdown(f"**Fecha de Importación:** `{item['Fecha']}`")
+        st.markdown(f"**Total de Unidades Importadas:** `{item['Total']}`")
+
+        # Mostrar detalles en una tabla
+        st.markdown("**Desglose por Categoría y Producto:**")
+        detalles_df = item["Detalles"].reset_index(drop=True)
+        detalles_df.columns = ["Categoría", "Producto", "Stock Inicial"]
+
+        # Aplicar estilo al dataframe de detalles
+        styled_table = detalles_df.style.set_properties(**{
+            'background-color': '#f5f5f5',
+            'color': '#333',
+            'border-color': '#ffffff',
+            'border-width': '1px',
+            'border-style': 'solid',
+            'font-size': '14px',
+            'text-align': 'left'
+        })
+        st.dataframe(styled_table, use_container_width=True)
+
+st.markdown("___")
 
 
 
