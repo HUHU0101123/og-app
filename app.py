@@ -303,89 +303,7 @@ st.dataframe(filtered_df)
 
 
 
-
-
-
-@st.cache_data
-def load_importaciones():
-    version = datetime.now().strftime("%Y%m%d%H%M%S")
-    url_importaciones = f"https://raw.githubusercontent.com/HUHU0101123/og-app/main/importaciones.csv?v={version}"
-    df_importaciones = pd.read_csv(url_importaciones)
-    
-    # Limpiar los nombres de las columnas
-    df_importaciones.columns = df_importaciones.columns.str.strip().str.upper().str.replace(' ', '_')
-    
-    # Renombrar las columnas
-    df_importaciones = df_importaciones.rename(columns={
-        'FECHA_IMPORTACION': 'fecha_importacion',
-        'CATEGORIA': 'Categoria',
-        'STOCK_INICIAL': 'cantidad'
-    })
-    
-    # Asegurarse de que la fecha_importacion sea de tipo date
-    df_importaciones['fecha_importacion'] = pd.to_datetime(df_importaciones['fecha_importacion']).dt.date
-    
-    return df_importaciones
-
-# Cargar los datos de importaciones
-df_importaciones = load_importaciones()
-
-# Verificar si df_importaciones tiene datos
-if df_importaciones.empty:
-    st.warning("No se pudieron cargar datos de importaciones.")
-else:
-    # Mostrar la tabla de importaciones
-    st.subheader("Resumen de Importaciones")
-
-    # Convertir fecha_importacion a string antes de agrupar
-    df_importaciones['fecha_importacion'] = df_importaciones['fecha_importacion'].astype(str)
-
-    # Agrupar por fecha de importación y categoría
-    importaciones_agrupadas = df_importaciones.groupby(['fecha_importacion', 'Categoria'])['cantidad'].sum().reset_index()
-
-    # Crear un gráfico de barras apiladas
-    fig = px.bar(importaciones_agrupadas, 
-                 y='fecha_importacion', 
-                 x='cantidad',
-                 color='Categoria',
-                 title="Importaciones por Fecha y Categoría",
-                 labels={'cantidad': 'Cantidad de Prendas', 'fecha_importacion': 'Fecha de Importación', 'Categoria': 'Categoría'},
-                 orientation='h')
-
-    # Añadir una línea vertical en x=0 para representar la cantidad vendida
-    fig.add_vline(x=0, line_width=2, line_dash="dash", line_color="white")
-    
-    # Añadir una anotación para el texto "Cantidad vendida 0%"
-    fig.add_annotation(
-        x=0,
-        y=1.02,  # Posición ligeramente por encima del gráfico
-        xref="x",
-        yref="paper",
-        text="Cantidad vendida 0%",
-        showarrow=False,
-        font=dict(size=12, color="white"),
-        align="center",
-    )
-
-    fig.update_layout(
-        yaxis_title="Fecha de Importación",
-        xaxis_title="Cantidad de Prendas",
-        barmode='stack',
-        yaxis={'type': 'category'},  # Esto fuerza a tratar las fechas como categorías discretas
-        xaxis=dict(
-            range=[min(importaciones_agrupadas['cantidad'].min() * 1.1, -10), importaciones_agrupadas['cantidad'].max() * 1.1]
-        )  # Ajusta el rango del eje x para que la línea sea visible
-    )
-
-    st.plotly_chart(fig, use_container_width=True)
-
-
-
-
-
-
-
-#Segundo Grafico
+#Primer Grafico Importaciones
 
 @st.cache_data
 def load_importaciones():
@@ -451,27 +369,7 @@ else:
             showlegend=False
         ))
 
-    # Add the 'cantidad vendida' line at x=0 with a descriptive name
-    fig.add_trace(go.Scatter(
-        x=[0],
-        y=[row['Categoria']],
-        mode='lines',
-        line=dict(color='red', dash='dash'),
-        name='Cantidad Vendida (0%)',  # Legend entry
-        showlegend=True
-             ))    
-
-    # Add the 'cantidad vendida' line at x=0 with hover text
-    fig.add_trace(go.Scatter(
-        x=[0],
-        y=[row['Categoria']],
-        mode='lines+markers',
-        line=dict(color='red', dash='dash'),
-        name='Cantidad Vendida (0%)',
-        hoverinfo='text',
-        text=['Cantidad Vendida: 0%']
-    ))
-    
+        
     # Update layout with annotation
     fig.update_layout(
         title=f"Importaciones por Categoría para la Fecha: {fecha_seleccionada}",
@@ -509,29 +407,6 @@ else:
     )
 
     st.plotly_chart(fig, use_container_width=True)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
