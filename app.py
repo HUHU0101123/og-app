@@ -387,11 +387,6 @@ else:
 
 #Segundo Grafico
 
-import pandas as pd
-import plotly.graph_objects as go
-import streamlit as st
-from datetime import datetime
-
 @st.cache_data
 def load_importaciones():
     version = datetime.now().strftime("%Y%m%d%H%M%S")
@@ -435,9 +430,6 @@ else:
     # Create the bar chart
     fig = go.Figure()
 
-    # Define a hypothetical 'cantidad vendida' for demonstration purposes
-    cantidad_vendida = 10  # Replace with the actual logic to compute or retrieve this value
-
     # Add bars for each category
     for _, row in importaciones_agrupadas.iterrows():
         fig.add_trace(go.Bar(
@@ -447,14 +439,14 @@ else:
             orientation='h'
         ))
 
-        # Add the 'cantidad vendida' line for each bar
+        # Add the 'cantidad vendida' line at x=0
         fig.add_trace(go.Scatter(
-            x=[cantidad_vendida],  # Position of the cantidad vendida line
-            y=[row['Categoria']],  # Align with the category
+            x=[0],
+            y=[row['Categoria']],
             mode='lines+text',
             line=dict(color='red', dash='dash'),
             name=f'Cantidad vendida - {row["Categoria"]}',
-            text=[f'{cantidad_vendida}%'],  # Label to show the value
+            text=['0%'],  # Label to show the value
             textposition='top right',
             showlegend=False
         ))
@@ -466,13 +458,12 @@ else:
         yaxis_title="Categoría",
         yaxis=dict(type='category'),
         xaxis=dict(
-            range=[-10, max(importaciones_agrupadas['cantidad'].max(), cantidad_vendida) * 1.1]
+            range=[-10, importaciones_agrupadas['cantidad'].max() * 1.1]
         ),
         barmode='group',
     )
 
     st.plotly_chart(fig, use_container_width=True)
-
 
 
 
