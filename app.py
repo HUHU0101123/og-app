@@ -357,7 +357,7 @@ else:
             y=[row['Categoria']],
             name=row['Categoria'],
             orientation='h',
-            hovertemplate=''  # No hover information
+            hovertemplate=''  # Elimina información al pasar el ratón
         ))
 
         # Add the 'cantidad vendida' line with no hover information
@@ -369,7 +369,7 @@ else:
             name='Cantidad Vendida (0%)',
             text=['0%'],
             textposition='top right',
-            hovertemplate=None
+            hovertemplate=None  # Elimina información al pasar el ratón
         ))
 
     # Update layout with annotation
