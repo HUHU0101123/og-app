@@ -357,40 +357,49 @@ else:
             y=[row['Categoria']],
             name=row['Categoria'],
             orientation='h',
-            text=[f'{row["cantidad"]}'],  # Add text inside the bars
-            textposition='outside',  # Position text outside the bars
-            textfont=dict(size=12, color='black'),  # Adjust font size and color
-            hovertemplate=f'Total Importado: {row["cantidad"]}<extra></extra>'
+            hovertemplate=f'Total Importado: {row["cantidad"]}<br>Total Vendido %: 0%<extra></extra>'
         ))
 
-        # Add the 'cantidad vendida' text at x=0
+        # Add the 'cantidad vendida' line at x=0
         fig.add_trace(go.Scatter(
-            x=[0],  # X position of the text
-            y=[row['Categoria']],  # Y position of the text
-            mode='text',
-            text=['0'],  # Text to display
-            textposition='middle right',
-            textfont=dict(size=12, color='white'),
+            x=[0],  # X position of the line
+            y=[row['Categoria']],  # Y position of the line
+            mode='lines+text',
+            line=dict(color='white', dash='dash'),
+            name='Cantidad Vendida (0%)',
+            text=['0%'],  # Text to display on the line
+            textposition='top right',
             showlegend=False
         ))
 
     # Update layout with annotation
     fig.update_layout(
-        title=f"Importaciones por Categoría y Cantidad Vendida",
+        title=f"Importaciones por Categoría y % Vendido",
         xaxis_title="Cantidad de Prendas",
         yaxis_title="Categoría",
         yaxis=dict(type='category'),
         xaxis=dict(
-            range=[0, importaciones_agrupadas['cantidad'].max() * 1.1]
+            range=[-10, importaciones_agrupadas['cantidad'].max() * 1.1]
         ),
         barmode='group',
         annotations=[
             dict(
                 x=0,
-                y=-0.15,  # Position annotation below the chart
+                y=-0.5,  # Position annotation below the chart
                 xref='x',
                 yref='paper',
-                text="El número blanco indica la 'Cantidad Vendida' para cada categoría.",
+                text="La línea blanca indica la 'Cantidad Vendida' al 0% para cada categoría.",
+                showarrow=False,
+                font=dict(size=12, color="white"),
+                align="center",
+                bgcolor="rgba(0, 0, 0, 0.7)"
+            ),
+            dict(
+                x=1,
+                y=-0.5,  # Position annotation below the chart
+                xref='x',
+                yref='paper',
+                text="Nota: La línea blanca representa la 'Cantidad Vendida' (0%).",
                 showarrow=False,
                 font=dict(size=12, color="white"),
                 align="center",
