@@ -495,8 +495,8 @@ def create_nested_data(df):
         fecha_data = df[df['Fecha_Importacion'] == fecha]
         total_fecha = fecha_data['STOCK INICIAL'].sum()
         
-        # Agrupar por categoría y sumar el STOCK INICIAL
-        grouped_data = fecha_data.groupby('CATEGORIA')['STOCK INICIAL'].sum().reset_index()
+        # Agrupar por categoría, producto y sumar el STOCK INICIAL
+        grouped_data = fecha_data.groupby(['CATEGORIA', 'PRODUCTO'])['STOCK INICIAL'].sum().reset_index()
         nested_data.append({
             "Fecha": fecha,
             "Total": total_fecha,
@@ -514,9 +514,8 @@ for item in nested_data:
         st.markdown(f"**Fecha de Importación:** `{item['Fecha']}`")
         st.markdown(f"**Total de Stock Inicial:** `{item['Total']}`")
         # Mostrar detalles en una tabla
-        st.markdown("**Desglose por Categoría:**")
+        st.markdown("**Desglose por Categoría y Producto:**")
         detalles_df = item["Detalles"]
-        detalles_df.columns = ["Categoría", "Stock Inicial"]
         # Aplicar estilo al dataframe de detalles
         styled_table = detalles_df.style.set_properties(**{
             'background-color': '#f5f5f5',
@@ -526,7 +525,7 @@ for item in nested_data:
             'border-style': 'solid',
             'font-size': '14px',
             'text-align': 'left'
-        })
+        }).hide_index()
         st.dataframe(styled_table, use_container_width=True)
 
 st.markdown("___")
