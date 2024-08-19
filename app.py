@@ -337,11 +337,19 @@ else:
     # Mostrar la tabla de importaciones
     st.subheader("Resumen de Importaciones")
 
+    # Verificar las categorías en los datos originales
+    st.write("Categorías únicas:", df_importaciones['Categoria'].unique())
+    st.write("Número total de categorías:", df_importaciones['Categoria'].nunique())
+
     # Convertir fecha_importacion a string antes de agrupar
     df_importaciones['fecha_importacion'] = df_importaciones['fecha_importacion'].astype(str)
 
     # Agrupar por fecha de importación y categoría
     importaciones_agrupadas = df_importaciones.groupby(['fecha_importacion', 'Categoria'])['cantidad'].sum().reset_index()
+
+    # Verificar las categorías en los datos agrupados
+    st.write("Categorías en datos agrupados:", importaciones_agrupadas['Categoria'].unique())
+    st.write("Número de categorías en datos agrupados:", importaciones_agrupadas['Categoria'].nunique())
 
     # Crear un gráfico de barras apiladas
     fig = px.bar(importaciones_agrupadas, 
@@ -350,7 +358,8 @@ else:
                  color='Categoria',
                  title="Importaciones por Fecha y Categoría",
                  labels={'cantidad': 'Cantidad de Prendas', 'fecha_importacion': 'Fecha de Importación', 'Categoria': 'Categoría'},
-                 orientation='h')
+                 orientation='h',
+                 category_orders={"Categoria": sorted(df_importaciones['Categoria'].unique())})
 
     # Añadir una línea vertical en x=0 para representar la cantidad vendida
     fig.add_vline(x=0, line_width=2, line_dash="dash", line_color="red")
@@ -377,6 +386,10 @@ else:
         )  # Ajusta el rango del eje x para que la línea sea visible
     )
 
+    # Verificar las categorías en el gráfico
+    st.write("Categorías en el gráfico:", [trace.name for trace in fig.data])
+
+    # Mostrar el gráfico
     st.plotly_chart(fig, use_container_width=True)
 
     # Mostrar resumen detallado
