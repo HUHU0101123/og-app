@@ -308,63 +308,10 @@ st.dataframe(filtered_df)
 
 #SEGUNDO GRAFICO
 
-@st.cache_data
-def load_importaciones():
-    # ... (el resto del código de la función permanece igual)
-
-# Load importaciones data
-df_importaciones = load_importaciones()
-
-if df_importaciones.empty:
-    st.warning("No se pudieron cargar datos de importaciones.")
-else:
-    st.subheader("Resumen de Importaciones")
-
-    # ... (el resto del código permanece igual hasta la creación del gráfico)
-
-    # Create the bar chart
-    fig = go.Figure()
-
-    # Add bars for each category
-    for _, row in importaciones_agrupadas.iterrows():
-        fig.add_trace(go.Bar(
-            x=[row['cantidad']],
-            y=[row['Categoria']],
-            name=row['Categoria'],
-            orientation='h',
-            text=[row['cantidad']],
-            textposition='inside',
-            hoverinfo='none'  # Disable hover information
-        ))
-
-        # Add the 'cantidad vendida' line at x=0
-        fig.add_trace(go.Scatter(
-            x=[0],
-            y=[row['Categoria']],
-            mode='lines+text',
-            line=dict(color='white', dash='dash'),
-            name='Cantidad Vendida (0%)',
-            text=['0%'],
-            textposition='top right',
-            showlegend=False,
-            hoverinfo='none'  # Disable hover information
-        ))
-
-    # Update layout
-    fig.update_layout(
-        title="Importaciones por Categoría y % Vendido",
-        xaxis_title="Cantidad de Prendas",
-        yaxis_title="Categoría",
-        yaxis=dict(type='category'),
-        xaxis=dict(
-            range=[-10, importaciones_agrupadas['cantidad'].max() * 1.1]
-        ),
-        barmode='group',
-        showlegend=False  # Disable legend
-    )
-
-    st.plotly_chart(fig, use_container_width=True)
-
+File "/mount/src/og-app/app.py", line 316
+  df_importaciones = load_importaciones()
+  ^
+IndentationError: expected an indented block after function definition on line 312
 
 
 
