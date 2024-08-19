@@ -481,10 +481,6 @@ else:
 # Agrupar los datos por CATEGORIA, PRODUCTO y calcular el STOCK INICIAL total
 grouped_data = df_filtered.groupby(['CATEGORIA', 'PRODUCTO'])['STOCK INICIAL'].sum().reset_index()
 
-# Mostrar la tabla con la información requerida
-st.markdown("**Información de Productos**")
-st.dataframe(grouped_data, use_container_width=True)
-
 # Calcular el total de STOCK INICIAL
 total_stock = grouped_data['STOCK INICIAL'].sum()
 st.markdown(f"**Total de Stock Inicial:** {total_stock}")
