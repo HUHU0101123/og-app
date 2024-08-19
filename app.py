@@ -343,19 +343,20 @@ else:
     # Agrupar por fecha de importación y categoría
     importaciones_agrupadas = df_importaciones.groupby(['fecha_importacion', 'Categoria'])['cantidad'].sum().reset_index()
 
-    # Crear un gráfico de barras apiladas
+    # Crear un gráfico de barras apiladas (MODIFICADO)
     fig = px.bar(importaciones_agrupadas, 
-                 x='fecha_importacion', 
-                 y='cantidad',
+                 y='fecha_importacion', 
+                 x='cantidad',
                  color='Categoria',
                  title="Importaciones por Fecha y Categoría",
-                 labels={'cantidad': 'Cantidad de Prendas', 'fecha_importacion': 'Fecha de Importación', 'Categoria': 'Categoría'})
+                 labels={'cantidad': 'Cantidad de Prendas', 'fecha_importacion': 'Fecha de Importación', 'Categoria': 'Categoría'},
+                 orientation='h')
 
     fig.update_layout(
-        xaxis_title="Fecha de Importación",
-        yaxis_title="Cantidad de Prendas",
+        yaxis_title="Fecha de Importación",
+        xaxis_title="Cantidad de Prendas",
         barmode='stack',
-        xaxis={'type': 'category'}  # Esto fuerza a tratar las fechas como categorías discretas
+        yaxis={'type': 'category'}  # Esto fuerza a tratar las fechas como categorías discretas
     )
 
     st.plotly_chart(fig, use_container_width=True)
