@@ -361,17 +361,17 @@ else:
 
         # Add the 'cantidad vendida' line at x=0
         fig.add_trace(go.Scatter(
-            x=[0],
-            y=[row['Categoria']],
+            x=[0],  # X position of the line
+            y=[row['Categoria']],  # Y position of the line
             mode='lines+text',
             line=dict(color='red', dash='dash'),
-            name=f'Cantidad vendida - {row["Categoria"]}',
-            text=['0%'],  # Label to show the value
+            name='Cantidad Vendida (0%)',
+            text=['0%'],  # Text to display on the line
             textposition='top right',
             showlegend=False
         ))
 
-    # Update layout
+    # Update layout with annotation
     fig.update_layout(
         title=f"Importaciones por Categoría para la Fecha: {fecha_seleccionada}",
         xaxis_title="Cantidad de Prendas",
@@ -381,6 +381,19 @@ else:
             range=[-10, importaciones_agrupadas['cantidad'].max() * 1.1]
         ),
         barmode='group',
+        annotations=[
+            dict(
+                x=0,
+                y=-0.5,  # Position annotation below the chart
+                xref='x',
+                yref='paper',
+                text="La línea roja representa la 'Cantidad Vendida' al 0% para cada categoría.",
+                showarrow=False,
+                font=dict(size=12, color="black"),
+                align="center",
+                bgcolor="rgba(255, 255, 255, 0.7)"
+            )
+        ]
     )
 
     st.plotly_chart(fig, use_container_width=True)
