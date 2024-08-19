@@ -383,30 +383,36 @@ else:
 
 
 
-
-
-def prepare_data_for_treemap(df):
-    # Agregar una columna de "Total" para el nivel superior
-    df_total = df.groupby('fecha_importacion')['cantidad'].sum().reset_index()
-    df_total['Categoria'] = 'Total'
+def create_nested_data(df):
+    nested_data = []
+    for fecha in df['fecha_importacion'].unique():
+        fecha_data = df[df['fecha_importacion'] == fecha]
+        total_fecha = fecha_data['cantidad'].sum()
+        
+        nested_data.append({
+            "Fecha": fecha,
+            "Total": total_fecha,
+            "Detalles": fecha_data[['Categoria', 'cantidad']]
+        })
     
-    # Combinar los datos totales con los datos detallados
-    df_combined = pd.concat([df_total, df])
-    
-    return df_combined
+    return nested_data
 
-df_treemap = prepare_data_for_treemap(df_importaciones)
+nested_data = create_nested_data(df_importaciones)
 
-fig = px.treemap(df_treemap, 
-                 path=['fecha_importacion', 'Categoria'], 
-                 values='cantidad',
-                 color='cantidad',
-                 color_continuous_scale='RdBu',
-                 title='Importaciones por Fecha y Categoría')
+st.subheader("Detalle de Importaciones por Fecha")
 
-st.plotly_chart(fig, use_container_width=True)
+# Crear un DataFrame para mostrar en la tabla
+table_data = []
+for item in nested_data:
+    table_data.append({"Fecha": item["Fecha"], "Total": item["Total"]})
+    for detail in item["Detalles"].itertuples(index=False):
+        table_data.append({"Fecha": "", "Total": f"• {detail.Categoria}: {detail.cantidad}"})
 
+# Convertir a DataFrame
+df_table = pd.DataFrame(table_data)
 
+# Mostrar la tabla
+st.dataframe(df_table, use_container_width=True)
 
 
 
