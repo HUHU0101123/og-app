@@ -348,14 +348,15 @@ else:
     # Create the bar chart
     fig = go.Figure()
 
-    # Add bars for each category
+    # Add bars for each category with pink color
     for _, row in importaciones_agrupadas.iterrows():
         fig.add_trace(go.Bar(
             x=[row['cantidad']],
             y=[row['Categoria']],
             name=row['Categoria'],
             orientation='h',
-            hovertemplate=f'Total Importado: {row["cantidad"]}<br>Total Vendido: 0%<extra></extra>'
+            hovertemplate=f'Total Importado: {row["cantidad"]}<br>Total Vendido %: 0%<extra></extra>',
+            marker=dict(color='pink')  # Set the color of the bars to pink
         ))
 
         # Add the 'cantidad vendida' line at x=0
