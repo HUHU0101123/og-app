@@ -353,8 +353,8 @@ else:
                  orientation='h')
 
     # Añadir una línea vertical en x=0 para representar la cantidad vendida
-    fig.add_vline(x=0, line_width=2, line_dash="dash", line_color="red")
-
+    fig.add_vline(x=0, line_width=2, line_dash="dash", line_color="white")
+    
     # Añadir una anotación para el texto "Cantidad vendida 0%"
     fig.add_annotation(
         x=0,
@@ -363,7 +363,7 @@ else:
         yref="paper",
         text="Cantidad vendida 0%",
         showarrow=False,
-        font=dict(size=12, color="red"),
+        font=dict(size=12, color="white"),
         align="center",
     )
 
