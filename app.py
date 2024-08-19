@@ -383,29 +383,6 @@ else:
 
 
 
-from st_aggrid import AgGrid, GridOptionsBuilder
-def create_nested_table(df):
-    # (Mantén la lógica de creación de tabla como en el ejemplo anterior)
-    ...
-
-nested_table = create_nested_table(df_importaciones)
-
-st.subheader("Detalle de Importaciones por Fecha")
-
-gb = GridOptionsBuilder.from_dataframe(nested_table)
-gb.configure_default_column(groupable=True, value=True, enableRowGroup=True, aggFunc='sum', editable=True)
-gb.configure_column("Fecha", pinned="left")
-gb.configure_column("Cantidad", type=["numericColumn", "numberColumnFilter", "customNumericFormat"], precision=0)
-gridOptions = gb.build()
-
-AgGrid(nested_table, 
-       gridOptions=gridOptions, 
-       enable_enterprise_modules=True, 
-       allow_unsafe_jscode=True, 
-       update_mode='model')
-
-
-
 from streamlit_expandable_table import table
 
 def create_nested_data(df):
