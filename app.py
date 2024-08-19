@@ -462,7 +462,15 @@ st.markdown("___")
 
 #SEGUNDO GRAFICO
 
-# Función para crear datos anidados
+# Supongamos que df_importaciones es tu DataFrame de importaciones
+# Ejemplo de DataFrame para ilustrar
+df_importaciones = pd.DataFrame({
+    'fecha_importacion': ['2024-08-01', '2024-08-01', '2024-08-02'],
+    'Categoria': ['Electrónica', 'Electrónica', 'Ropa'],
+    'Producto': ['Smartphone', 'Tablet', 'Camisa'],
+    'cantidad': [10, 5, 20]
+})
+
 def create_nested_data(df):
     nested_data = []
     for fecha in df['fecha_importacion'].unique():
@@ -480,15 +488,6 @@ def create_nested_data(df):
         })
     
     return nested_data
-
-# Suponiendo que df_importaciones es tu DataFrame de importaciones
-# df_importaciones = pd.read_csv('ruta_a_tu_archivo.csv')  # Ejemplo de carga de datos
-df_importaciones = pd.DataFrame({
-    'fecha_importacion': ['2024-08-01', '2024-08-01', '2024-08-02'],
-    'Categoria': ['Electrónica', 'Electrónica', 'Ropa'],
-    'Producto': ['Smartphone', 'Tablet', 'Camisa'],
-    'cantidad': [10, 5, 20]
-})
 
 # Crear un filtro de selección de SKU
 unique_skus = df_importaciones['Producto'].unique()
