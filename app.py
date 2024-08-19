@@ -462,25 +462,18 @@ st.markdown("___")
 
 #SEGUNDO GRAFICO
 
-# Supongamos que df_importaciones es tu DataFrame de importaciones
-# Ejemplo de DataFrame para ilustrar
-df_importaciones = pd.DataFrame({
-    'fecha_importacion': ['2024-08-01', '2024-08-01', '2024-08-02'],
-    'Categoria': ['Electrónica', 'Electrónica', 'Ropa'],
-    'Producto': ['Smartphone', 'Tablet', 'Camisa'],
-    'cantidad': [10, 5, 20]
-})
-
 def create_nested_data(df):
     nested_data = []
     for fecha in df['fecha_importacion'].unique():
         fecha_data = df[df['fecha_importacion'] == fecha]
         total_fecha = fecha_data['cantidad'].sum()
         
-        # Agrupar por categoría y producto, luego sumar las cantidades
+        # Agrupar por categoría y producto, y sumar las cantidades
         grouped_data = fecha_data.groupby(['Categoria', 'Producto']).agg({'cantidad': 'sum'}).reset_index()
-        grouped_data.rename(columns={'cantidad': 'Stock Inicial'}, inplace=True)
-
+        
+        # Asegurarse de que cada producto tiene un stock inicial (si no está en el dataframe, inicializar con 0)
+        grouped_data['Stock Inicial'] = grouped_data['cantidad']
+        
         nested_data.append({
             "Fecha": fecha,
             "Total": total_fecha,
@@ -489,31 +482,31 @@ def create_nested_data(df):
     
     return nested_data
 
-# Crear un filtro de selección de SKU
-unique_skus = df_importaciones['Producto'].unique()
-selected_skus = st.sidebar.multiselect('Selecciona los Productos', unique_skus, default=unique_skus)
-
-# Filtrar el DataFrame basado en los SKU seleccionados
-df_filtered = df_importaciones[df_importaciones['Producto'].isin(selected_skus)]
-
-# Actualizar los datos anidados con el DataFrame filtrado
-nested_data_filtered = create_nested_data(df_filtered)
+nested_data = create_nested_data(df_importaciones)
 
 st.markdown("**Detalle de Importaciones por Fecha**")
 
-# Mostrar los datos de manera expandible y ordenada
-for item in nested_data_filtered:
-    with st.expander(f"Fecha: {item['Fecha']}  |  **Total: {item['Total']}** unidades"):
-        st.markdown(f"**Fecha de Importación:** `{item['Fecha']}`")
-        st.markdown(f"**Total de Unidades Importadas:** `{item['Total']}`")
+# Crear un filtro de SKU para el producto externo
+sku_filter = st.text_input("Filtrar por SKU del Producto (dejar en blanco para todos)")
 
+# Mostrar los datos de manera expandible y ordenada
+for item in nested_data:
+    with st.expander(f"Fecha: {item['Fecha']}  |  **Total: {item['Total']}** unidades"):
+        st.markdown(f"**Fecha de Importación:** {item['Fecha']}")
+        st.markdown(f"**Total de Unidades Importadas:** {item['Total']}")
+
+        # Filtrar por SKU si se ha proporcionado un valor
+        if sku_filter:
+            filtered_details_df = item["Detalles"][item["Detalles"]['Producto'].str.contains(sku_filter, case=False, na=False)]
+        else:
+            filtered_details_df = item["Detalles"]
+        
         # Mostrar detalles en una tabla
         st.markdown("**Desglose por Categoría y Producto:**")
-        detalles_df = item["Detalles"].reset_index(drop=True)
-        detalles_df.columns = ["Categoría", "Producto", "Stock Inicial"]
+        filtered_details_df.columns = ["Categoría", "Producto", "Stock Inicial"]
 
         # Aplicar estilo al dataframe de detalles
-        styled_table = detalles_df.style.set_properties(**{
+        styled_table = filtered_details_df.style.set_properties(**{
             'background-color': '#f5f5f5',
             'color': '#333',
             'border-color': '#ffffff',
@@ -525,7 +518,6 @@ for item in nested_data_filtered:
         st.dataframe(styled_table, use_container_width=True)
 
 st.markdown("___")
-
 
 
 
