@@ -462,11 +462,6 @@ st.markdown("___")
 
 #SEGUNDO GRAFICO
 # Cargar los datos
-Entiendo. Gracias por proporcionar las columnas exactas de su archivo CSV. Vamos a ajustar el código para que coincida con estas columnas. Aquí está una versión actualizada del código que utiliza los nombres de columnas correctos:
-pythonCopyimport pandas as pd
-import streamlit as st
-
-# Cargar los datos
 try:
     df_importaciones = pd.read_csv('importaciones.csv')
 except FileNotFoundError:
