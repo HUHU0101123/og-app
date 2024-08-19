@@ -322,8 +322,8 @@ def load_importaciones():
         'STOCK_INICIAL': 'cantidad'
     })
     
-    # Convertir fecha_importacion a datetime y luego a formato YYYY-MM-DD
-    df_importaciones['fecha_importacion'] = pd.to_datetime(df_importaciones['fecha_importacion']).dt.strftime('%Y-%m-%d')
+    # Asegurarse de que la fecha_importacion sea de tipo date
+    df_importaciones['fecha_importacion'] = pd.to_datetime(df_importaciones['fecha_importacion']).dt.date
     
     return df_importaciones
 
@@ -337,77 +337,36 @@ else:
     # Mostrar la tabla de importaciones
     st.subheader("Resumen de Importaciones")
 
+    # Convertir fecha_importacion a string antes de agrupar
+    df_importaciones['fecha_importacion'] = df_importaciones['fecha_importacion'].astype(str)
+
     # Agrupar por fecha de importación y categoría
     importaciones_agrupadas = df_importaciones.groupby(['fecha_importacion', 'Categoria'])['cantidad'].sum().reset_index()
 
-    # Obtener todas las fechas únicas y ordenarlas
-    fechas_unicas = sorted(importaciones_agrupadas['fecha_importacion'].unique())
+    # Crear un gráfico de barras apiladas
+    fig = px.bar(importaciones_agrupadas, 
+                 x='fecha_importacion', 
+                 y='cantidad',
+                 color='Categoria',
+                 title="Importaciones por Fecha y Categoría",
+                 labels={'cantidad': 'Cantidad de Prendas', 'fecha_importacion': 'Fecha de Importación', 'Categoria': 'Categoría'})
 
-    # Crear el gráfico
-    fig = go.Figure()
-
-    # Definir una paleta de colores para las categorías
-    colores = px.colors.qualitative.Plotly
-
-    # Obtener todas las categorías únicas
-    categorias_unicas = importaciones_agrupadas['Categoria'].unique()
-
-    for i, fecha in enumerate(fechas_unicas):
-        datos_fecha = importaciones_agrupadas[importaciones_agrupadas['fecha_importacion'] == fecha]
-        
-        # Asegurarse de que todas las categorías estén representadas
-        for categoria in categorias_unicas:
-            if categoria not in datos_fecha['Categoria'].values:
-                datos_fecha = datos_fecha.append({'fecha_importacion': fecha, 'Categoria': categoria, 'cantidad': 0}, ignore_index=True)
-        
-        # Ordenar por categoría para consistencia en el apilamiento
-        datos_fecha = datos_fecha.sort_values('Categoria')
-        
-        # Añadir una barra horizontal apilada para cada fecha
-        fig.add_trace(go.Bar(
-            y=[fecha],
-            x=datos_fecha['cantidad'],
-            name=fecha,
-            orientation='h',
-            text=datos_fecha['Categoria'] + ': ' + datos_fecha['cantidad'].astype(str),
-            textposition='inside',
-            hoverinfo='text',
-            marker=dict(color=[colores[list(categorias_unicas).index(cat) % len(colores)] for cat in datos_fecha['Categoria']])
-        ))
-
-        # Calcular el total para esta fecha
-        total_fecha = datos_fecha['cantidad'].sum()
-
-        # Añadir marcador para "vendidos" (por ahora, igual al total)
-        fig.add_trace(go.Scatter(
-            x=[total_fecha],
-            y=[fecha],
-            mode='markers',
-            marker=dict(color='yellow', size=10, symbol='star'),
-            name=f'Vendidos {fecha} (0)'
-        ))
-
-    # Actualizar el diseño del gráfico
     fig.update_layout(
-        title="Importaciones por Fecha",
-        xaxis_title="Cantidad de Prendas",
-        yaxis_title="Fecha de Importación",
+        xaxis_title="Fecha de Importación",
+        yaxis_title="Cantidad de Prendas",
         barmode='stack',
-        height=100 + (len(fechas_unicas) * 50),  # Ajustar altura según número de fechas
-        showlegend=False,
-        yaxis={'categoryorder':'category ascending'}  # Ordenar fechas ascendentemente
+        xaxis={'type': 'category'}  # Esto fuerza a tratar las fechas como categorías discretas
     )
 
     st.plotly_chart(fig, use_container_width=True)
 
     # Mostrar resumen detallado
     st.subheader("Detalle de Importaciones por Fecha")
-    for fecha in fechas_unicas:
+    for fecha in importaciones_agrupadas['fecha_importacion'].unique():
         st.write(f"Fecha: {fecha}")
         datos_fecha = importaciones_agrupadas[importaciones_agrupadas['fecha_importacion'] == fecha]
         total_prendas = datos_fecha['cantidad'].sum()
         st.write(f"Total de prendas importadas: {total_prendas}")
         for _, row in datos_fecha.iterrows():
             st.write(f"- {row['Categoria']}: {row['cantidad']} prendas")
-        st.write("Vendidos: 0")
         st.write("---")
