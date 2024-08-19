@@ -468,6 +468,9 @@ except FileNotFoundError:
     st.error("No se pudo encontrar el archivo 'importaciones.csv'. Por favor, asegúrese de que el archivo existe en el directorio correcto.")
     st.stop()
 
+# Reemplazar valores vacíos en la columna PRODUCTO con "Sin especificar"
+df_importaciones['PRODUCTO'] = df_importaciones['PRODUCTO'].fillna('Sin especificar')
+
 # Crear un filtro para SKU del Producto
 skus = ['Todos'] + list(df_importaciones['SKU del Producto'].unique())
 selected_sku = st.selectbox("Seleccione SKU del Producto", skus)
@@ -512,7 +515,6 @@ for item in nested_data:
         # Mostrar detalles en una tabla
         st.markdown("**Desglose por Categoría y Producto:**")
         detalles_df = item["Detalles"]
-        # Aplicar estilo al dataframe de detalles
         st.dataframe(detalles_df, use_container_width=True)
 
 st.markdown("___")
