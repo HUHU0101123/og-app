@@ -357,10 +357,11 @@ else:
             y=[row['Categoria']],
             name=row['Categoria'],
             orientation='h',
-            hovertemplate=f'Total Importado: {row["cantidad"]}<br>Total Vendido: 0%<extra></extra>',
-            text=[row['cantidad']],  # Add text inside the bars
-            textposition='outside',  # Position text outside of bars
-            textfont=dict(size=14)  # Increase font size for better readability
+            text=[f'{row["cantidad"]}'],  # Add text inside the bars
+            texttemplate='%{text}',  # Ensure the full text is shown
+            textposition='inside',  # Position text inside the bars
+            textfont=dict(size=14, color='white'),  # Increase font size and color for contrast
+            hovertemplate=f'Total Importado: {row["cantidad"]}<br>Total Vendido: 0%<extra></extra>'
         ))
 
         # Add the 'cantidad vendida' line at x=0
@@ -412,6 +413,9 @@ else:
     )
 
     st.plotly_chart(fig, use_container_width=True)
+
+
+
 
 
 #TABLA IMPORTACIONES
