@@ -451,6 +451,18 @@ else:
             showlegend=False
         ))
 
+    # Add the 'cantidad vendida' line at x=0 with a descriptive name
+    fig.add_trace(go.Scatter(
+        x=[0],
+        y=[row['Categoria']],
+        mode='lines',
+        line=dict(color='red', dash='dash'),
+        name='Cantidad Vendida (0%)',  # Legend entry
+        showlegend=True
+             ))    
+
+
+    
     # Update layout with annotation
     fig.update_layout(
         title=f"Importaciones por Categoría para la Fecha: {fecha_seleccionada}",
