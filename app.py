@@ -464,12 +464,17 @@ st.markdown("___")
 
 def create_nested_data(df):
     nested_data = []
+    
+    # Verificar las columnas disponibles
+    available_columns = df.columns
+    groupby_columns = [col for col in ['Categoria', 'Producto', 'SKU'] if col in available_columns]
+    
     for fecha in df['fecha_importacion'].unique():
         fecha_data = df[df['fecha_importacion'] == fecha]
         total_fecha = fecha_data['cantidad'].sum()
         
-        # Agrupar por categoría y producto, y sumar las cantidades
-        grouped_data = fecha_data.groupby(['Categoria', 'Producto', 'SKU'])['cantidad'].sum().reset_index()
+        # Agrupar por las columnas disponibles
+        grouped_data = fecha_data.groupby(groupby_columns)['cantidad'].sum().reset_index()
         grouped_data = grouped_data.rename(columns={'cantidad': 'STOCK INICIAL'})
 
         nested_data.append({
@@ -480,13 +485,19 @@ def create_nested_data(df):
     
     return nested_data
 
+# Verificar las columnas del DataFrame
+print("Columnas disponibles en df_importaciones:", df_importaciones.columns)
+
 nested_data = create_nested_data(df_importaciones)
 
 st.markdown("**Detalle de Importaciones por Fecha**")
 
-# Filtro para SKU
-all_skus = sorted(df_importaciones['SKU'].unique())
-selected_skus = st.multiselect('Seleccionar SKU:', all_skus)
+# Filtro para SKU (si está disponible)
+if 'SKU' in df_importaciones.columns:
+    all_skus = sorted(df_importaciones['SKU'].unique())
+    selected_skus = st.multiselect('Seleccionar SKU:', all_skus)
+else:
+    selected_skus = []
 
 # Mostrar los datos de manera expandible y ordenada
 for item in nested_data:
@@ -498,8 +509,8 @@ for item in nested_data:
         st.markdown("**Desglose por Categoría, Producto y Stock Inicial:**")
         detalles_df = item["Detalles"]
         
-        # Filtrar por SKU seleccionados
-        if selected_skus:
+        # Filtrar por SKU seleccionados (si está disponible)
+        if 'SKU' in detalles_df.columns and selected_skus:
             detalles_df = detalles_df[detalles_df['SKU'].isin(selected_skus)]
 
         # Aplicar estilo al dataframe de detalles
@@ -517,15 +528,14 @@ for item in nested_data:
 st.markdown("___")
 
 # Gráfico
-if selected_skus:
+if 'SKU' in df_importaciones.columns and selected_skus:
     filtered_df = df_importaciones[df_importaciones['SKU'].isin(selected_skus)]
 else:
     filtered_df = df_importaciones
 
-fig = px.bar(filtered_df, x='fecha_importacion', y='cantidad', color='Categoria', 
+fig = px.bar(filtered_df, x='fecha_importacion', y='cantidad', 
+             color='Categoria' if 'Categoria' in filtered_df.columns else None, 
              title='Importaciones por Fecha y Categoría',
              labels={'fecha_importacion': 'Fecha de Importación', 'cantidad': 'Cantidad', 'Categoria': 'Categoría'})
 st.plotly_chart(fig)
-
-
 
