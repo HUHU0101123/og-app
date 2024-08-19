@@ -381,31 +381,7 @@ else:
         xaxis=dict(
             range=[-10, importaciones_agrupadas['cantidad'].max() * 1.1]
         ),
-        barmode='group',
-        annotations=[
-            dict(
-                x=0,
-                y=-0.5,  # Position annotation below the chart
-                xref='x',
-                yref='paper',
-                text="La línea blanca indica la 'Cantidad Vendida' al 0% para cada categoría.",
-                showarrow=False,
-                font=dict(size=12, color="white"),
-                align="center",
-                bgcolor="rgba(0, 0, 0, 0.7)"
-            ),
-            dict(
-                x=1,
-                y=-0.5,  # Position annotation below the chart
-                xref='x',
-                yref='paper',
-                text="Nota: La línea blanca representa la 'Cantidad Vendida' (0%).",
-                showarrow=False,
-                font=dict(size=12, color="white"),
-                align="center",
-                bgcolor="rgba(0, 0, 0, 0.7)"
-            )
-        ]
+        barmode='group'
     )
 
     st.plotly_chart(fig, use_container_width=True)
