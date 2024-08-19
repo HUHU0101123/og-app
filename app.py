@@ -336,11 +336,11 @@ else:
     # Mostrar la tabla de importaciones
     st.subheader("Resumen de Importaciones")
 
+    # Convertir fecha_importacion a string antes de agrupar
+    df_importaciones['fecha_importacion'] = df_importaciones['fecha_importacion'].astype(str)
+
     # Agrupar por fecha de importación y categoría
     importaciones_agrupadas = df_importaciones.groupby(['fecha_importacion', 'Categoria'])['cantidad'].sum().reset_index()
-
-    # Formatear la fecha en el formato deseado
-    importaciones_agrupadas['fecha_importacion'] = importaciones_agrupadas['fecha_importacion'].dt.strftime('%d-%m-%Y')
 
     # Crear un gráfico de barras apiladas
     fig = px.bar(importaciones_agrupadas, 
