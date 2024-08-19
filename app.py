@@ -469,25 +469,34 @@ except FileNotFoundError:
     st.stop()
 
 # Crear un filtro para SKU del Producto
-skus = df_importaciones['SKU del Producto'].unique()
+skus = ['Todos'] + list(df_importaciones['SKU del Producto'].unique())
 selected_sku = st.selectbox("Seleccione SKU del Producto", skus)
 
 # Filtrar el dataframe basado en el SKU seleccionado
-df_filtered = df_importaciones[df_importaciones['SKU del Producto'] == selected_sku]
+if selected_sku == 'Todos':
+    df_filtered = df_importaciones
+else:
+    df_filtered = df_importaciones[df_importaciones['SKU del Producto'] == selected_sku]
+
+# Agrupar los datos por CATEGORIA, PRODUCTO y calcular el STOCK INICIAL total
+grouped_data = df_filtered.groupby(['CATEGORIA', 'PRODUCTO'])['STOCK INICIAL'].sum().reset_index()
 
 # Mostrar la tabla con la información requerida
-st.markdown("**Información del Producto**")
-info_table = df_filtered[['CATEGORIA', 'PRODUCTO', 'STOCK INICIAL']].drop_duplicates()
-st.dataframe(info_table, use_container_width=True)
+st.markdown("**Información de Productos**")
+st.dataframe(grouped_data, use_container_width=True)
+
+# Calcular el total de STOCK INICIAL
+total_stock = grouped_data['STOCK INICIAL'].sum()
+st.markdown(f"**Total de Stock Inicial:** {total_stock}")
 
 def create_nested_data(df):
     nested_data = []
     for fecha in df['Fecha_Importacion'].unique():
         fecha_data = df[df['Fecha_Importacion'] == fecha]
-        total_fecha = len(fecha_data)  # Contamos el número de filas como cantidad
+        total_fecha = fecha_data['STOCK INICIAL'].sum()
         
-        # Agrupar por categoría y contar las filas
-        grouped_data = fecha_data.groupby('CATEGORIA').size().reset_index(name='cantidad')
+        # Agrupar por categoría y sumar el STOCK INICIAL
+        grouped_data = fecha_data.groupby('CATEGORIA')['STOCK INICIAL'].sum().reset_index()
         nested_data.append({
             "Fecha": fecha,
             "Total": total_fecha,
@@ -503,11 +512,11 @@ st.markdown("**Detalle de Importaciones por Fecha**")
 for item in nested_data:
     with st.expander(f"Fecha: {item['Fecha']}  |  **Total: {item['Total']}** unidades"):
         st.markdown(f"**Fecha de Importación:** `{item['Fecha']}`")
-        st.markdown(f"**Total de Unidades Importadas:** `{item['Total']}`")
+        st.markdown(f"**Total de Stock Inicial:** `{item['Total']}`")
         # Mostrar detalles en una tabla
         st.markdown("**Desglose por Categoría:**")
         detalles_df = item["Detalles"]
-        detalles_df.columns = ["Categoría", "Cantidad"]
+        detalles_df.columns = ["Categoría", "Stock Inicial"]
         # Aplicar estilo al dataframe de detalles
         styled_table = detalles_df.style.set_properties(**{
             'background-color': '#f5f5f5',
