@@ -441,12 +441,12 @@ else:
 
         # Add the 'cantidad vendida' line at x=0
         fig.add_trace(go.Scatter(
-            x=[0],
-            y=[row['Categoria']],
+            x=[0],  # X position of the line
+            y=[row['Categoria']],  # Y position of the line
             mode='lines+text',
             line=dict(color='red', dash='dash'),
             name='Cantidad Vendida (0%)',
-            text=['0%'],  # Label to show the value
+            text=['0%'],  # Text to display on the line
             textposition='top right',
             showlegend=False
         ))
@@ -467,7 +467,7 @@ else:
                 y=-0.5,  # Position annotation below the chart
                 xref='x',
                 yref='paper',
-                text="La línea roja indica la 'Cantidad Vendida' (0%) para cada categoría.",
+                text="La línea roja representa la 'Cantidad Vendida' al 0% para cada categoría.",
                 showarrow=False,
                 font=dict(size=12, color="black"),
                 align="center",
@@ -477,7 +477,6 @@ else:
     )
 
     st.plotly_chart(fig, use_container_width=True)
-
 
 
 
