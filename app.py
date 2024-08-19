@@ -304,10 +304,20 @@ fig = px.bar(
 )
 st.plotly_chart(fig, use_container_width=True)
 
+
 # Descuentos por categoría
 discounts_by_category = filtered_df.groupby('Categoria')['Descuento del producto'].sum().sort_values(ascending=False)
-fig = px.bar(discounts_by_category, x=discounts_by_category.index, y=discounts_by_category.values, title="Descuentos por Categoría")
-st.plotly_chart(fig, use_container_width=True)
+# Convertir la Series a un DataFrame para Plotly
+discounts_by_category_df = discounts_by_category.reset_index()
+discounts_by_category_df.columns = ['Categoría', 'Descuento del Producto']
+# Crear el gráfico de barras
+fig = px.bar(
+    discounts_by_category_df,
+    x='Categoría',
+    y='Descuento del Producto',
+    title="Descuentos por Categoría"
+)
+
 
 # Tabla de datos
 st.subheader("Datos Detallados")
