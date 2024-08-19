@@ -4,6 +4,10 @@ import plotly.express as px
 from datetime import datetime
 import plotly.graph_objects as go
 
+def show():
+    # Tu código para la página de ventas aquí
+    st.title("Dashboard de Ventas")
+
 # Configuración de la página
 st.set_page_config(page_title="Dashboard de Ventas", layout="wide")
 
