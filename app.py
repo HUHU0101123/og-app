@@ -398,7 +398,7 @@ def create_nested_data(df):
 
 nested_data = create_nested_data(df_importaciones)
 
-st.markdown("## 📊 **Detalle de Importaciones por Fecha**")
+st.markdown("**Detalle de Importaciones por Fecha**")
 
 # Mostrar los datos de manera expandible y ordenada
 for item in nested_data:
