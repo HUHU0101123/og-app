@@ -292,7 +292,16 @@ with col2:
 
 # Top productos vendidos
 top_products = filtered_df.groupby('SKU del Producto')['Cantidad de Productos'].sum().sort_values(ascending=False).head(10)
-fig = px.bar(top_products, x=top_products.index, y=top_products.values, title="Top 10 Productos Más Vendidos")
+# Convertir la Series a un DataFrame para Plotly
+top_products_df = top_products.reset_index()
+top_products_df.columns = ['SKU del Producto', 'Cantidad de Productos']
+# Crear el gráfico de barras
+fig = px.bar(
+    top_products_df,
+    x='SKU del Producto',
+    y='Cantidad de Productos',
+    title="Top 10 Productos Más Vendidos"
+)
 st.plotly_chart(fig, use_container_width=True)
 
 # Descuentos por categoría
