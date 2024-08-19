@@ -308,85 +308,46 @@ st.dataframe(filtered_df)
 
 #SEGUNDO GRAFICO
 
-@st.cache_data
-def load_importaciones():
-    version = datetime.now().strftime("%Y%m%d%H%M%S")
-    url_importaciones = f"https://raw.githubusercontent.com/HUHU0101123/og-app/main/importaciones.csv?v={version}"
-    df_importaciones = pd.read_csv(url_importaciones)
-    
-    # Clean and rename columns
-    df_importaciones.columns = df_importaciones.columns.str.strip().str.upper().str.replace(' ', '_')
-    df_importaciones = df_importaciones.rename(columns={
-        'FECHA_IMPORTACION': 'fecha_importacion',
-        'CATEGORIA': 'Categoria',
-        'STOCK_INICIAL': 'cantidad'
-    })
-    
-    # Ensure fecha_importacion is of type date
-    df_importaciones['fecha_importacion'] = pd.to_datetime(df_importaciones['fecha_importacion']).dt.date
-    
-    return df_importaciones
+# Create the bar chart
+fig = go.Figure()
 
-# Load importaciones data
-df_importaciones = load_importaciones()
+# Add bars for each category
+for _, row in importaciones_agrupadas.iterrows():
+    fig.add_trace(go.Bar(
+        x=[row['cantidad']],
+        y=[row['Categoria']],
+        name=row['Categoria'],
+        orientation='h',
+        text=[row['cantidad']],
+        textposition='inside',
+        hoverinfo='none'  # Disable hover information
+    ))
 
-if df_importaciones.empty:
-    st.warning("No se pudieron cargar datos de importaciones.")
-else:
-    st.subheader("Resumen de Importaciones")
+    # Add the 'cantidad vendida' line at x=0
+    fig.add_trace(go.Scatter(
+        x=[0],
+        y=[row['Categoria']],
+        mode='lines+text',
+        line=dict(color='white', dash='dash'),
+        name='Cantidad Vendida (0%)',
+        text=['0%'],
+        textposition='top right',
+        showlegend=False,
+        hoverinfo='none'  # Disable hover information
+    ))
 
-    # Convert fecha_importacion to string before grouping
-    df_importaciones['fecha_importacion'] = df_importaciones['fecha_importacion'].astype(str)
-
-    # Add a filter for fecha_importacion
-    fechas = df_importaciones['fecha_importacion'].unique()
-    fecha_seleccionada = st.selectbox("Seleccionar Fecha de Importación", fechas)
-
-    # Filter the data based on selected fecha_importacion
-    df_filtrado = df_importaciones[df_importaciones['fecha_importacion'] == fecha_seleccionada]
-
-    # Group by categoria
-    importaciones_agrupadas = df_filtrado.groupby(['Categoria'])['cantidad'].sum().reset_index()
-
-    # Create the bar chart
-    fig = go.Figure()
-
-    # Add bars for each category
-    for _, row in importaciones_agrupadas.iterrows():
-        fig.add_trace(go.Bar(
-            x=[row['cantidad']],
-            y=[row['Categoria']],
-            name=row['Categoria'],
-            orientation='h',
-            text=[row['cantidad']],  # Display the quantity directly on the bar
-            textposition='inside'  # Display the text inside the bars
-        ))
-
-        # Add the 'cantidad vendida' line at x=0
-        fig.add_trace(go.Scatter(
-            x=[0],  # X position of the line
-            y=[row['Categoria']],  # Y position of the line
-            mode='lines+text',
-            line=dict(color='white', dash='dash'),
-            name='Cantidad Vendida (0%)',
-            text=['0%'],  # Text to display on the line
-            textposition='top right',
-            showlegend=False
-        ))
-
-    # Update layout without annotations
-    fig.update_layout(
-        title="Importaciones por Categoría y % Vendido",
-        xaxis_title="Cantidad de Prendas",
-        yaxis_title="Categoría",
-        yaxis=dict(type='category'),
-        xaxis=dict(
-            range=[-10, importaciones_agrupadas['cantidad'].max() * 1.1]
-        ),
-        barmode='group'
-    )
-
-    st.plotly_chart(fig, use_container_width=True)
+# Update layout
+fig.update_layout(
+    title="Importaciones por Categoría y % Vendido",
+    xaxis_title="Cantidad de Prendas",
+    yaxis_title="Categoría",
+    yaxis=dict(type='category'),
+    xaxis=dict(
+        range=[-10, importaciones_agrupadas['cantidad'].max() * 1.1]
+    ),
+    barmode='group',
+    hovermode=False  # Disable hover mode for the entire chart
+)
 
 
 
