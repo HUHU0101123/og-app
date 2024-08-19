@@ -307,7 +307,7 @@ st.dataframe(filtered_df)
 
 
 #SEGUNDO GRAFICO
-@st.cache_data(allow_output_mutation=True)
+@st.cache_data
 def load_importaciones():
     version = datetime.now().strftime("%Y%m%d%H%M%S")
     url_importaciones = f"https://raw.githubusercontent.com/HUHU0101123/og-app/main/importaciones.csv?v={version}"
