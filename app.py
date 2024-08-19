@@ -387,11 +387,6 @@ else:
 
 #Segundo Grafico
 
-import pandas as pd
-import plotly.graph_objects as go
-import streamlit as st
-from datetime import datetime
-
 @st.cache_data
 def load_importaciones():
     version = datetime.now().strftime("%Y%m%d%H%M%S")
