@@ -357,7 +357,9 @@ else:
             y=[row['Categoria']],
             name=row['Categoria'],
             orientation='h',
-            hoverinfo='skip'  # Desactiva las tooltips para las barras
+            hoverinfo='skip',  # Desactiva las tooltips para las barras
+            text=[row['cantidad']],  # Muestra la cantidad al final de la barra
+            textposition='outside'  # Posiciona el texto al final de la barra
         ))
 
         # Add the 'cantidad vendida' line at x=0
