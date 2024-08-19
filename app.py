@@ -322,8 +322,8 @@ def load_importaciones():
         'STOCK_INICIAL': 'cantidad'
     })
     
-    # Asegurarse de que la fecha_importacion sea de tipo date
-    df_importaciones['fecha_importacion'] = pd.to_datetime(df_importaciones['fecha_importacion']).dt.date
+    # Asegurarse de que la fecha_importacion sea de tipo date y luego convertirla a string en formato YYYY-MM-DD
+    df_importaciones['fecha_importacion'] = pd.to_datetime(df_importaciones['fecha_importacion']).dt.strftime('%Y-%m-%d')
     
     return df_importaciones
 
@@ -337,39 +337,51 @@ else:
     # Mostrar la tabla de importaciones
     st.subheader("Resumen de Importaciones")
 
-    # Convertir fecha_importacion a string
-    df_importaciones['fecha_importacion'] = df_importaciones['fecha_importacion'].astype(str)
-
-    # Agrupar por fecha de importación
-    importaciones_agrupadas = df_importaciones.groupby('fecha_importacion')['cantidad'].sum().reset_index()
+    # Agrupar por fecha de importación y categoría
+    importaciones_agrupadas = df_importaciones.groupby(['fecha_importacion', 'Categoria'])['cantidad'].sum().reset_index()
 
     # Crear el gráfico
     fig = go.Figure()
 
-    # Añadir barras para cada fecha de importación
-    fig.add_trace(go.Bar(
-        x=importaciones_agrupadas['fecha_importacion'],
-        y=importaciones_agrupadas['cantidad'],
-        name='Total Importado',
-        text=importaciones_agrupadas['cantidad'],
-        textposition='outside'
-    ))
+    # Obtener fechas únicas
+    fechas_unicas = importaciones_agrupadas['fecha_importacion'].unique()
 
-    # Añadir una línea para "vendidos" (por ahora, en la parte superior de cada barra)
-    fig.add_trace(go.Scatter(
-        x=importaciones_agrupadas['fecha_importacion'],
-        y=importaciones_agrupadas['cantidad'],
-        mode='markers',
-        marker=dict(color='yellow', size=10, symbol='star'),
-        name='Vendidos (0)'
-    ))
+    for fecha in fechas_unicas:
+        datos_fecha = importaciones_agrupadas[importaciones_agrupadas['fecha_importacion'] == fecha]
+        
+        # Añadir una barra horizontal apilada para cada fecha
+        fig.add_trace(go.Bar(
+            y=[fecha],
+            x=datos_fecha['cantidad'],
+            name=fecha,
+            orientation='h',
+            text=datos_fecha['Categoria'] + ': ' + datos_fecha['cantidad'].astype(str),
+            textposition='inside',
+            hoverinfo='text',
+            marker=dict(
+                color=datos_fecha['Categoria'].astype('category').cat.codes,
+                colorscale='Viridis'
+            )
+        ))
+
+        # Calcular el total para esta fecha
+        total_fecha = datos_fecha['cantidad'].sum()
+
+        # Añadir marcador para "vendidos" (por ahora, igual al total)
+        fig.add_trace(go.Scatter(
+            x=[total_fecha],
+            y=[fecha],
+            mode='markers',
+            marker=dict(color='yellow', size=10, symbol='star'),
+            name=f'Vendidos {fecha} (0)'
+        ))
 
     # Actualizar el diseño del gráfico
     fig.update_layout(
         title="Importaciones por Fecha",
-        xaxis_title="Fecha de Importación",
-        yaxis_title="Cantidad de Prendas",
-        barmode='group',
+        xaxis_title="Cantidad de Prendas",
+        yaxis_title="Fecha de Importación",
+        barmode='stack',
         height=500,
         showlegend=True
     )
@@ -378,8 +390,12 @@ else:
 
     # Mostrar resumen detallado
     st.subheader("Detalle de Importaciones por Fecha")
-    for _, row in importaciones_agrupadas.iterrows():
-        st.write(f"Fecha: {row['fecha_importacion']}")
-        st.write(f"Total de prendas importadas: {row['cantidad']}")
+    for fecha in fechas_unicas:
+        st.write(f"Fecha: {fecha}")
+        datos_fecha = importaciones_agrupadas[importaciones_agrupadas['fecha_importacion'] == fecha]
+        total_prendas = datos_fecha['cantidad'].sum()
+        st.write(f"Total de prendas importadas: {total_prendas}")
+        for _, row in datos_fecha.iterrows():
+            st.write(f"- {row['Categoria']}: {row['cantidad']} prendas")
         st.write("Vendidos: 0")
         st.write("---")
