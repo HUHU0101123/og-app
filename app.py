@@ -356,8 +356,7 @@ else:
             x=[row['cantidad']],
             y=[row['Categoria']],
             name=row['Categoria'],
-            orientation='h',
-            hovertemplate=f'Total Importado: {row["cantidad"]}<br>Total Vendido %: 0%<extra></extra>'
+            orientation='h'
         ))
 
         # Add the 'cantidad vendida' line at x=0
@@ -372,9 +371,9 @@ else:
             showlegend=False
         ))
 
-    # Update layout with annotation
+    # Update layout without annotations
     fig.update_layout(
-        title=f"Importaciones por Categoría y % Vendido",
+        title="Importaciones por Categoría y % Vendido",
         xaxis_title="Cantidad de Prendas",
         yaxis_title="Categoría",
         yaxis=dict(type='category'),
