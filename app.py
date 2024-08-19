@@ -308,7 +308,24 @@ st.dataframe(filtered_df)
 
 @st.cache_data
 def load_importaciones():
-    # ... (el código de la función permanece igual)
+    version = datetime.now().strftime("%Y%m%d%H%M%S")
+    url_importaciones = f"https://raw.githubusercontent.com/HUHU0101123/og-app/main/importaciones.csv?v={version}"
+    df_importaciones = pd.read_csv(url_importaciones)
+    
+    # Limpiar los nombres de las columnas
+    df_importaciones.columns = df_importaciones.columns.str.strip().str.upper().str.replace(' ', '_')
+    
+    # Renombrar las columnas
+    df_importaciones = df_importaciones.rename(columns={
+        'FECHA_IMPORTACION': 'fecha_importacion',
+        'CATEGORIA': 'Categoria',
+        'STOCK_INICIAL': 'cantidad'
+    })
+    
+    # Asegurarse de que la fecha_importacion sea de tipo date
+    df_importaciones['fecha_importacion'] = pd.to_datetime(df_importaciones['fecha_importacion']).dt.date
+    
+    return df_importaciones
 
 # Cargar los datos de importaciones
 df_importaciones = load_importaciones()
