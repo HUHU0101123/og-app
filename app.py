@@ -38,6 +38,11 @@ def preprocess_data(df_main, df_categorias):
     df['Total Productos'] = df.groupby('ID')['Cantidad de Productos'].transform('sum')
     df['Tipo de Venta'] = df['Total Productos'].apply(lambda x: 'Mayorista' if x >= 6 else 'Detalle')
     df['Ventas Netas'] = (df['Precio del Producto'] - df['Descuento del producto']) * df['Cantidad de Productos']
+    
+    # Verificar si la columna 'Producto' existe
+    if 'Producto' not in df.columns:
+        st.error("La columna 'Producto' no se encuentra en el DataFrame. Verifica el procesamiento de datos.")
+    
     return df
 
 # Cargar y preprocesar los datos
@@ -74,179 +79,29 @@ if regions:  # Filtrar por Región de Envío
 
 filtered_df = df[mask]
 
-# Calcular las ventas totales
-ventas_totales = (filtered_df['Precio del Producto'] * filtered_df['Cantidad de Productos']).sum()
-
-# Calcular ventas netas después de impuestos
-ventas_netas = filtered_df['Ventas Netas'].sum()
-ventas_netas_despues_impuestos = ventas_netas * (1 - 0.19)
-
-# Calcular el costo del producto
-filtered_df['Precio Neto del Producto'] = filtered_df['Precio del Producto'] - filtered_df['Descuento del producto']
-filtered_df['Costo del Producto'] = filtered_df['Precio Neto del Producto'] * (1 - filtered_df['Margen del producto (%)'] / 100)
-costo_total = (filtered_df['Costo del Producto'] * filtered_df['Cantidad de Productos']).sum()
-
-# Calcular el beneficio bruto
-beneficio_bruto = ventas_netas - costo_total
-
-# Calcular el beneficio bruto después de impuestos
-beneficio_bruto_despues_impuestos = beneficio_bruto * (1 - 0.19)
-
-# Calcular el margen
-margen_bruto = (beneficio_bruto / ventas_netas) * 100
-
-# Resumen de Ventas
-st.header("Resumen de Ventas")
-col1, col2, col3, col4 = st.columns(4)
-
-# Ventas Totales
-col1.markdown(
-    f"""
-    <div style="background-color: #D3D3D3; padding: 10px; border-radius: 5px; text-align: center;">
-        <strong style="color: black;">Ventas Totales</strong><br>
-        <span style="color: black;">{format_chilean_currency(ventas_totales)}</span>
-        <p style='font-size:10px; color: black;'>Ingresos totales antes de descuentos y ajustes.</p>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
-
-# Descuentos Aplicados
-col2.markdown(
-    f"""
-    <div style="background-color: #D3D3D3; padding: 10px; border-radius: 5px; text-align: center;">
-        <strong style="color: black;">Descuentos Aplicados</strong><br>
-        <span style="color: black;">{format_chilean_currency(filtered_df['Descuento del producto'].sum())}</span>
-        <p style='font-size:10px; color: black;'>Total de descuentos otorgados en ventas.</p>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
-
-# Ventas Netas
-col3.markdown(
-    f"""
-    <div style="background-color: #D3D3D3; padding: 10px; border-radius: 5px; text-align: center;">
-        <strong style="color: black;">Ventas Netas</strong><br>
-        <span style="color: black;">{format_chilean_currency(ventas_netas)}</span>
-        <p style='font-size:10px; color: black;'>Ventas totales menos descuentos.</p>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
-
-# Ventas Netas Después de Impuestos
-col4.markdown(
-    f"""
-    <div style="background-color: #D3D3D3; padding: 10px; border-radius: 5px; text-align: center;">
-        <strong style="color: black;">Ventas Netas Después de Impuestos</strong><br>
-        <span style="color: black;">{format_chilean_currency(ventas_netas_despues_impuestos)}</span>
-        <p style='font-size:10px; color: black;'>Ventas netas menos impuestos del 19%.</p>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
-
-# Métricas Adicionales
-st.header("Métricas Adicionales")
-col1, col2, col3, col4 = st.columns(4)
-
-# Cantidad de Órdenes
-col1.markdown(
-    f"""
-    <div style="background-color: #D3D3D3; padding: 10px; border-radius: 5px; text-align: center;">
-        <strong style="color: black;">Cantidad de Órdenes</strong><br>
-        <span style="color: black;">{filtered_df['ID'].nunique()}</span>
-        <p style='font-size:10px; color: black;'>Total de órdenes procesadas.</p>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
-
-# Ganancia Bruta
-col2.markdown(
-    f"""
-    <div style="background-color: #D3D3D3; padding: 10px; border-radius: 5px; text-align: center;">
-        <strong style="color: black;">Ganancia Bruta</strong><br>
-        <span style="color: black;">{format_chilean_currency(beneficio_bruto)}</span>
-        <p style='font-size:10px; color: black;'>Ventas netas menos costos de adquisición del producto.</p>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
-
-# Ganancia Bruta Después de Impuestos
-col3.markdown(
-    f"""
-    <div style="background-color: #D3D3D3; padding: 10px; border-radius: 5px; text-align: center;">
-        <strong style="color: black;">Ganancia Bruta Después de Impuestos</strong><br>
-        <span style="color: black;">{format_chilean_currency(beneficio_bruto_despues_impuestos)}</span>
-        <p style='font-size:10px; color: black;'>Ganancia bruta después de impuestos del 19%.</p>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
-
-# Margen Bruto
-col4.markdown(
-    f"""
-    <div style="background-color: #D3D3D3; padding: 10px; border-radius: 5px; text-align: center;">
-        <strong style="color: black;">Margen Bruto</strong><br>
-        <span style="color: black;">{margen_bruto:.2f}%</span>
-        <p style='font-size:10px; color: black;'>Porcentaje de ganancia sobre las ventas netas.</p>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
-
-# Gráfico de Ventas por Categoría
-st.header("Ventas por Categoría")
-ventas_por_categoria = filtered_df.groupby('Categoria')['Ventas Netas'].sum().sort_values(ascending=False)
-ventas_por_categoria_df = ventas_por_categoria.reset_index()
-ventas_por_categoria_df.columns = ['Categoría', 'Ventas Netas']
-
-fig_ventas_categoria = px.bar(
-    ventas_por_categoria_df,
-    x='Categoría',
-    y='Ventas Netas',
-    title="Ventas por Categoría",
-    labels={'Ventas Netas': 'Ventas Netas'}
-)
-
-st.plotly_chart(fig_ventas_categoria, use_container_width=True)
+# Verificar columnas disponibles
+st.write("Columnas disponibles en el DataFrame filtrado:", filtered_df.columns)
 
 # Gráfico de Top Productos Más Vendidos
 st.header("Top 10 Productos Más Vendidos")
-top_products = filtered_df.groupby('Producto')['Cantidad de Productos'].sum().sort_values(ascending=False).head(10)
-top_products_df = top_products.reset_index()
-top_products_df.columns = ['Producto', 'Cantidad Vendida']
 
-fig_top_products = px.bar(
-    top_products_df,
-    x='Producto',
-    y='Cantidad Vendida',
-    title="Top 10 Productos Más Vendidos",
-    labels={'Cantidad Vendida': 'Cantidad Vendida'}
-)
+# Verificar si la columna 'Producto' existe
+if 'Producto' in filtered_df.columns:
+    top_products = filtered_df.groupby('Producto')['Cantidad de Productos'].sum().sort_values(ascending=False).head(10)
+    top_products_df = top_products.reset_index()
+    top_products_df.columns = ['Producto', 'Cantidad Vendida']
 
-st.plotly_chart(fig_top_products, use_container_width=True)
+    fig_top_products = px.bar(
+        top_products_df,
+        x='Producto',
+        y='Cantidad Vendida',
+        title="Top 10 Productos Más Vendidos",
+        labels={'Cantidad Vendida': 'Cantidad Vendida'}
+    )
 
-# Gráfico de Descuentos por Categoría
-st.header("Descuentos por Categoría")
-discounts_by_category = filtered_df.groupby('Categoria')['Descuento del producto'].sum().sort_values(ascending=False)
-discounts_by_category_df = discounts_by_category.reset_index()
-discounts_by_category_df.columns = ['Categoría', 'Descuento del Producto']
-
-fig_discounts_category = px.bar(
-    discounts_by_category_df,
-    x='Categoría',
-    y='Descuento del Producto',
-    title="Descuentos por Categoría",
-    labels={'Descuento del Producto': 'Descuento del Producto'}
-)
-
-st.plotly_chart(fig_discounts_category, use_container_width=True)
-
+    st.plotly_chart(fig_top_products, use_container_width=True)
+else:
+    st.error("No se pudo generar el gráfico de Top 10 Productos Más Vendidos debido a la falta de la columna 'Producto'.")
 
 #Primer Grafico Importaciones
 
