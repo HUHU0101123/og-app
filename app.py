@@ -381,17 +381,19 @@ else:
 
 
 
-
 def create_nested_data(df):
     nested_data = []
     for fecha in df['fecha_importacion'].unique():
         fecha_data = df[df['fecha_importacion'] == fecha]
         total_fecha = fecha_data['cantidad'].sum()
         
+        # Agrupar por categoría y sumar las cantidades
+        grouped_data = fecha_data.groupby('Categoria').agg({'cantidad': 'sum'}).reset_index()
+
         nested_data.append({
             "Fecha": fecha,
             "Total": total_fecha,
-            "Detalles": fecha_data[['Categoria', 'cantidad']]
+            "Detalles": grouped_data
         })
     
     return nested_data
@@ -424,7 +426,6 @@ for item in nested_data:
         st.dataframe(styled_table, use_container_width=True)
 
 st.markdown("___")
-
 
 
 
