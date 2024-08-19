@@ -517,15 +517,6 @@ for item in nested_data:
         st.markdown("**Desglose por Categoría y Producto:**")
         detalles_df = item["Detalles"]
         # Aplicar estilo al dataframe de detalles
-        styled_table = detalles_df.style.set_properties(**{
-            'background-color': '#f5f5f5',
-            'color': '#333',
-            'border-color': '#ffffff',
-            'border-width': '1px',
-            'border-style': 'solid',
-            'font-size': '14px',
-            'text-align': 'left'
-        }).hide_index()
-        st.dataframe(styled_table, use_container_width=True)
+        st.dataframe(detalles_df, use_container_width=True)
 
 st.markdown("___")
