@@ -304,68 +304,9 @@ st.plotly_chart(fig, use_container_width=True)
 st.subheader("Datos Detallados")
 st.dataframe(filtered_df)
 
+
+
 #SEGUNDO GRAFICO
-# Cargar los datos
-try:
-    df_importaciones = pd.read_csv('importaciones.csv')
-except FileNotFoundError:
-    st.error("No se pudo encontrar el archivo 'importaciones.csv'. Por favor, asegúrese de que el archivo existe en el directorio correcto.")
-    st.stop()
-
-# Reemplazar valores vacíos en la columna PRODUCTO con "Sin especificar"
-df_importaciones['PRODUCTO'] = df_importaciones['PRODUCTO'].fillna('Sin especificar')
-
-# Crear un filtro para SKU del Producto
-skus = ['Todos'] + list(df_importaciones['SKU del Producto'].unique())
-selected_sku = st.selectbox("Seleccione SKU del Producto", skus)
-
-# Filtrar el dataframe basado en el SKU seleccionado
-if selected_sku == 'Todos':
-    df_filtered = df_importaciones
-else:
-    df_filtered = df_importaciones[df_importaciones['SKU del Producto'] == selected_sku]
-
-# Agrupar los datos por CATEGORIA, PRODUCTO y calcular el STOCK INICIAL total
-grouped_data = df_filtered.groupby(['CATEGORIA', 'PRODUCTO'])['STOCK INICIAL'].sum().reset_index()
-
-# Calcular el total de STOCK INICIAL
-total_stock = grouped_data['STOCK INICIAL'].sum()
-st.markdown(f"**Total de Stock Inicial:** {total_stock}")
-
-def create_nested_data(df):
-    nested_data = []
-    for fecha in df['Fecha_Importacion'].unique():
-        fecha_data = df[df['Fecha_Importacion'] == fecha]
-        total_fecha = fecha_data['STOCK INICIAL'].sum()
-        
-        # Agrupar por categoría, producto y sumar el STOCK INICIAL
-        grouped_data = fecha_data.groupby(['CATEGORIA', 'PRODUCTO'])['STOCK INICIAL'].sum().reset_index()
-        nested_data.append({
-            "Fecha": fecha,
-            "Total": total_fecha,
-            "Detalles": grouped_data
-        })
-    
-    return nested_data
-
-nested_data = create_nested_data(df_filtered)
-
-st.markdown("**Detalle de Importaciones por Fecha**")
-# Mostrar los datos de manera expandible y ordenada
-for item in nested_data:
-    with st.expander(f"Fecha: {item['Fecha']}  |  **Total: {item['Total']}** unidades"):
-        st.markdown(f"**Fecha de Importación:** `{item['Fecha']}`")
-        st.markdown(f"**Total de Stock Inicial:** `{item['Total']}`")
-        # Mostrar detalles en una tabla
-        st.markdown("**Desglose por Categoría y Producto:**")
-        detalles_df = item["Detalles"]
-        st.dataframe(detalles_df, use_container_width=True)
-
-st.markdown("___")
-
-
-
-
 @st.cache_data
 def load_importaciones():
     version = datetime.now().strftime("%Y%m%d%H%M%S")
@@ -468,3 +409,68 @@ else:
     )
 
     st.plotly_chart(fig, use_container_width=True)
+
+
+#TABLA IMPORTACIONES
+# Cargar los datos
+try:
+    df_importaciones = pd.read_csv('importaciones.csv')
+except FileNotFoundError:
+    st.error("No se pudo encontrar el archivo 'importaciones.csv'. Por favor, asegúrese de que el archivo existe en el directorio correcto.")
+    st.stop()
+
+# Reemplazar valores vacíos en la columna PRODUCTO con "Sin especificar"
+df_importaciones['PRODUCTO'] = df_importaciones['PRODUCTO'].fillna('Sin especificar')
+
+# Crear un filtro para SKU del Producto
+skus = ['Todos'] + list(df_importaciones['SKU del Producto'].unique())
+selected_sku = st.selectbox("Seleccione SKU del Producto", skus)
+
+# Filtrar el dataframe basado en el SKU seleccionado
+if selected_sku == 'Todos':
+    df_filtered = df_importaciones
+else:
+    df_filtered = df_importaciones[df_importaciones['SKU del Producto'] == selected_sku]
+
+# Agrupar los datos por CATEGORIA, PRODUCTO y calcular el STOCK INICIAL total
+grouped_data = df_filtered.groupby(['CATEGORIA', 'PRODUCTO'])['STOCK INICIAL'].sum().reset_index()
+
+# Calcular el total de STOCK INICIAL
+total_stock = grouped_data['STOCK INICIAL'].sum()
+st.markdown(f"**Total de Stock Inicial:** {total_stock}")
+
+def create_nested_data(df):
+    nested_data = []
+    for fecha in df['Fecha_Importacion'].unique():
+        fecha_data = df[df['Fecha_Importacion'] == fecha]
+        total_fecha = fecha_data['STOCK INICIAL'].sum()
+        
+        # Agrupar por categoría, producto y sumar el STOCK INICIAL
+        grouped_data = fecha_data.groupby(['CATEGORIA', 'PRODUCTO'])['STOCK INICIAL'].sum().reset_index()
+        nested_data.append({
+            "Fecha": fecha,
+            "Total": total_fecha,
+            "Detalles": grouped_data
+        })
+    
+    return nested_data
+
+nested_data = create_nested_data(df_filtered)
+
+st.markdown("**Detalle de Importaciones por Fecha**")
+# Mostrar los datos de manera expandible y ordenada
+for item in nested_data:
+    with st.expander(f"Fecha: {item['Fecha']}  |  **Total: {item['Total']}** unidades"):
+        st.markdown(f"**Fecha de Importación:** `{item['Fecha']}`")
+        st.markdown(f"**Total de Stock Inicial:** `{item['Total']}`")
+        # Mostrar detalles en una tabla
+        st.markdown("**Desglose por Categoría y Producto:**")
+        detalles_df = item["Detalles"]
+        st.dataframe(detalles_df, use_container_width=True)
+
+st.markdown("___")
+
+
+
+
+
