@@ -461,7 +461,16 @@ else:
         showlegend=True
              ))    
 
-
+    # Add the 'cantidad vendida' line at x=0 with hover text
+    fig.add_trace(go.Scatter(
+        x=[0],
+        y=[row['Categoria']],
+        mode='lines+markers',
+        line=dict(color='red', dash='dash'),
+        name='Cantidad Vendida (0%)',
+        hoverinfo='text',
+        text=['Cantidad Vendida: 0%']
+    ))
     
     # Update layout with annotation
     fig.update_layout(
