@@ -382,7 +382,6 @@ else:
 
 
 
-
 def create_nested_data(df):
     nested_data = []
     for fecha in df['fecha_importacion'].unique():
@@ -399,20 +398,32 @@ def create_nested_data(df):
 
 nested_data = create_nested_data(df_importaciones)
 
-st.subheader("Detalle de Importaciones por Fecha")
+st.markdown("## 📊 **Detalle de Importaciones por Fecha**")
 
-# Crear un DataFrame para mostrar en la tabla
-table_data = []
+# Mostrar los datos de manera expandible y ordenada
 for item in nested_data:
-    table_data.append({"Fecha": item["Fecha"], "Total": item["Total"]})
-    for detail in item["Detalles"].itertuples(index=False):
-        table_data.append({"Fecha": "", "Total": f"• {detail.Categoria}: {detail.cantidad}"})
+    with st.expander(f"Fecha: {item['Fecha']}  |  **Total: {item['Total']}** unidades"):
+        st.markdown(f"**Fecha de Importación:** `{item['Fecha']}`")
+        st.markdown(f"**Total de Unidades Importadas:** `{item['Total']}`")
 
-# Convertir a DataFrame
-df_table = pd.DataFrame(table_data)
+        # Mostrar detalles en una tabla
+        st.markdown("**Desglose por Categoría:**")
+        detalles_df = item["Detalles"].reset_index(drop=True)
+        detalles_df.columns = ["Categoría", "Cantidad"]
 
-# Mostrar la tabla
-st.dataframe(df_table, use_container_width=True)
+        # Aplicar estilo al dataframe de detalles
+        styled_table = detalles_df.style.set_properties(**{
+            'background-color': '#f5f5f5',
+            'color': '#333',
+            'border-color': '#ffffff',
+            'border-width': '1px',
+            'border-style': 'solid',
+            'font-size': '14px',
+            'text-align': 'left'
+        })
+        st.dataframe(styled_table, use_container_width=True)
+
+st.markdown("___")
 
 
 
