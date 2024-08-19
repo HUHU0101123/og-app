@@ -355,8 +355,7 @@ else:
             y=[row['Categoria']],
             name=row['Categoria'],
             orientation='h',
-            hovertemplate=f'Total Importado: {row["cantidad"]}<br>Total Vendido %: 0%<extra></extra>',
-            marker=dict(color='rgba(255, 255, 255, 0.5)')
+            hovertemplate=f'Total Importado: {row["cantidad"]}<br>Total Vendido %: 0%<extra></extra>'
         ))
 
         # Add the 'cantidad vendida' line at x=0
