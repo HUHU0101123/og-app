@@ -354,7 +354,9 @@ else:
             x=[row['cantidad']],
             y=[row['Categoria']],
             name=row['Categoria'],
-            orientation='h'
+            orientation='h',
+            hovertemplate=f'Total Importado: {row["cantidad"]}<br>Total Vendido %: 0%<extra></extra>',
+            marker=dict(color='rgba(255, 255, 255, 0.5)')
         ))
 
         # Add the 'cantidad vendida' line at x=0
@@ -362,14 +364,13 @@ else:
             x=[0],  # X position of the line
             y=[row['Categoria']],  # Y position of the line
             mode='lines+text',
-            line=dict(color='red', dash='dash'),
+            line=dict(color='white', dash='dash'),
             name='Cantidad Vendida (0%)',
             text=['0%'],  # Text to display on the line
             textposition='top right',
             showlegend=False
         ))
 
-        
     # Update layout with annotation
     fig.update_layout(
         title=f"Importaciones por Categoría y % Vendido",
@@ -386,22 +387,22 @@ else:
                 y=-0.5,  # Position annotation below the chart
                 xref='x',
                 yref='paper',
-                text="La línea roja indica la 'Cantidad Vendida' al 0% para cada categoría.",
+                text="La línea blanca indica la 'Cantidad Vendida' al 0% para cada categoría.",
                 showarrow=False,
-                font=dict(size=12, color="black"),
+                font=dict(size=12, color="white"),
                 align="center",
-                bgcolor="rgba(255, 255, 255, 0.7)"
+                bgcolor="rgba(0, 0, 0, 0.7)"
             ),
             dict(
                 x=1,
                 y=-0.5,  # Position annotation below the chart
                 xref='x',
                 yref='paper',
-                text="Nota: La línea roja representa la 'Cantidad Vendida' (0%).",
+                text="Nota: La línea blanca representa la 'Cantidad Vendida' (0%).",
                 showarrow=False,
-                font=dict(size=12, color="black"),
+                font=dict(size=12, color="white"),
                 align="center",
-                bgcolor="rgba(255, 255, 255, 0.7)"
+                bgcolor="rgba(0, 0, 0, 0.7)"
             )
         ]
     )
