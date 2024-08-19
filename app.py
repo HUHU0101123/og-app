@@ -357,7 +357,10 @@ else:
             y=[row['Categoria']],
             name=row['Categoria'],
             orientation='h',
-            hovertemplate=f'Total Importado: {row["cantidad"]}<br>Total Vendido %: 0%<extra></extra>'
+            hovertemplate=f'Total Importado: {row["cantidad"]}<br>Total Vendido: 0%<extra></extra>',
+            text=[row['cantidad']],  # Add text inside the bars
+            textposition='outside',  # Position text outside of bars
+            textfont=dict(size=14)  # Increase font size for better readability
         ))
 
         # Add the 'cantidad vendida' line at x=0
