@@ -372,7 +372,7 @@ else:
         
     # Update layout with annotation
     fig.update_layout(
-        title=f"Importaciones por Categoría y % Vendido para Fecha: {fecha_seleccionada}",
+        title=f"Importaciones por Categoría y % Vendido",
         xaxis_title="Cantidad de Prendas",
         yaxis_title="Categoría",
         yaxis=dict(type='category'),
