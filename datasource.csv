@@ -1,6 +1,0 @@
-ID,Estado del Pago,Fecha,Moneda,SKU del Producto,Cantidad de Productos,Precio del Producto,Rentabilidad del producto,Margen del producto (%),Descuento del producto,Región de Envío,Nombre del método de envío,Cupones,Nombre de Pago,Rut
-1001,Cancelada,2024-07-27 17:17,CLP,,1,"15000,00","10082,00",74.68,"1500,00",,,,Webpay.cl 2.0,
-1002,Cancelada,2024-07-27 17:47,CLP,,1,"15000,00","10082,00",74.68,"1500,00",Metropolitana,Correo Ordinario,,Tarjeta (Webpay Plus),1547230970
-1004,Cancelada,2024-08-07 14:41,CLP,,1,"500,00","250,00",50.0,"0,00",Metropolitana,Despacho a domicilio con Starken (Regiones) POR PAGAR,,Paga con Webpay,2046552190
-1005,Pagado,2024-08-07 14:44,CLP,,1,"500,00","250,00",50.0,"0,00",Metropolitana,Retiro en sucursal de Starken (Regiones) POR PAGAR,,Paga con Webpay,2046552190
-1006,Cancelada,2024-08-07 16:14,CLP,CROP_PEDRERIA1_PL_TU,1,"16000,00","6296,00",43.72,"1600,00",Metropolitana,Retiro en sucursal de Starken (Regiones) POR PAGAR,D1B83E,Transferencia Bancaria,1547230990
