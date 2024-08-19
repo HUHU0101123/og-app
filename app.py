@@ -379,13 +379,41 @@ else:
 
     st.plotly_chart(fig, use_container_width=True)
 
-    # Mostrar resumen detallado
-    st.subheader("Detalle de Importaciones por Fecha")
-    for fecha in importaciones_agrupadas['fecha_importacion'].unique():
-        st.write(f"Fecha: {fecha}")
-        datos_fecha = importaciones_agrupadas[importaciones_agrupadas['fecha_importacion'] == fecha]
-        total_prendas = datos_fecha['cantidad'].sum()
-        st.write(f"Total de prendas importadas: {total_prendas}")
-        for _, row in datos_fecha.iterrows():
-            st.write(f"- {row['Categoria']}: {row['cantidad']} prendas")
-        st.write("---")
+
+
+
+# Crear una tabla anidada
+def create_nested_table(df):
+    # Agrupar por fecha y categoría
+    grouped = df.groupby(['fecha_importacion', 'Categoria'])['cantidad'].sum().reset_index()
+    
+    # Crear un DataFrame con estructura multinivel
+    table = pd.DataFrame(columns=['Fecha', 'Categoría', 'Cantidad'])
+    
+    for fecha in grouped['fecha_importacion'].unique():
+        fecha_data = grouped[grouped['fecha_importacion'] == fecha]
+        total_fecha = fecha_data['cantidad'].sum()
+        
+        # Añadir fila de fecha
+        table = table.append({
+            'Fecha': fecha,
+            'Categoría': 'Total',
+            'Cantidad': total_fecha
+        }, ignore_index=True)
+        
+        # Añadir filas de categorías
+        for _, row in fecha_data.iterrows():
+            table = table.append({
+                'Fecha': '',
+                'Categoría': f"  • {row['Categoria']}",
+                'Cantidad': row['cantidad']
+            }, ignore_index=True)
+    
+    return table
+
+# Crear la tabla anidada
+nested_table = create_nested_table(df_importaciones)
+
+# Mostrar la tabla en Streamlit
+st.subheader("Detalle de Importaciones por Fecha")
+st.dataframe(nested_table, width=700, height=400)
