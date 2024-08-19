@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 from datetime import datetime
+import plotly.graph_objects as go
 
 # Configuración de la página
 st.set_page_config(page_title="Dashboard de Ventas", layout="wide")
@@ -336,36 +337,49 @@ else:
     # Mostrar la tabla de importaciones
     st.subheader("Resumen de Importaciones")
 
-    # Convertir fecha_importacion a string antes de agrupar
+    # Convertir fecha_importacion a string
     df_importaciones['fecha_importacion'] = df_importaciones['fecha_importacion'].astype(str)
 
-    # Agrupar por fecha de importación y categoría
-    importaciones_agrupadas = df_importaciones.groupby(['fecha_importacion', 'Categoria'])['cantidad'].sum().reset_index()
+    # Agrupar por fecha de importación
+    importaciones_agrupadas = df_importaciones.groupby('fecha_importacion')['cantidad'].sum().reset_index()
 
-    # Crear un gráfico de barras apiladas
-    fig = px.bar(importaciones_agrupadas, 
-                 x='fecha_importacion', 
-                 y='cantidad',
-                 color='Categoria',
-                 title="Importaciones por Fecha y Categoría",
-                 labels={'cantidad': 'Cantidad de Prendas', 'fecha_importacion': 'Fecha de Importación', 'Categoria': 'Categoría'})
+    # Crear el gráfico
+    fig = go.Figure()
 
+    # Añadir barras para cada fecha de importación
+    fig.add_trace(go.Bar(
+        x=importaciones_agrupadas['fecha_importacion'],
+        y=importaciones_agrupadas['cantidad'],
+        name='Total Importado',
+        text=importaciones_agrupadas['cantidad'],
+        textposition='outside'
+    ))
+
+    # Añadir una línea para "vendidos" (por ahora, en la parte superior de cada barra)
+    fig.add_trace(go.Scatter(
+        x=importaciones_agrupadas['fecha_importacion'],
+        y=importaciones_agrupadas['cantidad'],
+        mode='markers',
+        marker=dict(color='yellow', size=10, symbol='star'),
+        name='Vendidos (0)'
+    ))
+
+    # Actualizar el diseño del gráfico
     fig.update_layout(
+        title="Importaciones por Fecha",
         xaxis_title="Fecha de Importación",
         yaxis_title="Cantidad de Prendas",
-        barmode='stack',
-        xaxis={'type': 'category'}  # Esto fuerza a tratar las fechas como categorías discretas
+        barmode='group',
+        height=500,
+        showlegend=True
     )
 
     st.plotly_chart(fig, use_container_width=True)
 
     # Mostrar resumen detallado
     st.subheader("Detalle de Importaciones por Fecha")
-    for fecha in importaciones_agrupadas['fecha_importacion'].unique():
-        st.write(f"Fecha: {fecha}")
-        datos_fecha = importaciones_agrupadas[importaciones_agrupadas['fecha_importacion'] == fecha]
-        total_prendas = datos_fecha['cantidad'].sum()
-        st.write(f"Total de prendas importadas: {total_prendas}")
-        for _, row in datos_fecha.iterrows():
-            st.write(f"- {row['Categoria']}: {row['cantidad']} prendas")
+    for _, row in importaciones_agrupadas.iterrows():
+        st.write(f"Fecha: {row['fecha_importacion']}")
+        st.write(f"Total de prendas importadas: {row['cantidad']}")
+        st.write("Vendidos: 0")
         st.write("---")
