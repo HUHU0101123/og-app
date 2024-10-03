@@ -60,10 +60,16 @@ def pagina_ventas():
     st.sidebar.header("Filtros")
     
     # Manejo seguro de las fechas mínima y máxima
-    min_date = df['Fecha'].min()
-    max_date = df['Fecha'].max()
-    if pd.isnull(min_date) or pd.isnull(max_date):
-        st.error("No hay fechas válidas en los datos. Por favor, revise el formato de las fechas en el archivo CSV.")
+    try:
+        df['Fecha'] = pd.to_datetime(df['Fecha'], errors='coerce')
+        valid_dates = df['Fecha'].dropna()
+        if valid_dates.empty:
+            st.error("No hay fechas válidas en los datos. Por favor, revise el formato de las fechas en el archivo CSV.")
+            return
+        min_date = valid_dates.min().date()
+        max_date = valid_dates.max().date()
+    except Exception as e:
+        st.error(f"Error al procesar las fechas: {str(e)}")
         return
     
     date_range = st.sidebar.date_input("Rango de fechas", [min_date, max_date])
