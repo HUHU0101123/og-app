@@ -269,7 +269,7 @@ def pagina_ventas():
             labels={'Ventas_Netas': 'Ventas Netas'},
             hover_data={'SKU del Producto': True, 'Cantidad_Productos': True}
         )
-st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, use_container_width=True)
     
     with col2:
         # Ventas diarias: Ventas Totales, Ventas Netas y Ganancia Neta
