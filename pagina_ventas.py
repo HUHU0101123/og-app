@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 from datetime import datetime, date
+from datetime import timedelta
 
 def pagina_ventas():
     st.title("Dashboard de Ventas")
@@ -72,6 +73,12 @@ def pagina_ventas():
         return
     
     date_range = st.sidebar.date_input("Rango de fechas", [min_date, max_date])
+
+    # Convert date_range to datetime and adjust the end date
+    date_range_dt = [
+        pd.to_datetime(date_range[0]),
+        pd.to_datetime(date_range[1]) + timedelta(days=1) - timedelta(microseconds=1)
+    ]
 
     # Otros filtros
     categories = st.sidebar.multiselect("Categorías", options=df['Categoria'].unique() if 'Categoria' in df.columns else [])
