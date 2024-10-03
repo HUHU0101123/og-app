@@ -30,7 +30,7 @@ def pagina_ventas():
     # Preprocesamiento de datos
     def preprocess_data(df_main, df_categorias):
         try:
-            df_main['Fecha'] = pd.to_datetime(df_main['Fecha'], errors='coerce').dt.date
+            df_main['Fecha'] = pd.to_datetime(df_main['Fecha'], errors='coerce')
             df = pd.merge(df_main, df_categorias, on='SKU del Producto', how='left')
             columns_to_fill = ['Estado del Pago', 'Fecha', 'Moneda', 'Región de Envío', 'Nombre del método de envío', 'Cupones']
             df[columns_to_fill] = df.groupby('ID')[columns_to_fill].fillna(method='ffill')
@@ -61,7 +61,6 @@ def pagina_ventas():
     
     # Manejo seguro de las fechas mínima y máxima
     try:
-        df['Fecha'] = pd.to_datetime(df['Fecha'], errors='coerce')
         valid_dates = df['Fecha'].dropna()
         if valid_dates.empty:
             st.error("No hay fechas válidas en los datos. Por favor, revise el formato de las fechas en el archivo CSV.")
@@ -73,6 +72,13 @@ def pagina_ventas():
         return
     
     date_range = st.sidebar.date_input("Rango de fechas", [min_date, max_date])
+
+    # Otros filtros
+    categories = st.sidebar.multiselect("Categorías", options=df['Categoria'].unique() if 'Categoria' in df.columns else [])
+    sale_type = st.sidebar.multiselect("Tipo de Venta", options=df['Tipo de Venta'].unique() if 'Tipo de Venta' in df.columns else [])
+    order_ids = st.sidebar.text_input("IDs de Orden de Compra (separados por coma)", "")
+    regions = st.sidebar.multiselect("Región de Envío", options=df['Región de Envío'].unique() if 'Región de Envío' in df.columns else [])
+    payment_status = st.sidebar.multiselect("Estado del Pago", options=df['Estado del Pago'].unique() if 'Estado del Pago' in df.columns else [])
 
     # Convertir date_range a datetime para compatibilidad con df['Fecha']
     date_range_dt = [pd.to_datetime(date) for date in date_range]
@@ -255,7 +261,6 @@ def pagina_ventas():
     
     # Gráficos
     col1, col2 = st.columns(2)
-    
     with col1:
         # Calcular las ventas netas y cantidad de productos por SKU y categoría
         sales_data = filtered_df.groupby(['Categoria', 'SKU del Producto']).agg(
