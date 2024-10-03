@@ -90,7 +90,7 @@ def pagina_ventas():
     # Date range selection
     date_range = st.sidebar.date_input("Rango de fechas", [min_date, max_date])
 
-    # Convert date_range to datetime
+    # Convert date_range to datetime and adjust the end date
     start_date = pd.to_datetime(date_range[0])
     end_date = pd.to_datetime(date_range[1]) + timedelta(days=1) - timedelta(microseconds=1)
 
@@ -102,7 +102,7 @@ def pagina_ventas():
     payment_status = st.sidebar.multiselect("Estado del Pago", options=df['Estado del Pago'].unique() if 'Estado del Pago' in df.columns else [])
     payment_names = st.sidebar.multiselect("Nombre de Pago", options=df['Nombre de Pago'].unique() if 'Nombre de Pago' in df.columns else [])
 
-    # Aplicar filtros
+    # Apply filters
     mask = (df['Fecha'] >= start_date) & (df['Fecha'] <= end_date)
     if 'Categoria' in df.columns and categories:
         mask &= df['Categoria'].isin(categories)
