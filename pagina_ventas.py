@@ -33,17 +33,22 @@ def pagina_ventas():
             df_main['Fecha'] = pd.to_datetime(df_main['Fecha'], errors='coerce')
             df = pd.merge(df_main, df_categorias, on='SKU del Producto', how='left')
 
+            # Fill relevant columns based on Sale ID
             columns_to_fill = ['Estado del Pago', 'Fecha', 'Moneda', 'Región de Envío', 'Nombre del método de envío', 'Cupones', 'Nombre de Pago']
             df[columns_to_fill] = df.groupby('ID')[columns_to_fill].fillna(method='ffill')
 
+            # Convert columns to numeric
             numeric_columns = ['Cantidad de Productos', 'Precio del Producto', 'Margen del producto (%)', 'Descuento del producto']
             for col in numeric_columns:
                 df[col] = pd.to_numeric(df[col].astype(str).str.replace(',', '.'), errors='coerce')
 
+            # Calculate total products and sale type
             df['Total Productos'] = df.groupby('ID')['Cantidad de Productos'].transform('sum')
             df['Tipo de Venta'] = df['Total Productos'].apply(lambda x: 'Mayorista' if x >= 6 else 'Detalle')
 
+            # Net Sales
             df['Ventas Netas'] = (df['Precio del Producto'] - df['Descuento del producto']) * df['Cantidad de Productos']
+
             return df
         except Exception as e:
             st.error(f"Error en el preprocesamiento de datos: {str(e)}")
@@ -75,9 +80,10 @@ def pagina_ventas():
         st.error(f"Error al procesar las fechas: {str(e)}")
         return
 
+    # Date input filter
     date_range = st.sidebar.date_input("Rango de fechas", [min_date, max_date])
 
-    # Otros filtros
+    # Other filters
     categories = st.sidebar.multiselect("Categorías", options=df['Categoria'].unique() if 'Categoria' in df.columns else [])
     sale_type = st.sidebar.multiselect("Tipo de Venta", options=df['Tipo de Venta'].unique() if 'Tipo de Venta' in df.columns else [])
     order_ids = st.sidebar.text_input("IDs de Orden de Compra (separados por coma)", "")
@@ -160,8 +166,8 @@ def pagina_ventas():
         f"""
         <div style="background-color: #D3D3D3; padding: 10px; border-radius: 5px; text-align: center;">
             <strong style="color: black;">Ventas Netas</strong><br>
-            <span style="color: black;">{format_chilean_currency(ventas_netas)}</span>
-            <p style='font-size:10px; color: black;'>Ventas totales menos descuentos.</p>
+            <span style="color: black;">{format_chilean_currency(ventas_netas_despues_impuestos)}</span>
+            <p style='font-size:10px; color: black;'>Ventas netas después de impuestos (19%).</p>
         </div>
         """,
         unsafe_allow_html=True
@@ -186,4 +192,3 @@ def pagina_ventas():
 # Ejecución principal
 if __name__ == "__main__":
     pagina_ventas()
-
