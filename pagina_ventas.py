@@ -73,24 +73,22 @@ def pagina_ventas():
         return
     
     date_range = st.sidebar.date_input("Rango de fechas", [min_date, max_date])
-    categories = st.sidebar.multiselect("Categorías", options=df['Categoria'].unique())
-    sale_type = st.sidebar.multiselect("Tipo de Venta", options=df['Tipo de Venta'].unique())
-    order_ids = st.sidebar.text_input("IDs de Orden de Compra (separados por coma)", "")
-    regions = st.sidebar.multiselect("Región de Envío", options=df['Región de Envío'].unique())
-    payment_status = st.sidebar.multiselect("Estado del Pago", options=df['Estado del Pago'].unique())
+
+    # Convertir date_range a datetime para compatibilidad con df['Fecha']
+    date_range_dt = [pd.to_datetime(date) for date in date_range]
 
     # Aplicar filtros
-    mask = (df['Fecha'] >= date_range[0]) & (df['Fecha'] <= date_range[1])
-    if categories:
+    mask = (df['Fecha'] >= date_range_dt[0]) & (df['Fecha'] <= date_range_dt[1])
+    if 'Categoria' in df.columns and categories:
         mask &= df['Categoria'].isin(categories)
-    if sale_type:
+    if 'Tipo de Venta' in df.columns and sale_type:
         mask &= df['Tipo de Venta'].isin(sale_type)
     if order_ids:
         order_id_list = [int(id.strip()) for id in order_ids.split(',') if id.strip().isdigit()]
         mask &= df['ID'].isin(order_id_list)
-    if regions:
+    if 'Región de Envío' in df.columns and regions:
         mask &= df['Región de Envío'].isin(regions)
-    if payment_status:
+    if 'Estado del Pago' in df.columns and payment_status:
         mask &= df['Estado del Pago'].isin(payment_status)
     
     filtered_df = df[mask]
