@@ -30,16 +30,37 @@ def pagina_ventas():
     # Preprocesamiento de datos
     def preprocess_data(df_main, df_categorias):
         try:
+            # Convertir 'Fecha' a datetime
             df_main['Fecha'] = pd.to_datetime(df_main['Fecha'], errors='coerce')
+            
+            # Identificar las columnas que necesitan ser procesadas
+            columns_to_process = ['Estado del Pago', 'Fecha', 'Moneda', 'Región de Envío', 
+                                  'Nombre del método de envío', 'Cupones', 'Nombre de Pago', 'Rut']
+            
+            # Función para propagar valores dentro de cada grupo de ID
+            def propagate_values(group):
+                for col in columns_to_process:
+                    first_valid = group[col].first_valid_index()
+                    if first_valid is not None:
+                        group.loc[first_valid:, col] = group.loc[first_valid, col]
+                return group
+
+            # Aplicar la función de propagación a cada grupo de ID
+            df_main = df_main.groupby('ID', group_keys=False).apply(propagate_values)
+            
+            # Fusionar con el dataframe de categorías
             df = pd.merge(df_main, df_categorias, on='SKU del Producto', how='left')
-            columns_to_fill = ['Estado del Pago', 'Fecha', 'Moneda', 'Región de Envío', 'Nombre del método de envío', 'Cupones', 'Nombre de Pago']
-            df[columns_to_fill] = df.groupby('ID')[columns_to_fill].fillna(method='ffill')
+            
+            # Convertir columnas numéricas
             numeric_columns = ['Cantidad de Productos', 'Precio del Producto', 'Margen del producto (%)', 'Descuento del producto']
             for col in numeric_columns:
                 df[col] = pd.to_numeric(df[col].astype(str).str.replace(',', '.'), errors='coerce')
+            
+            # Calcular campos adicionales
             df['Total Productos'] = df.groupby('ID')['Cantidad de Productos'].transform('sum')
             df['Tipo de Venta'] = df['Total Productos'].apply(lambda x: 'Mayorista' if x >= 6 else 'Detalle')
             df['Ventas Netas'] = (df['Precio del Producto'] - df['Descuento del producto']) * df['Cantidad de Productos']
+            
             return df
         except Exception as e:
             st.error(f"Error en el preprocesamiento de datos: {str(e)}")
@@ -244,7 +265,6 @@ def pagina_ventas():
         """,
         unsafe_allow_html=True
     )
-    
     # Descuento Promedio %
     descuento_promedio = (filtered_df['Descuento del producto'].sum() / ventas_totales * 100) if ventas_totales > 0 else 0
     col2.markdown(
@@ -257,6 +277,7 @@ def pagina_ventas():
         """,
         unsafe_allow_html=True
     )
+    
     # Dejar las otras columnas vacías
     col3.markdown("")
     col4.markdown("")
