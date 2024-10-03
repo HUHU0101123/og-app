@@ -1,12 +1,12 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-from datetime import datetime
+from datetime import datetime, date
 
 def pagina_ventas():
     st.title("Dashboard de Ventas")
 
-        # Función para formatear números al estilo chileno
+    # Función para formatear números al estilo chileno
     def format_chilean_currency(value, is_percentage=False):
         if is_percentage:
             return f"{value:.2f}%".replace('.', ',')
@@ -14,47 +14,65 @@ def pagina_ventas():
             return f"${value:,.0f}".replace(',', 'X').replace('.', ',').replace('X', '.')
     
     # Cargar los archivos CSV desde GitHub sin caché
+    @st.cache_data(ttl=3600)
     def load_data():
-        version = datetime.now().strftime("%Y%m%d%H%M%S")
-        url_main = f"https://raw.githubusercontent.com/HUHU0101123/og-app/main/datasource.csv?v={version}"
-        df_main = pd.read_csv(url_main)
-        url_categorias = f"https://raw.githubusercontent.com/HUHU0101123/og-app/main/categorias.csv?v={version}"
-        df_categorias = pd.read_csv(url_categorias)
-        return df_main, df_categorias
+        try:
+            version = datetime.now().strftime("%Y%m%d%H%M%S")
+            url_main = f"https://raw.githubusercontent.com/HUHU0101123/og-app/main/datasource.csv?v={version}"
+            df_main = pd.read_csv(url_main)
+            url_categorias = f"https://raw.githubusercontent.com/HUHU0101123/og-app/main/categorias.csv?v={version}"
+            df_categorias = pd.read_csv(url_categorias)
+            return df_main, df_categorias
+        except Exception as e:
+            st.error(f"Error al cargar los datos: {str(e)}")
+            return None, None
     
     # Preprocesamiento de datos
     def preprocess_data(df_main, df_categorias):
-        df_main['Fecha'] = pd.to_datetime(df_main['Fecha']).dt.date
-        df = pd.merge(df_main, df_categorias, on='SKU del Producto', how='left')
-        columns_to_fill = ['Estado del Pago', 'Fecha', 'Moneda', 'Región de Envío', 'Nombre del método de envío', 'Cupones']
-        df[columns_to_fill] = df.groupby('ID')[columns_to_fill].fillna(method='ffill')
-        numeric_columns = ['Cantidad de Productos', 'Precio del Producto', 'Margen del producto (%)', 'Descuento del producto']
-        for col in numeric_columns:
-            if df[col].dtype == 'object':
-                df[col] = df[col].str.replace(',', '.').astype(float)
-            else:
-                df[col] = df[col].astype(float)
-        df['Total Productos'] = df.groupby('ID')['Cantidad de Productos'].transform('sum')
-        df['Tipo de Venta'] = df['Total Productos'].apply(lambda x: 'Mayorista' if x >= 6 else 'Detalle')
-        df['Ventas Netas'] = (df['Precio del Producto'] - df['Descuento del producto']) * df['Cantidad de Productos']
-        return df
+        try:
+            df_main['Fecha'] = pd.to_datetime(df_main['Fecha'], errors='coerce').dt.date
+            df = pd.merge(df_main, df_categorias, on='SKU del Producto', how='left')
+            columns_to_fill = ['Estado del Pago', 'Fecha', 'Moneda', 'Región de Envío', 'Nombre del método de envío', 'Cupones']
+            df[columns_to_fill] = df.groupby('ID')[columns_to_fill].fillna(method='ffill')
+            numeric_columns = ['Cantidad de Productos', 'Precio del Producto', 'Margen del producto (%)', 'Descuento del producto']
+            for col in numeric_columns:
+                df[col] = pd.to_numeric(df[col].astype(str).str.replace(',', '.'), errors='coerce')
+            df['Total Productos'] = df.groupby('ID')['Cantidad de Productos'].transform('sum')
+            df['Tipo de Venta'] = df['Total Productos'].apply(lambda x: 'Mayorista' if x >= 6 else 'Detalle')
+            df['Ventas Netas'] = (df['Precio del Producto'] - df['Descuento del producto']) * df['Cantidad de Productos']
+            return df
+        except Exception as e:
+            st.error(f"Error en el preprocesamiento de datos: {str(e)}")
+            return None
     
     # Cargar y preprocesar los datos
     df_main, df_categorias = load_data()
+    if df_main is None or df_categorias is None:
+        st.error("No se pudieron cargar los datos. Por favor, intente nuevamente más tarde.")
+        return
+
     df = preprocess_data(df_main, df_categorias)
-    
-    # Título de la aplicación
-    #st.title("Dashboard de Ventas")
-    
+    if df is None:
+        st.error("Error en el preprocesamiento de los datos. Por favor, revise el formato de los archivos CSV.")
+        return
+
     # Filtros en la barra lateral
     st.sidebar.header("Filtros")
-    date_range = st.sidebar.date_input("Rango de fechas", [df['Fecha'].min(), df['Fecha'].max()])
+    
+    # Manejo seguro de las fechas mínima y máxima
+    min_date = df['Fecha'].min()
+    max_date = df['Fecha'].max()
+    if pd.isnull(min_date) or pd.isnull(max_date):
+        st.error("No hay fechas válidas en los datos. Por favor, revise el formato de las fechas en el archivo CSV.")
+        return
+    
+    date_range = st.sidebar.date_input("Rango de fechas", [min_date, max_date])
     categories = st.sidebar.multiselect("Categorías", options=df['Categoria'].unique())
     sale_type = st.sidebar.multiselect("Tipo de Venta", options=df['Tipo de Venta'].unique())
     order_ids = st.sidebar.text_input("IDs de Orden de Compra (separados por coma)", "")
     regions = st.sidebar.multiselect("Región de Envío", options=df['Región de Envío'].unique())
-    payment_status = st.sidebar.multiselect("Estado del Pago", options=df['Estado del Pago'].unique())  # Filtro para Estado del Pago
-    
+    payment_status = st.sidebar.multiselect("Estado del Pago", options=df['Estado del Pago'].unique())
+
     # Aplicar filtros
     mask = (df['Fecha'] >= date_range[0]) & (df['Fecha'] <= date_range[1])
     if categories:
@@ -62,15 +80,15 @@ def pagina_ventas():
     if sale_type:
         mask &= df['Tipo de Venta'].isin(sale_type)
     if order_ids:
-        order_id_list = [int(id.strip()) for id in order_ids.split(',')]
+        order_id_list = [int(id.strip()) for id in order_ids.split(',') if id.strip().isdigit()]
         mask &= df['ID'].isin(order_id_list)
     if regions:
         mask &= df['Región de Envío'].isin(regions)
-    if payment_status:  # Filtrar por Estado del Pago
+    if payment_status:
         mask &= df['Estado del Pago'].isin(payment_status)
     
     filtered_df = df[mask]
-    
+
     # Calcular las ventas totales
     ventas_totales = (filtered_df['Precio del Producto'] * filtered_df['Cantidad de Productos']).sum()
     
@@ -90,8 +108,8 @@ def pagina_ventas():
     beneficio_bruto_despues_impuestos = beneficio_bruto * (1 - 0.19)
     
     # Calcular el margen
-    margen_bruto = (beneficio_bruto / ventas_netas) * 100
-    
+    margen_bruto = (beneficio_bruto / ventas_netas) * 100 if ventas_netas > 0 else 0
+
     # Resumen de Ventas
     st.header("Resumen de Ventas")
     col1, col2, col3, col4 = st.columns(4)
@@ -215,11 +233,12 @@ def pagina_ventas():
     )
     
     # Descuento Promedio %
+    descuento_promedio = (filtered_df['Descuento del producto'].sum() / ventas_totales * 100) if ventas_totales > 0 else 0
     col2.markdown(
         f"""
         <div style="background-color: #D3D3D3; padding: 10px; border-radius: 5px; text-align: center;">
             <strong style="color: black;">Descuento Promedio %</strong><br>
-            <span style="color: black;">{(filtered_df['Descuento del producto'].sum() / ventas_totales * 100):.2f}%</span>
+            <span style="color: black;">{descuento_promedio:.2f}%</span>
             <p style='font-size:10px; color: black;'>Porcentaje promedio de descuento aplicado.</p>
         </div>
         """,
@@ -250,7 +269,7 @@ def pagina_ventas():
             labels={'Ventas_Netas': 'Ventas Netas'},
             hover_data={'SKU del Producto': True, 'Cantidad_Productos': True}
         )
-        st.plotly_chart(fig, use_container_width=True)
+st.plotly_chart(fig, use_container_width=True)
     
     with col2:
         # Ventas diarias: Ventas Totales, Ventas Netas y Ganancia Neta
@@ -303,3 +322,5 @@ def pagina_ventas():
     st.subheader("Datos Detallados")
     st.dataframe(filtered_df)
 
+if __name__ == "__main__":
+    pagina_ventas()
