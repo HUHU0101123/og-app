@@ -162,7 +162,7 @@ def pagina_ventas():
         <div style="background-color: #D3D3D3; padding: 10px; border-radius: 5px; text-align: center;">
             <strong style="color: black;">Ventas Netas</strong><br>
             <span style="color: black;">{format_chilean_currency(ventas_netas)}</span>
-            <p style='font-size:10px; color: black;'>Ventas totales menos descuentos.</p>
+            <p style='font-size:10px; color: black;'>Ventas totales menos descuentos (Jumpseller).</p>
         </div>
         """,
         unsafe_allow_html=True
