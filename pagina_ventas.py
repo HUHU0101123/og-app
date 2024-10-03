@@ -27,39 +27,29 @@ def pagina_ventas():
             st.error(f"Error al cargar los datos: {str(e)}")
             return None, None
     
-
-    # Modificar la función de preprocesamiento de datos
+    # Preprocesamiento de datos
     def preprocess_data(df_main, df_categorias):
         try:
             # Convertir 'Fecha' a datetime
             df_main['Fecha'] = pd.to_datetime(df_main['Fecha'], errors='coerce')
             
             # Identificar las columnas que necesitan ser procesadas
-            order_columns = ['Estado del Pago', 'Fecha', 'Moneda', 'Región de Envío', 
-                             'Nombre del método de envío', 'Cupones', 'Nombre de Pago', 'Rut']
-            product_columns = ['SKU del Producto', 'Cantidad de Productos', 'Precio del Producto', 
-                               'Margen del producto (%)', 'Descuento del producto']
+            columns_to_process = ['Estado del Pago', 'Fecha', 'Moneda', 'Región de Envío', 
+                                  'Nombre del método de envío', 'Cupones', 'Nombre de Pago', 'Rut']
             
-            # Función para procesar cada grupo de ID
-            def process_group(group):
-                # Procesar columnas de orden
-                order_info = group[order_columns].dropna().iloc[0]
-                
-                # Procesar columnas de producto
-                products = group[product_columns].dropna()
-                
-                # Combinar información
-                result = pd.concat([order_info.to_frame().T] * len(products), ignore_index=True)
-                result[product_columns] = products.reset_index(drop=True)
-                result['ID'] = group.name
-                
-                return result
+            # Función para propagar valores dentro de cada grupo de ID
+            def propagate_values(group):
+                for col in columns_to_process:
+                    first_valid = group[col].first_valid_index()
+                    if first_valid is not None:
+                        group.loc[first_valid:, col] = group.loc[first_valid, col]
+                return group
 
-            # Aplicar la función de procesamiento a cada grupo de ID
-            df_processed = df_main.groupby('ID', group_keys=False).apply(process_group).reset_index(drop=True)
+            # Aplicar la función de propagación a cada grupo de ID
+            df_main = df_main.groupby('ID', group_keys=False).apply(propagate_values)
             
             # Fusionar con el dataframe de categorías
-            df = pd.merge(df_processed, df_categorias, on='SKU del Producto', how='left')
+            df = pd.merge(df_main, df_categorias, on='SKU del Producto', how='left')
             
             # Convertir columnas numéricas
             numeric_columns = ['Cantidad de Productos', 'Precio del Producto', 'Margen del producto (%)', 'Descuento del producto']
@@ -165,6 +155,112 @@ def pagina_ventas():
             <strong style="color: black;">Ventas Totales</strong><br>
             <span style="color: black;">{format_chilean_currency(ventas_totales)}</span>
             <p style='font-size:10px; color: black;'>Ingresos totales antes de descuentos y ajustes.</p>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+    
+    # Descuentos Aplicados
+    col2.markdown(
+        f"""
+        <div style="background-color: #D3D3D3; padding: 10px; border-radius: 5px; text-align: center;">
+            <strong style="color: black;">Descuentos Aplicados</strong><br>
+            <span style="color: black;">{format_chilean_currency(filtered_df['Descuento del producto'].sum())}</span>
+            <p style='font-size:10px; color: black;'>Total de descuentos otorgados en ventas.</p>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+    
+    # Ventas Netas
+    col3.markdown(
+        f"""
+        <div style="background-color: #D3D3D3; padding: 10px; border-radius: 5px; text-align: center;">
+            <strong style="color: black;">Ventas Netas</strong><br>
+            <span style="color: black;">{format_chilean_currency(ventas_netas)}</span>
+            <p style='font-size:10px; color: black;'>Ventas totales menos descuentos.</p>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+    
+    # Ventas Netas Después de Impuestos
+    col4.markdown(
+        f"""
+        <div style="background-color: #D3D3D3; padding: 10px; border-radius: 5px; text-align: center;">
+            <strong style="color: black;">Ventas Netas Después de Impuestos</strong><br>
+            <span style="color: black;">{format_chilean_currency(ventas_netas_despues_impuestos)}</span>
+            <p style='font-size:10px; color: black;'>Ventas netas menos impuestos del 19%.</p>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+    
+    # Métricas Adicionales
+    st.header("Métricas Adicionales")
+    col1, col2, col3, col4 = st.columns(4)
+    
+    # Cantidad de Órdenes
+    col1.markdown(
+        f"""
+        <div style="background-color: #D3D3D3; padding: 10px; border-radius: 5px; text-align: center;">
+            <strong style="color: black;">Cantidad de Órdenes</strong><br>
+            <span style="color: black;">{filtered_df['ID'].nunique()}</span>
+            <p style='font-size:10px; color: black;'>Total de órdenes procesadas.</p>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+    
+    # Ganancia Bruta
+    col2.markdown(
+        f"""
+        <div style="background-color: #D3D3D3; padding: 10px; border-radius: 5px; text-align: center;">
+            <strong style="color: black;">Ganancia Bruta</strong><br>
+            <span style="color: black;">{format_chilean_currency(beneficio_bruto)}</span>
+            <p style='font-size:10px; color: black;'>Ventas netas menos costos de adquisición del producto.</p>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+    
+    # Ganancia Neta
+    col3.markdown(
+        f"""
+        <div style="background-color: #FFCCCB; padding: 10px; border-radius: 5px; text-align: center;">
+            <strong style="color: black;">Ganancia Neta</strong><br>
+            <span style="color: black;">{format_chilean_currency(beneficio_bruto_despues_impuestos)}</span>
+            <p style="font-size:10px; color: black;">Es el dinero que realmente ganaste. Es tuyo.</p>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+    
+    # Margen
+    col4.markdown(
+        f"""
+        <div style="background-color: #FFCCCB; padding: 10px; border-radius: 5px; text-align: center;">
+            <strong style="color: black;">Margen</strong><br>
+            <span style="color: black;">{format_chilean_currency(margen_bruto, is_percentage=True)}</span>
+            <p style="font-size:10px; color: black;">% que te queda de las ventas después de pagar la inversión e impuestos.</p>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+    
+    # Añadir un espacio antes de la nueva fila
+    st.markdown("<br>", unsafe_allow_html=True)
+    
+    # Nueva fila para la Cantidad Total de Productos y Descuento Promedio %
+    col1, col2, col3, col4 = st.columns(4)
+    
+    # Cantidad Total de Productos
+    col1.markdown(
+        f"""
+        <div style="background-color: #D3D3D3; padding: 10px; border-radius: 5px; text-align: center;">
+            <strong style="color: black;">Cantidad Total de Productos</strong><br>
+            <span style="color: black;">{int(filtered_df['Cantidad de Productos'].sum())}</span>
+            <p style='font-size:10px; color: black;'>Total de productos vendidos.</p>
         </div>
         """,
         unsafe_allow_html=True
