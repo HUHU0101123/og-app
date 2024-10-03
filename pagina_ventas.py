@@ -71,6 +71,7 @@ def pagina_ventas():
         st.error(f"Error al procesar las fechas: {str(e)}")
         return
     
+    # Sidebar date input
     date_range = st.sidebar.date_input("Rango de fechas", [min_date, max_date])
 
     # Otros filtros
@@ -81,11 +82,15 @@ def pagina_ventas():
     payment_status = st.sidebar.multiselect("Estado del Pago", options=df['Estado del Pago'].unique() if 'Estado del Pago' in df.columns else [])
     payment_names = st.sidebar.multiselect("Nombre de Pago", options=df['Nombre de Pago'].unique() if 'Nombre de Pago' in df.columns else [])
 
-    # Convertir date_range a datetime para compatibilidad con df['Fecha']
+    # Convert date_range to datetime for compatibility with df['Fecha']
     date_range_dt = [pd.to_datetime(date) for date in date_range]
 
-    # Aplicar filtros
+    # Adjust the end date to include the entire last day
+    date_range_dt[1] = date_range_dt[1] + pd.Timedelta(days=1) - pd.Timedelta(seconds=1)  # End of the day
+
+    # Apply filters
     mask = (df['Fecha'] >= date_range_dt[0]) & (df['Fecha'] <= date_range_dt[1])
+
     if 'Categoria' in df.columns and categories:
         mask &= df['Categoria'].isin(categories)
     if 'Tipo de Venta' in df.columns and sale_type:
