@@ -269,58 +269,58 @@ def pagina_ventas():
             labels={'Ventas_Netas': 'Ventas Netas'},
             hover_data={'SKU del Producto': True, 'Cantidad_Productos': True}
         )
-st.plotly_chart(fig, use_container_width=True)
-    
-    with col2:
-        # Ventas diarias: Ventas Totales, Ventas Netas y Ganancia Neta
-        daily_sales = filtered_df.groupby('Fecha').agg(
-            Ventas_Totales=('Precio del Producto', lambda x: (x * filtered_df.loc[x.index, 'Cantidad de Productos']).sum()),
-            Ventas_Netas=('Ventas Netas', 'sum')
-        ).reset_index()
-    
-        # Calcular la Ganancia Neta diaria
-        daily_sales['Ganancia_Neta'] = daily_sales['Ventas_Netas'] - (daily_sales['Ventas_Netas'] * 0.19)
-    
-        if len(daily_sales) > 1:
-            # Crear un gráfico de líneas para múltiples días
-            fig = px.line(
-                daily_sales,
-                x='Fecha',
-                y=['Ventas_Totales', 'Ventas_Netas', 'Ganancia_Neta'],
-                labels={'value': 'Monto', 'variable': 'Métrica'},
-                title="Desarrollo Diario de Ventas Totales, Ventas Netas y Ganancia Neta"
+    st.plotly_chart(fig, use_container_width=True)
+        
+        with col2:
+            # Ventas diarias: Ventas Totales, Ventas Netas y Ganancia Neta
+            daily_sales = filtered_df.groupby('Fecha').agg(
+                Ventas_Totales=('Precio del Producto', lambda x: (x * filtered_df.loc[x.index, 'Cantidad de Productos']).sum()),
+                Ventas_Netas=('Ventas Netas', 'sum')
+            ).reset_index()
+        
+            # Calcular la Ganancia Neta diaria
+            daily_sales['Ganancia_Neta'] = daily_sales['Ventas_Netas'] - (daily_sales['Ventas_Netas'] * 0.19)
+        
+            if len(daily_sales) > 1:
+                # Crear un gráfico de líneas para múltiples días
+                fig = px.line(
+                    daily_sales,
+                    x='Fecha',
+                    y=['Ventas_Totales', 'Ventas_Netas', 'Ganancia_Neta'],
+                    labels={'value': 'Monto', 'variable': 'Métrica'},
+                    title="Desarrollo Diario de Ventas Totales, Ventas Netas y Ganancia Neta"
+                )
+            else:
+                # Crear un gráfico de dispersión para un solo día
+                fig = px.scatter(
+                    daily_sales,
+                    x='Fecha',
+                    y=['Ventas_Totales', 'Ventas_Netas', 'Ganancia_Neta'],
+                    labels={'value': 'Monto', 'variable': 'Métrica'},
+                    title="Desarrollo Diario de Ventas Totales, Ventas Netas y Ganancia Neta"
+                )
+        
+            # Configurar el formato de fecha en el eje X
+            fig.update_xaxes(
+                tickformat="%d-%m-%Y",  # Formato de fecha: día-mes-año
+                title="Fecha"
             )
-        else:
-            # Crear un gráfico de dispersión para un solo día
-            fig = px.scatter(
-                daily_sales,
-                x='Fecha',
-                y=['Ventas_Totales', 'Ventas_Netas', 'Ganancia_Neta'],
-                labels={'value': 'Monto', 'variable': 'Métrica'},
-                title="Desarrollo Diario de Ventas Totales, Ventas Netas y Ganancia Neta"
-            )
-    
-        # Configurar el formato de fecha en el eje X
-        fig.update_xaxes(
-            tickformat="%d-%m-%Y",  # Formato de fecha: día-mes-año
-            title="Fecha"
-        )
-    
+        
+            st.plotly_chart(fig, use_container_width=True)
+        
+        # Top productos vendidos
+        top_products = filtered_df.groupby('SKU del Producto')['Cantidad de Productos'].sum().sort_values(ascending=False).head(10)
+        fig = px.bar(top_products, x=top_products.index, y=top_products.values, title="Top 10 Productos Más Vendidos")
         st.plotly_chart(fig, use_container_width=True)
+        
+        # Descuentos por categoría
+        discounts_by_category = filtered_df.groupby('Categoria')['Descuento del producto'].sum().sort_values(ascending=False)
+        fig = px.bar(discounts_by_category, x=discounts_by_category.index, y=discounts_by_category.values, title="Descuentos por Categoría")
+        st.plotly_chart(fig, use_container_width=True)
+        
+        # Tabla de datos
+        st.subheader("Datos Detallados")
+        st.dataframe(filtered_df)
     
-    # Top productos vendidos
-    top_products = filtered_df.groupby('SKU del Producto')['Cantidad de Productos'].sum().sort_values(ascending=False).head(10)
-    fig = px.bar(top_products, x=top_products.index, y=top_products.values, title="Top 10 Productos Más Vendidos")
-    st.plotly_chart(fig, use_container_width=True)
-    
-    # Descuentos por categoría
-    discounts_by_category = filtered_df.groupby('Categoria')['Descuento del producto'].sum().sort_values(ascending=False)
-    fig = px.bar(discounts_by_category, x=discounts_by_category.index, y=discounts_by_category.values, title="Descuentos por Categoría")
-    st.plotly_chart(fig, use_container_width=True)
-    
-    # Tabla de datos
-    st.subheader("Datos Detallados")
-    st.dataframe(filtered_df)
-
-if __name__ == "__main__":
-    pagina_ventas()
+    if __name__ == "__main__":
+        pagina_ventas()
