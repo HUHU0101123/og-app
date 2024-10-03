@@ -20,6 +20,18 @@ def pagina_ventas():
             version = datetime.now().strftime("%Y%m%d%H%M%S")
             url_main = f"https://raw.githubusercontent.com/HUHU0101123/og-app/main/datasource.csv?v={version}"
             df_main = pd.read_csv(url_main)
+            
+            # Print information about the CSV file
+            st.write("CSV file info:")
+            st.write(f"Number of rows: {len(df_main)}")
+            st.write(f"Number of columns: {len(df_main.columns)}")
+            st.write("Column names:")
+            st.write(df_main.columns.tolist())
+            
+            # Print the first few rows of the entire dataframe
+            st.write("First few rows of the dataframe:")
+            st.write(df_main.head())
+    
             url_categorias = f"https://raw.githubusercontent.com/HUHU0101123/og-app/main/categorias.csv?v={version}"
             df_categorias = pd.read_csv(url_categorias)
             return df_main, df_categorias
