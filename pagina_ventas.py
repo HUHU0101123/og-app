@@ -27,29 +27,39 @@ def pagina_ventas():
             st.error(f"Error al cargar los datos: {str(e)}")
             return None, None
     
-    # Preprocesamiento de datos
+
+    # Modificar la función de preprocesamiento de datos
     def preprocess_data(df_main, df_categorias):
         try:
             # Convertir 'Fecha' a datetime
             df_main['Fecha'] = pd.to_datetime(df_main['Fecha'], errors='coerce')
             
             # Identificar las columnas que necesitan ser procesadas
-            columns_to_process = ['Estado del Pago', 'Fecha', 'Moneda', 'Región de Envío', 
-                                  'Nombre del método de envío', 'Cupones', 'Nombre de Pago', 'Rut']
+            order_columns = ['Estado del Pago', 'Fecha', 'Moneda', 'Región de Envío', 
+                             'Nombre del método de envío', 'Cupones', 'Nombre de Pago', 'Rut']
+            product_columns = ['SKU del Producto', 'Cantidad de Productos', 'Precio del Producto', 
+                               'Margen del producto (%)', 'Descuento del producto']
             
-            # Función para propagar valores dentro de cada grupo de ID
-            def propagate_values(group):
-                for col in columns_to_process:
-                    first_valid = group[col].first_valid_index()
-                    if first_valid is not None:
-                        group.loc[first_valid:, col] = group.loc[first_valid, col]
-                return group
+            # Función para procesar cada grupo de ID
+            def process_group(group):
+                # Procesar columnas de orden
+                order_info = group[order_columns].dropna().iloc[0]
+                
+                # Procesar columnas de producto
+                products = group[product_columns].dropna()
+                
+                # Combinar información
+                result = pd.concat([order_info.to_frame().T] * len(products), ignore_index=True)
+                result[product_columns] = products.reset_index(drop=True)
+                result['ID'] = group.name
+                
+                return result
 
-            # Aplicar la función de propagación a cada grupo de ID
-            df_main = df_main.groupby('ID', group_keys=False).apply(propagate_values)
+            # Aplicar la función de procesamiento a cada grupo de ID
+            df_processed = df_main.groupby('ID', group_keys=False).apply(process_group).reset_index(drop=True)
             
             # Fusionar con el dataframe de categorías
-            df = pd.merge(df_main, df_categorias, on='SKU del Producto', how='left')
+            df = pd.merge(df_processed, df_categorias, on='SKU del Producto', how='left')
             
             # Convertir columnas numéricas
             numeric_columns = ['Cantidad de Productos', 'Precio del Producto', 'Margen del producto (%)', 'Descuento del producto']
