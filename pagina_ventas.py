@@ -32,12 +32,8 @@ def pagina_ventas():
         try:
             df_main['Fecha'] = pd.to_datetime(df_main['Fecha'], errors='coerce')
             df = pd.merge(df_main, df_categorias, on='SKU del Producto', how='left')
-            
-            columns_to_fill = ['Estado del Pago', 'Fecha', 'Moneda', 'Región de Envío', 
-                               'Nombre del método de envío', 'Cupones', 'Nombre de Pago', 'Rut']
-            
-            df[columns_to_fill] = df.groupby('ID')[columns_to_fill].transform(lambda x: x.ffill().bfill())
-            
+            columns_to_fill = ['Estado del Pago', 'Fecha', 'Moneda', 'Región de Envío', 'Nombre del método de envío', 'Cupones']
+            df[columns_to_fill] = df.groupby('ID')[columns_to_fill].fillna(method='ffill')
             numeric_columns = ['Cantidad de Productos', 'Precio del Producto', 'Margen del producto (%)', 'Descuento del producto']
             for col in numeric_columns:
                 df[col] = pd.to_numeric(df[col].astype(str).str.replace(',', '.'), errors='coerce')
@@ -59,6 +55,21 @@ def pagina_ventas():
     if df is None:
         st.error("Error en el preprocesamiento de los datos. Por favor, revise el formato de los archivos CSV.")
         return
+
+    # Filtros en la barra lateral
+    st.sidebar.header("Filtros")
+    
+    # Manejo seguro de las fechas mínima y máxima
+    try:
+        valid_dates = df['Fecha'].dropna()
+        if valid_dates.empty:
+            st.error("No hay fechas válidas en los datos. Por favor, revise el formato de las fechas en el archivo CSV.")
+            return
+        min_date = valid_dates.min().date()
+        max_date = valid_dates.max().date()
+    except Exception as e:
+        st.error(f"Error al procesar las fechas: {str(e)}")
+        return
     
     date_range = st.sidebar.date_input("Rango de fechas", [min_date, max_date])
 
@@ -68,9 +79,6 @@ def pagina_ventas():
     order_ids = st.sidebar.text_input("IDs de Orden de Compra (separados por coma)", "")
     regions = st.sidebar.multiselect("Región de Envío", options=df['Región de Envío'].unique() if 'Región de Envío' in df.columns else [])
     payment_status = st.sidebar.multiselect("Estado del Pago", options=df['Estado del Pago'].unique() if 'Estado del Pago' in df.columns else [])
-    
-    # Filtro correcto: Nombre de Pago
-    payment_names = st.sidebar.multiselect("Nombre de Pago", options=df['Nombre de Pago'].unique() if 'Nombre de Pago' in df.columns else [])
 
     # Convertir date_range a datetime para compatibilidad con df['Fecha']
     date_range_dt = [pd.to_datetime(date) for date in date_range]
@@ -88,11 +96,9 @@ def pagina_ventas():
         mask &= df['Región de Envío'].isin(regions)
     if 'Estado del Pago' in df.columns and payment_status:
         mask &= df['Estado del Pago'].isin(payment_status)
-    if 'Nombre de Pago' in df.columns and payment_names:
-        mask &= df['Nombre de Pago'].isin(payment_names)
     
     filtered_df = df[mask]
-    
+
     # Calcular las ventas totales
     ventas_totales = (filtered_df['Precio del Producto'] * filtered_df['Cantidad de Productos']).sum()
     
