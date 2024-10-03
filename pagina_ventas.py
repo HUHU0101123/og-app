@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-from datetime import datetime, timedelta
+from datetime import datetime, date
 
 def pagina_ventas():
     st.title("Dashboard de Ventas")
@@ -20,18 +20,6 @@ def pagina_ventas():
             version = datetime.now().strftime("%Y%m%d%H%M%S")
             url_main = f"https://raw.githubusercontent.com/HUHU0101123/og-app/main/datasource.csv?v={version}"
             df_main = pd.read_csv(url_main)
-            
-            # Print information about the CSV file
-            st.write("CSV file info:")
-            st.write(f"Number of rows: {len(df_main)}")
-            st.write(f"Number of columns: {len(df_main.columns)}")
-            st.write("Column names:")
-            st.write(df_main.columns.tolist())
-            
-            # Print the first few rows of the entire dataframe
-            st.write("First few rows of the dataframe:")
-            st.write(df_main.head())
-    
             url_categorias = f"https://raw.githubusercontent.com/HUHU0101123/og-app/main/categorias.csv?v={version}"
             df_categorias = pd.read_csv(url_categorias)
             return df_main, df_categorias
@@ -42,8 +30,7 @@ def pagina_ventas():
     # Preprocesamiento de datos
     def preprocess_data(df_main, df_categorias):
         try:
-            # Convert 'Fecha' to datetime, but keep it timezone-naive
-            df_main['Fecha'] = pd.to_datetime(df_main['Fecha'], format='%Y-%m-%d %H:%M:%S', errors='coerce')
+            df_main['Fecha'] = pd.to_datetime(df_main['Fecha'], errors='coerce')
             df = pd.merge(df_main, df_categorias, on='SKU del Producto', how='left')
             columns_to_fill = ['Estado del Pago', 'Fecha', 'Moneda', 'Región de Envío', 'Nombre del método de envío', 'Cupones', 'Nombre de Pago']
             df[columns_to_fill] = df.groupby('ID')[columns_to_fill].fillna(method='ffill')
@@ -53,9 +40,6 @@ def pagina_ventas():
             df['Total Productos'] = df.groupby('ID')['Cantidad de Productos'].transform('sum')
             df['Tipo de Venta'] = df['Total Productos'].apply(lambda x: 'Mayorista' if x >= 6 else 'Detalle')
             df['Ventas Netas'] = (df['Precio del Producto'] - df['Descuento del producto']) * df['Cantidad de Productos']
-            
-            # Debug output
-            st.write("Date range in data:", df['Fecha'].min(), "to", df['Fecha'].max())
             return df
         except Exception as e:
             st.error(f"Error en el preprocesamiento de datos: {str(e)}")
@@ -87,12 +71,7 @@ def pagina_ventas():
         st.error(f"Error al procesar las fechas: {str(e)}")
         return
     
-    # Date range selection
     date_range = st.sidebar.date_input("Rango de fechas", [min_date, max_date])
-
-    # Convert date_range to datetime and adjust the end date
-    start_date = pd.to_datetime(date_range[0])
-    end_date = pd.to_datetime(date_range[1]) + timedelta(days=1) - timedelta(microseconds=1)
 
     # Otros filtros
     categories = st.sidebar.multiselect("Categorías", options=df['Categoria'].unique() if 'Categoria' in df.columns else [])
@@ -102,8 +81,11 @@ def pagina_ventas():
     payment_status = st.sidebar.multiselect("Estado del Pago", options=df['Estado del Pago'].unique() if 'Estado del Pago' in df.columns else [])
     payment_names = st.sidebar.multiselect("Nombre de Pago", options=df['Nombre de Pago'].unique() if 'Nombre de Pago' in df.columns else [])
 
-    # Apply filters
-    mask = (df['Fecha'] >= start_date) & (df['Fecha'] <= end_date)
+    # Convertir date_range a datetime para compatibilidad con df['Fecha']
+    date_range_dt = [pd.to_datetime(date) for date in date_range]
+
+    # Aplicar filtros
+    mask = (df['Fecha'] >= date_range_dt[0]) & (df['Fecha'] <= date_range_dt[1])
     if 'Categoria' in df.columns and categories:
         mask &= df['Categoria'].isin(categories)
     if 'Tipo de Venta' in df.columns and sale_type:
@@ -118,18 +100,7 @@ def pagina_ventas():
     if 'Nombre de Pago' in df.columns and payment_names:
         mask &= df['Nombre de Pago'].isin(payment_names)
     
-    # Debug output
-    st.write("Selected date range:", start_date, "to", end_date)
-    st.write("Number of records before filtering:", len(df))
-    st.write("Number of records after filtering:", len(df[mask]))
-
     filtered_df = df[mask]
-
-    # Show the first and last few rows of the filtered dataframe
-    st.write("First few rows of filtered data:")
-    st.write(filtered_df.head())
-    st.write("Last few rows of filtered data:")
-    st.write(filtered_df.tail())
 
     # Calcular las ventas totales
     ventas_totales = (filtered_df['Precio del Producto'] * filtered_df['Cantidad de Productos']).sum()
