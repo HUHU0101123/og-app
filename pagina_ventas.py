@@ -80,8 +80,8 @@ def pagina_ventas():
     regions = st.sidebar.multiselect("Región de Envío", options=df['Región de Envío'].unique() if 'Región de Envío' in df.columns else [])
     payment_status = st.sidebar.multiselect("Estado del Pago", options=df['Estado del Pago'].unique() if 'Estado del Pago' in df.columns else [])
     
-    # Nuevo filtro: Nombre de Pago
-    payment_names = st.sidebar.multiselect("Nombre de Pago", options=df['Nombre del método de envío'].unique() if 'Nombre del método de envío' in df.columns else [])
+    # Filtro correcto: Nombre de Pago
+    payment_names = st.sidebar.multiselect("Nombre de Pago", options=df['Nombre de Pago'].unique() if 'Nombre de Pago' in df.columns else [])
 
     # Convertir date_range a datetime para compatibilidad con df['Fecha']
     date_range_dt = [pd.to_datetime(date) for date in date_range]
@@ -99,11 +99,12 @@ def pagina_ventas():
         mask &= df['Región de Envío'].isin(regions)
     if 'Estado del Pago' in df.columns and payment_status:
         mask &= df['Estado del Pago'].isin(payment_status)
-    # Aplicar el nuevo filtro: Nombre de Pago
-    if 'Nombre del método de envío' in df.columns and payment_names:
-        mask &= df['Nombre del método de envío'].isin(payment_names)
+    # Aplicar el filtro correcto: Nombre de Pago
+    if 'Nombre de Pago' in df.columns and payment_names:
+        mask &= df['Nombre de Pago'].isin(payment_names)
     
     filtered_df = df[mask]
+    
     # Calcular las ventas totales
     ventas_totales = (filtered_df['Precio del Producto'] * filtered_df['Cantidad de Productos']).sum()
     
