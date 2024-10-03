@@ -33,24 +33,9 @@ def pagina_ventas():
             df_main['Fecha'] = pd.to_datetime(df_main['Fecha'], errors='coerce')
             df = pd.merge(df_main, df_categorias, on='SKU del Producto', how='left')
             
-            # Debug: Print column names and first few rows
-            st.write("Columns in df:", df.columns)
-            st.write("First few rows of df:", df.head())
-            
-            # Explicitly handle 'Nombre de Pago'
-            if 'Nombre de Pago' in df.columns:
-                # Fill NaN values in 'Nombre de Pago' within each group
-                df['Nombre de Pago'] = df.groupby('ID')['Nombre de Pago'].transform(lambda x: x.ffill().bfill())
-                
-                # Debug: Print unique values and value counts
-                st.write("Unique values in Nombre de Pago:", df['Nombre de Pago'].unique())
-                st.write("Value counts of Nombre de Pago:", df['Nombre de Pago'].value_counts(dropna=False))
-            else:
-                st.error("'Nombre de Pago' column not found in the dataset")
-            
-            # Handle other columns
             columns_to_fill = ['Estado del Pago', 'Fecha', 'Moneda', 'Región de Envío', 
-                               'Nombre del método de envío', 'Cupones', 'Rut']
+                               'Nombre del método de envío', 'Cupones', 'Nombre de Pago', 'Rut']
+            
             df[columns_to_fill] = df.groupby('ID')[columns_to_fill].transform(lambda x: x.ffill().bfill())
             
             numeric_columns = ['Cantidad de Productos', 'Precio del Producto', 'Margen del producto (%)', 'Descuento del producto']
@@ -59,7 +44,6 @@ def pagina_ventas():
             df['Total Productos'] = df.groupby('ID')['Cantidad de Productos'].transform('sum')
             df['Tipo de Venta'] = df['Total Productos'].apply(lambda x: 'Mayorista' if x >= 6 else 'Detalle')
             df['Ventas Netas'] = (df['Precio del Producto'] - df['Descuento del producto']) * df['Cantidad de Productos']
-            
             return df
         except Exception as e:
             st.error(f"Error en el preprocesamiento de datos: {str(e)}")
