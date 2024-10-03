@@ -32,8 +32,14 @@ def pagina_ventas():
         try:
             df_main['Fecha'] = pd.to_datetime(df_main['Fecha'], errors='coerce')
             df = pd.merge(df_main, df_categorias, on='SKU del Producto', how='left')
-            columns_to_fill = ['Estado del Pago', 'Fecha', 'Moneda', 'Región de Envío', 'Nombre del método de envío', 'Cupones']
-            df[columns_to_fill] = df.groupby('ID')[columns_to_fill].fillna(method='ffill')
+            
+            # Lista de columnas que deben propagarse a todas las filas de la misma venta
+            columns_to_fill = ['Estado del Pago', 'Fecha', 'Moneda', 'Región de Envío', 
+                               'Nombre del método de envío', 'Cupones', 'Nombre de Pago', 'Rut']
+            
+            # Propagamos los valores a todas las filas de la misma venta
+            df[columns_to_fill] = df.groupby('ID')[columns_to_fill].transform(lambda x: x.ffill().bfill())
+            
             numeric_columns = ['Cantidad de Productos', 'Precio del Producto', 'Margen del producto (%)', 'Descuento del producto']
             for col in numeric_columns:
                 df[col] = pd.to_numeric(df[col].astype(str).str.replace(',', '.'), errors='coerce')
@@ -99,7 +105,6 @@ def pagina_ventas():
         mask &= df['Región de Envío'].isin(regions)
     if 'Estado del Pago' in df.columns and payment_status:
         mask &= df['Estado del Pago'].isin(payment_status)
-    # Aplicar el filtro correcto: Nombre de Pago
     if 'Nombre de Pago' in df.columns and payment_names:
         mask &= df['Nombre de Pago'].isin(payment_names)
     
